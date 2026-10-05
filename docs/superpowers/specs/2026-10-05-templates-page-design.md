@@ -202,3 +202,17 @@ To remove: `TemplatesIndexPage`, `TemplateTile`, the `status` field and the `sma
 - **Licensing of forks.** The repo has a root `LICENSE`, but `packages/monitoring` has none, and `tiged` copies only the package folder, so a forker gets no license file. Worth a separate issue.
 - The vague wording on Home ("the look stays consistent", "Open source") that three simulated reviewers called marketing.
 - Any change to the library itself.
+
+## Verification status after the first build
+
+Checked by Claude: the site's tests, `tsc`, the production build, the two root scripts (`check:process-excerpts`, `check:templates-readme`) all pass. The new components are covered by tests in a simulated DOM (happy-dom).
+
+**Not checked, because no browser was available in the build session** (the plan's Task 12 checklist is still open and belongs to a human):
+- Whether the single neon spot on the "Run the live demo" button feels too tight against the screenshot (§5 "revisit").
+- Whether the Heads-up is easy to skim past (§5 "revisit"; the boxed callout is the fallback).
+- The `.neutral-scope` override actually removing the Accordion's expanded accent border and the secondary Button's accent colour in a real browser.
+- The dialog at about 90vw by 90vh on desktop and full-screen at 390px, its fade, and the `prefers-reduced-motion` path.
+- Esc, focus return and the focus trap in a real browser, and the dialog's place in the accessibility tree.
+- Browser Back and Android Back closing the dialog; a direct link to `#/templates/monitoring` reopening it and closing to `#/templates`.
+- The copy button on a real clipboard, and the running template loading inside the iframe (the tests do not load it).
+- `npx tiged …/packages/monitoring` and `npx cyberui-2045 init` as the start prompt describes them.

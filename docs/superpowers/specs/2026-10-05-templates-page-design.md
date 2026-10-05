@@ -237,17 +237,26 @@ Decided after the first build: excerpts are shown (short, one per principle), no
 - The vague wording on Home ("the look stays consistent", "Open source") that three simulated reviewers called marketing.
 - Any change to the library itself.
 
-## Verification status after the first build
+## Verification status
 
-Checked by Claude: the site's tests, `tsc`, the production build, the two root scripts (`check:process-excerpts`, `check:templates-readme`) all pass. The new components are covered by tests in a simulated DOM (happy-dom).
+**Automated** (Claude): the site's tests,  and production build; the monitoring package's tests,  and build; the three root checks (, , ). All pass.
 
-**Not checked, because no browser was available in the build session** (the plan's Task 12 checklist is still open and belongs to a human):
-- That the Code tab reads well at dialog width, with the excerpts in the terminal palette.
-- Whether the Copy start prompt glow is strong enough and the outlined demo button still reads as clickable on the screenshot (§5).
-- Whether the Heads-up is easy to skim past (§5 "revisit"; the boxed callout is the fallback).
-- The `.neutral-scope` override actually removing the Accordion's expanded accent border and the secondary Button's accent colour in a real browser.
-- The dialog at about 90vw by 90vh on desktop and full-screen at 390px, its fade, and the `prefers-reduced-motion` path.
-- Esc, focus return and the focus trap in a real browser, and the dialog's place in the accessibility tree.
-- Browser Back and Android Back closing the dialog; a direct link to `#/templates/monitoring` reopening it and closing to `#/templates`.
-- The copy button on a real clipboard, and the running template loading inside the iframe (the tests do not load it).
-- `npx tiged …/packages/monitoring` and `npx cyberui-2045 init` as the start prompt describes them.
+**Browser pass** (the user, on the running site) found, and the build then fixed: the dialog not centred (the library's CSS reset zeroes the  auto margin); the live preview reloading on every tab switch; no loading state; no hover state on the screenshot; no list markers (same reset); no click-outside dismissal; the Copy confirmation not visible (the library lays bottom-positioned toasts off screen); the close button going Back through clicks made inside the preview iframe (§3); scroll not resetting between pages; and several layout and copy points (duplicate heading, line wrapping, contrast inside open folds, content width, terminal palette). The glow moved from the demo button to Copy (§5).
+
+**Still not checked by anyone:**
+- The Code tab at dialog width, and the folder-map tree's alignment in the system monospace font.
+- The  override fully removing the Accordion's expanded accent border and the secondary Button's accent colour.
+- The dialog's focus ring (yellow) and active tab (cyan) are the library's raw accent, because the dialog sits outside any accent scope. Known, not fixed; the fix is to scope the dialog to the neutral accent.
+- The dialog at 390px and under ; the focus trap and focus return in a real browser; the dialog in the accessibility tree.
+- Android Back after clicking around inside the preview.
+-  and   cyberui-2045 — AI assistant setup
+
+  Non-interactive environment detected. Run one of:
+
+    npx cyberui-2045 init --claude
+    npx cyberui-2045 init --cursor
+    npx cyberui-2045 init --copilot
+    npx cyberui-2045 init --agents
+    npx cyberui-2045 init --all as the start prompt describes them.
+- That  still matches the demo after the template cleanup (the cleanup was meant not to change how it looks).
+

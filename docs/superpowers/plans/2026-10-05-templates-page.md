@@ -10,6 +10,13 @@
 
 **Spec:** [docs/superpowers/specs/2026-10-05-templates-page-design.md](../specs/2026-10-05-templates-page-design.md). Read it first: it holds the copy, the wireframe and the reasons for each choice.
 
+> **As built (added after the build):** this plan is the record of the original intent. The build differed in these ways, all recorded in the spec:
+> - Tasks 5-10 landed together because the section copy is checked against `TEMPLATES` at import, which forced the data trim before the page.
+> - `PreviewDialog` keeps both tabs mounted and closes by replacing the hash when the iframe has added history entries (spec §3); it also dismisses on a backdrop click.
+> - Copy confirms with a library toast (`top-right`), not a button label; the glow is on Copy, not on the demo button (spec §5).
+> - The Code tab shows six short verbatim excerpts and a folder tree instead of the snippets, backed by `scripts/check-code-tab.mjs` (spec §7), after a cleanup of `packages/monitoring` on its own branch.
+> - Added: loading state, hover state, scroll reset between pages (`useScrollToTopOnChange`).
+
 ## Conventions for every task
 
 - Work in `packages/site` unless a step says otherwise. Run test commands as `npx vitest run <path>` from there; `git add` paths are relative to that directory (docs live at `../../docs/...`).

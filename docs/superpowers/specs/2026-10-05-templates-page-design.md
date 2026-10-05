@@ -178,12 +178,47 @@ The user then chose the simple way for this page: a small `PreviewDialog` compon
 
 To remove: `TemplatesIndexPage`, `TemplateTile`, the `status` field and the `small` tile size, the coming-soon fallback image, the "isn't built yet" branch of `TemplatePage`, and the four placeholder entries in `TEMPLATES`. `CaseStudy` and `caseStudies.ts` hold the engineering story, which has no place in the new layout and is replaced by the examples above. Home's "N templates ready. M more coming soon." sentence and the root README's status table also change, because they were written for the placeholders.
 
+## 7. The Code tab (agreed after the first browser look; not built yet)
+
+**Purpose.** Let a developer judge how clean the template's code is. It is not a component exhibition: the template is not required to use a library component for everything (a plain `<button>` is fine), and the tab does not audit the template against the library's own guide.
+
+**What the tab does not show.** No stack line (every template is TypeScript, so it distinguishes nothing). Nothing about how the data is simulated. The current snippets (`simulation.ts`: a random walk, a capped alerts list) are engineering trivia to a visitor and are removed.
+
+**What it shows.**
+1. **The principles the code follows,** each with a link to a real file that shows it. A claim that is not true of the code does not go on the list.
+2. **A folder map** with one line of purpose per folder, each file linking to its current source on GitHub. The `data/` line says it is the one place data comes from, so it is where your own data goes.
+3. Possibly a few real files in full, chosen by a stated rule and not for how they look (open; see below).
+
+**The principles** (evidence is what a developer opens):
+
+| Principle | Evidence |
+|---|---|
+| Single source of truth | The alarm thresholds in one module that the simulation, `trend.ts` and the pages all import; chart colours from one hook (`useChartColors`); routes derived from one `ROUTES` tuple |
+| DRY | One shared tone-to-colour map used by `StatTile` and `ActionPanel` |
+| Hook-based state | `useSimulatedMetrics` holds all timers and state; components and pages are presentational |
+| No inline styles | Styling is in CSS classes; a test fails if a `style={{…}}` appears in the template's source |
+| Typed and exhaustive | `Record<Route, …>` maps that fail to compile when a page is missing |
+| Tested | A test file next to each component, page and helper |
+
+"Clean code" is left off the list: it is too vague to link to a file.
+
+**Template cleanup this requires** (a separate branch and PR on `packages/monitoring`, merged before the tab is written, so every listed principle is true when it ships):
+- Move the thresholds into one module. Today the error-rate limit `2` is a literal in four places (`DashboardPage` twice, `EndpointsPage`, `trend.ts`) and latency `500` in `DashboardPage` twice and `trend.ts`, while `P95_LATENCY_THRESHOLD_MS` in `simulation.ts` goes unused by them.
+- Share one tone map instead of the copies in `StatTile.tsx` and `ActionPanel.tsx`.
+- Remove every inline `style={{…}}` (`StatTile` 5, `ActionPanel` 2, `UsageChart` 2, `EndpointRequestsChart`, `LatencyChart` and `RequestVolumeChart` 1 each) in favour of CSS classes, using a `data-tone` attribute or a class per tone for the values that vary. Add the test that keeps them out. Recharts props that are plain objects (not a React `style` prop) are not what the test looks for.
+- Behaviour must not change; the template's existing tests cover it. The running demo should be looked at afterwards, and `monitoring.png` retaken if it changed.
+
+**Where the principles are written down.**
+- In **`packages/monitoring/README.md`**, a short "Principles this code follows" section with the same table. This is the documentation that travels with a fork (per the repo's CLAUDE.md), so it is the primary home.
+- In the **Code tab**, as the visitor-facing copy of the same list. The site is self-contained and cannot import the README, so this is a copy; keep the two in step by hand unless drift becomes a problem, then add a check in the style of `check-templates-readme`.
+- In **this spec** (here), as the record of why.
 
 ## Decisions not made
 
 - Whether to add a short stack, license and GitHub-repo line under the description. Two of the four simulated reviewers asked for it. The `monitoring` package has no license file of its own (see below).
 - Whether to add a one-line "this is the only template right now" note, so a visitor who is not a fit does not wonder whether others exist.
-- Whether the Code tab shows more than snippets (a file tree, `package.json`).
+- Whether the Code tab also shows a few real files in full (a code file with its test, and a page), chosen by a stated rule such as "typical size", or only the principles and the folder map (§7). Alternatively a full file browser over every source file, which needs a build step that copies the template's source into the site. Not chosen.
+- Whether `useSimulatedMetrics.ts` really is the only place the simulated data enters, before the folder map says so. Not verified.
 - Whether `npx cyberui-2045 init` can be run by an AI without answering an interactive prompt (it reads from readline; flags such as `--claude` exist). Check when the prompt is written into code, and adjust its wording if needed.
 - Whether `npx tiged …/packages/monitoring` and `npm run dev` work exactly as written, and whether the dev server prints an address. Not tested.
 

@@ -24,6 +24,19 @@ describe('usePreviewNav', () => {
     expect(back).toHaveBeenCalledTimes(1);
   });
 
+  it('does not go Back when something else was added to the history since opening (a click inside the live preview iframe)', () => {
+    window.location.hash = '#/templates';
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+    const { result } = renderHook(() => usePreviewNav('monitoring'));
+    result.current.open('monitoring');
+    // The iframe's own hash router pushes an entry onto the shared history.
+    // Here a second hash change stands in for it.
+    window.location.hash = '#/templates/monitoring?inside-iframe';
+    result.current.close();
+    expect(back).not.toHaveBeenCalled();
+    expect(window.location.hash).toBe('#/templates');
+  });
+
   it('closes a preview reached by a direct link by replacing the hash, never by leaving the page', () => {
     window.location.hash = '#/templates/monitoring';
     const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});

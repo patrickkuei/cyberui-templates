@@ -48,6 +48,8 @@
 
 **Back button.** Opening the dialog must be a browser history step, so Back closes it instead of leaving the page (otherwise Android Back would leave `/templates` and lose the preview). The existing `#/templates/:slug` route is the candidate: it would mean "the Templates page with this template's dialog open", which also gives a shareable link. The router has not been checked to see whether it can support that; this is a question for the plan.
 
+**Found in the first browser check:** the live preview is an iframe of a hash-routed app, and each click inside it that changes its own hash adds an entry to the same joint history. Closing with `history.back()` then undid the click inside the iframe and left the dialog open. Closing now goes Back only when `history.length` is unchanged since the dialog opened, and otherwise replaces the hash. One consequence: after clicking around inside the preview, the browser Back button first steps back through those clicks inside the iframe, and only then closes the dialog. A leftover history entry can also remain after closing with the close button, so a later Back may reopen the dialog.
+
 **Constraints for the plan.**
 - Adding a template is adding data and content, with no layout work.
 - Facts that appear in more than one place (the fork command, the README's template list) have one source, derived from the template's slug and data, with a drift check in the style of `check-process-excerpts`.

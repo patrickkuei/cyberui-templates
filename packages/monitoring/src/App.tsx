@@ -1,3 +1,4 @@
+import { isErrorRateHigh } from './data/thresholds';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Badge } from 'cyberui-2045';
 import { useSimulatedMetrics } from './data/useSimulatedMetrics';
@@ -26,8 +27,8 @@ export default function App() {
   // Lives here, not in DashboardPage, so the chosen range survives leaving and returning to the Dashboard.
   const [chartRange, setChartRange] = useState<ChartRange>('60s');
   const route = useHashRoute();
-  // Same 2% threshold the Error rate tile uses, so badge and tile never disagree.
-  const isHealthy = state.errorRatePct <= 2;
+  // Same threshold the Error rate tile uses (data/thresholds.ts), so badge and tile never disagree.
+  const isHealthy = !isErrorRateHigh(state.errorRatePct);
   const latestUsage = state.usage[state.usage.length - 1];
 
   useEffect(() => {

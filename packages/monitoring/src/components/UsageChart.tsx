@@ -16,11 +16,11 @@ export function UsageChart({ data }: UsageChartProps) {
     <Card variant="default" className="panel-surface">
       <h3 className="panel-title">Token usage</h3>
       {latest && (
-        <p style={{ margin: '0 0 0.5rem', color: 'var(--color-muted)', fontSize: '0.875rem' }}>
+        <p className="chart-subtitle">
           {formatCurrencyPerHour(latest.costPerHr)} at current rate
         </p>
       )}
-      <div style={{ height: 220 }}>
+      <div className="chart-body">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid stroke={colors.border} strokeDasharray="3 3" />

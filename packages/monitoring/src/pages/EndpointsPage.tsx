@@ -1,3 +1,4 @@
+import { isErrorRateHigh } from '../data/thresholds';
 import type { EndpointStats } from '../data/simulation';
 import { EndpointTable } from '../components/EndpointTable';
 import { EndpointRequestsChart } from '../components/EndpointRequestsChart';
@@ -30,7 +31,7 @@ export function EndpointsPage({ endpoints }: EndpointsPageProps) {
         <StatTile
           label="Traffic-weighted error rate"
           value={formatPercent(errorRatePct)}
-          tone={errorRatePct > 2 ? 'error' : 'success'}
+          tone={isErrorRateHigh(errorRatePct) ? 'error' : 'success'}
           icon={<AlertTriangleIcon />}
           status="aggregate across endpoints"
         />

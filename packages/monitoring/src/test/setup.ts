@@ -1,4 +1,22 @@
 import '@testing-library/jest-dom/vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+// The components size their chart bodies with CSS classes (no inline styles),
+// and tests do not otherwise load CSS. Take just the .chart-body rules out of
+// the real stylesheet and inject them, so getComputedStyle sees the real
+// heights below with no second copy of those numbers to keep in step.
+// (happy-dom drops rules it cannot parse from the whole of App.css, so the
+// stylesheet is not injected whole.)
+// (A `?raw` import would be emptied: Vitest does not process CSS by default.)
+// (import.meta.url is an http URL under happy-dom, so resolve from the package
+// root, which is where `npm test` runs.)
+const appCss = readFileSync(resolve(process.cwd(), 'src/App.css'), 'utf8');
+const chartBodyRules = appCss.match(/\.chart-body[^{]*\{[^}]*\}/g) ?? [];
+if (chartBodyRules.length === 0) throw new Error('No .chart-body rules found in App.css; the chart tests need them.');
+const appStyle = document.createElement('style');
+appStyle.textContent = chartBodyRules.join('\n');
+document.head.appendChild(appStyle);
 
 // cyberui-2045 checks for its stylesheet at import time by reading
 // --color-primary from document.documentElement and warns "Stylesheet not
@@ -14,7 +32,7 @@ document.documentElement.style.setProperty('--color-primary', '#ff005d');
 // DOMRect and its ResizeObserver never fires, so every chart renders no <svg>
 // at all ("The width(0) and height(0) of chart should be greater than 0").
 //
-// happy-dom's getComputedStyle does report declared inline sizes ('220px',
+// happy-dom's getComputedStyle does report declared sizes (inline or from a stylesheet) ('220px',
 // '100%', '' for auto), so stand in for layout with a minimal block-flow
 // approximation: px sizes are used as-is, percentages resolve against the
 // parent, auto width fills the parent (block elements stretch to their

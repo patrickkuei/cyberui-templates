@@ -1,10 +1,10 @@
-import { isErrorRateHigh } from '../data/thresholds';
 import type { EndpointStats } from '../data/simulation';
 import { EndpointTable } from '../components/EndpointTable';
 import { EndpointRequestsChart } from '../components/EndpointRequestsChart';
 import { StatTile } from '../components/StatTile';
 import { ActivityIcon, ClockIcon, AlertTriangleIcon, ServerIcon } from '../icons';
 import { formatCompactNumber, formatMs, formatPercent } from '../utils/format';
+import { isErrorRateHigh } from '../data/thresholds';
 
 export interface EndpointsPageProps {
   endpoints: EndpointStats[];

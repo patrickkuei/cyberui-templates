@@ -1,4 +1,3 @@
-import { isErrorRateHigh, isLatencyHigh } from '../data/thresholds';
 import type { DashboardState } from '../data/simulation';
 import { StatTile } from '../components/StatTile';
 import { RequestVolumeChart } from '../components/RequestVolumeChart';
@@ -11,6 +10,7 @@ import type { ChartRange } from '../components/ChartRangeToggle';
 import { ActivityIcon, ClockIcon, AlertTriangleIcon, UsersIcon } from '../icons';
 import { describeRequestRate, describeLatency, describeErrorRate } from '../utils/trend';
 import { formatCompactNumber, formatMs, formatPercent } from '../utils/format';
+import { isErrorRateHigh, isLatencyHigh } from '../data/thresholds';
 
 export interface DashboardPageProps {
   state: DashboardState;

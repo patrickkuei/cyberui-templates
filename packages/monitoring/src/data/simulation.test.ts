@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createInitialState, tick, HISTORY_LENGTH, MAX_ALERTS } from './simulation';
+import { isErrorRateHigh } from './thresholds';
 
 // Tiny deterministic PRNG (mulberry32) so statistical tests are reproducible.
 function mulberry32(seed: number): () => number {
@@ -73,14 +74,14 @@ describe('tick', () => {
     }
   });
 
-  it('stays healthy most of the time: error rate above 2% on < 10% of ticks', () => {
+  it('stays healthy most of the time: error rate above its threshold on < 10% of ticks', () => {
     const rng = mulberry32(42);
     let state = createInitialState(0, rng);
     let degraded = 0;
     const ticks = 2000;
     for (let i = 1; i <= ticks; i++) {
       state = tick(state, i * 2000, rng);
-      if (state.errorRatePct > 2) degraded++;
+      if (isErrorRateHigh(state.errorRatePct)) degraded++;
     }
     expect(degraded / ticks).toBeLessThan(0.1);
   });

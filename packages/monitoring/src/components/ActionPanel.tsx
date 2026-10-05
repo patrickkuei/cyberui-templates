@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Card } from 'cyberui-2045';
+import { TONE_CLASS } from '../theme/tones';
 
 export interface ActionPanelProps {
   /**
@@ -25,7 +26,7 @@ export function ActionPanel({ incidentKey, headline, headlineTone, primaryAction
     <Card title="What needs attention" className="action-panel panel-surface">
       {primaryActionLabel && (
         <div className="action-item">
-          <span className={`action-dot tone-${headlineTone}`} aria-hidden="true" />
+          <span className={`action-dot ${TONE_CLASS[headlineTone]}`} aria-hidden="true" />
           <div className="action-item-body">
             <p className="action-item-title">{headline}</p>
             {!acknowledged ? (
@@ -39,7 +40,7 @@ export function ActionPanel({ incidentKey, headline, headlineTone, primaryAction
         </div>
       )}
       <div className="action-item action-item--static">
-        <span className="action-dot tone-success" aria-hidden="true" />
+        <span className={`action-dot ${TONE_CLASS.success}`} aria-hidden="true" />
         <div className="action-item-body">
           <p className="action-item-title">Model rollout: model-router v2.3.1</p>
           <p className="action-item-subtitle">Deployed to all regions, 0 rollbacks.</p>

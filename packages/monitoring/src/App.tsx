@@ -1,4 +1,3 @@
-import { isErrorRateHigh } from './data/thresholds';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Badge } from 'cyberui-2045';
 import { useSimulatedMetrics } from './data/useSimulatedMetrics';
@@ -10,6 +9,7 @@ import { ReportsPage } from './pages/ReportsPage';
 import type { ChartRange } from './components/ChartRangeToggle';
 import { BellIcon } from './icons';
 import './App.css';
+import { isErrorRateHigh } from './data/thresholds';
 
 const REFRESH_MS = 2000;
 

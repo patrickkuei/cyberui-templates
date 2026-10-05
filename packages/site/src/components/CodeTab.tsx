@@ -1,5 +1,19 @@
 import type { CodeTabContent } from '../content/types';
 
+// Draws the folder map as a tree. Every folder in the map is expected to share
+// one parent (src/), which becomes the root line; the rest are its children.
+// Purposes are padded into a column so they line up.
+export function folderTree(folders: CodeTabContent['folders']): string {
+  const root = folders[0]?.path.split('/')[0] ?? '';
+  const names = folders.map((folder) => folder.path.split('/').slice(1).join('/'));
+  const width = Math.max(...names.map((name) => name.length));
+  const lines = folders.map((folder, index) => {
+    const branch = index === folders.length - 1 ? '└── ' : '├── ';
+    return branch + names[index]!.padEnd(width + 2) + folder.purpose;
+  });
+  return [root + '/', ...lines].join('\n');
+}
+
 export interface CodeTabProps {
   content: CodeTabContent;
 }
@@ -28,14 +42,10 @@ export function CodeTab({ content }: CodeTabProps) {
       </section>
 
       <section className="code-tab-section">
-        <h3>What&apos;s where</h3>
-        <ul className="code-tab-folders">
-          {content.folders.map((folder) => (
-            <li key={folder.path}>
-              <code>{folder.path}</code> {folder.purpose}
-            </li>
-          ))}
-        </ul>
+        <h3>Folder map</h3>
+        <pre className="terminal-pre terminal-pre-tree">
+          <code>{folderTree(content.folders)}</code>
+        </pre>
       </section>
     </div>
   );

@@ -1,9 +1,19 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
-import { CodeTab } from './CodeTab';
+import { CodeTab, folderTree } from './CodeTab';
 import { contentFor } from '../content/templateContent';
 
 const code = contentFor('monitoring').code;
+
+describe('folderTree', () => {
+  it('draws the shared parent as the root and the folders as aligned branches', () => {
+    const tree = folderTree([
+      { path: 'src/a', purpose: 'First.' },
+      { path: 'src/longer', purpose: 'Second.' },
+    ]);
+    expect(tree).toBe(['src/', '├── a       First.', '└── longer  Second.'].join('\n'));
+  });
+});
 
 describe('CodeTab', () => {
   it('shows every principle with one short line, its file, and a real excerpt', () => {
@@ -28,10 +38,13 @@ describe('CodeTab', () => {
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
-  it('maps every folder to its purpose, and says the data folder is where your data goes', () => {
+  it('draws the folder map as a tree with every folder and its purpose', () => {
     render(<CodeTab content={code} />);
-    const folders = screen.getByRole('heading', { name: "What's where" }).closest('section')!;
-    expect(within(folders).getAllByRole('listitem')).toHaveLength(code.folders.length);
-    expect(within(folders).getByText(/Your data goes here/)).toBeInTheDocument();
+    const section = screen.getByRole('heading', { name: 'Folder map' }).closest('section')!;
+    const tree = section.querySelector('pre')!.textContent!;
+    expect(tree.startsWith('src/\n')).toBe(true);
+    expect(tree.split('\n')).toHaveLength(code.folders.length + 1);
+    expect(tree).toContain('└── ');
+    expect(tree).toMatch(/data\s+Simulation, limits, the data hook\. Your data goes here\./);
   });
 });

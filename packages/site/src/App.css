@@ -1345,17 +1345,13 @@ body:has(dialog[open]) {
   color: var(--color-muted);
 }
 
-.code-tab-folders {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  line-height: 1.55;
-}
 
-.code-tab-folders code {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.875rem;
+
+/* Box-drawing glyphs are often missing from a web font, and a substituted
+   font's cell width would misalign the tree, so draw it in one system
+   monospace stack with a tight line height (same reason as the /process
+   diagram blocks). */
+.terminal-pre-tree code {
+  font-family: ui-monospace, 'Cascadia Mono', 'Cascadia Code', Consolas, Menlo, 'DejaVu Sans Mono', monospace;
+  line-height: 1.25;
 }

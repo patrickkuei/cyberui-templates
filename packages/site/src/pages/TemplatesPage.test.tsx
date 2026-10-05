@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
+import { CyberNotificationProvider } from 'cyberui-2045';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TemplatesPage } from './TemplatesPage';
@@ -24,7 +25,7 @@ describe('TemplatesPage', () => {
   });
 
   it('has one h1 and one section per template', () => {
-    render(<TemplatesPage />);
+    render(<TemplatesPage />, { wrapper: CyberNotificationProvider });
     expect(screen.getByRole('heading', { level: 1, name: 'Templates' })).toBeInTheDocument();
     // Not getAllByRole('region'): the library's Accordion panels are regions too.
     expect(document.querySelectorAll('section.template-section')).toHaveLength(TEMPLATE_ENTRIES.length);
@@ -32,24 +33,24 @@ describe('TemplatesPage', () => {
 
   it('opens a template preview by pushing its hash', async () => {
     window.location.hash = '#/templates';
-    render(<TemplatesPage />);
+    render(<TemplatesPage />, { wrapper: CyberNotificationProvider });
     await userEvent.click(screen.getByRole('button', { name: 'Run the live demo' }));
     expect(window.location.hash).toBe('#/templates/monitoring');
   });
 
   it('opens the matching preview when the route says so', () => {
-    render(<TemplatesPage openSlug="monitoring" />);
+    render(<TemplatesPage openSlug="monitoring" />, { wrapper: CyberNotificationProvider });
     expect(screen.getByTitle('AI Product Monitoring live preview')).toBeInTheDocument();
   });
 
   it('ignores an unknown slug: the page renders, nothing opens, nothing throws (Review Focus #1)', () => {
-    render(<TemplatesPage openSlug="nope" />);
+    render(<TemplatesPage openSlug="nope" />, { wrapper: CyberNotificationProvider });
     expect(screen.getByRole('heading', { level: 1, name: 'Templates' })).toBeInTheDocument();
     expect(document.querySelector('dialog[open]')).toBeNull();
   });
 
   it('with two templates, opens only the one that matches and keeps ids distinct (Review Focus #5)', () => {
-    render(<TemplatesPage entries={[monitoring, second]} openSlug="second" />);
+    render(<TemplatesPage entries={[monitoring, second]} openSlug="second" />, { wrapper: CyberNotificationProvider });
     expect(screen.getByTitle('Second Template live preview')).toBeInTheDocument();
     expect(screen.queryByTitle('AI Product Monitoring live preview')).not.toBeInTheDocument();
     const sections = Array.from(document.querySelectorAll<HTMLElement>('section.template-section'));

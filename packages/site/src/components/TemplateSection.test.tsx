@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { CyberNotificationProvider } from 'cyberui-2045';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TemplateSection } from './TemplateSection';
@@ -10,7 +11,7 @@ const content = contentFor('monitoring');
 
 function renderSection(overrides: Partial<React.ComponentProps<typeof TemplateSection>> = {}) {
   const props = { template, content, previewOpen: false, onOpenPreview: vi.fn(), onClosePreview: vi.fn(), ...overrides };
-  render(<TemplateSection {...props} />);
+  render(<TemplateSection {...props} />, { wrapper: CyberNotificationProvider });
   return props;
 }
 

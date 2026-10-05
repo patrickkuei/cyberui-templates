@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TemplatePreview } from './TemplatePreview';
 import { getTemplate } from '../data/templates';
@@ -11,6 +11,13 @@ describe('TemplatePreview', () => {
     render(<TemplatePreview template={monitoring} />);
     const frame = screen.getByTitle('AI Product Monitoring live preview');
     expect(frame).toHaveAttribute('src', './live/monitoring/index.html');
+  });
+
+  it('shows a loading state until the iframe has loaded', () => {
+    render(<TemplatePreview template={monitoring} />);
+    expect(screen.getByRole('status')).toHaveTextContent('Loading the live demo');
+    fireEvent.load(screen.getByTitle('AI Product Monitoring live preview'));
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
   it('switches to the Code tab, hiding the iframe without unmounting it (no reload on the way back)', async () => {

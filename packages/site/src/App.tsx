@@ -1,3 +1,4 @@
+import { CyberNotificationProvider } from 'cyberui-2045';
 import { useHashRoute, type Route } from './router/useHashRoute';
 import { HomePage } from './pages/HomePage';
 import { TemplatesPage } from './pages/TemplatesPage';
@@ -34,9 +35,10 @@ export default function App() {
   const route = useHashRoute();
 
   return (
-    <>
+    // The provider is for the toasts (the Templates page's "Copied").
+    <CyberNotificationProvider position="bottom-right">
       <Nav transparentUntilScroll={route.name === 'home'} />
       <main className="shell">{renderRoute(route)}</main>
-    </>
+    </CyberNotificationProvider>
   );
 }

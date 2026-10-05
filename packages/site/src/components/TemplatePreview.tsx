@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TabNavigation } from 'cyberui-2045';
+import { Skeleton, TabNavigation } from 'cyberui-2045';
 import type { Template } from '../data/templates';
 import { CODE_SNIPPETS } from '../content/codeSnippets';
 import { CodeViewer } from './CodeViewer';
@@ -16,15 +16,30 @@ export interface TemplatePreviewProps {
 // iframe is only ever mounted while the surrounding dialog is open. Both
 // panes stay mounted and the inactive one is `hidden`, so switching to Code
 // and back does not reload (and reset) the running template.
+//
+// Until the iframe fires `load` a skeleton covers it. `load` also fires for an
+// error page, so this says "loaded", not "working".
 export function TemplatePreview({ template }: TemplatePreviewProps) {
   const [tab, setTab] = useState<Tab>('Live preview');
+  const [loaded, setLoaded] = useState(false);
   const snippets = CODE_SNIPPETS[template.slug] ?? [];
 
   return (
     <div className="template-preview">
       <TabNavigation tabs={TABS} activeTab={tab} onTabChange={(next) => setTab(next as Tab)} />
       <div className="template-preview-body">
-        <iframe title={`${template.name} live preview`} src={template.livePreviewPath} hidden={tab !== 'Live preview'} />
+        <iframe
+          title={`${template.name} live preview`}
+          src={template.livePreviewPath}
+          hidden={tab !== 'Live preview'}
+          onLoad={() => setLoaded(true)}
+        />
+        {!loaded && tab === 'Live preview' && (
+          <div className="template-preview-loading" role="status">
+            <Skeleton variant="rectangular" width="100%" height="100%" />
+            <span className="template-preview-loading-label">Loading the live demo…</span>
+          </div>
+        )}
         <div className="template-preview-code" hidden={tab !== 'Code'}>
           <CodeViewer snippets={snippets} />
         </div>

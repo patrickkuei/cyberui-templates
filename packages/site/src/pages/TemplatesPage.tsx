@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { TEMPLATE_ENTRIES, type TemplateEntry } from '../content/templateContent';
 import { TemplateSection } from '../components/TemplateSection';
 import { usePreviewNav } from '../router/usePreviewNav';
@@ -11,6 +12,14 @@ export interface TemplatesPageProps {
 
 export function TemplatesPage({ openSlug, entries = TEMPLATE_ENTRIES }: TemplatesPageProps) {
   const { open, close } = usePreviewNav(openSlug);
+
+  // A hash for a template that does not exist (#/templates/typo) opens nothing,
+  // but would stay in the URL and in the history, so a later open-then-close
+  // would land back on it. Replace it with the plain page.
+  const unknownSlug = openSlug !== undefined && !entries.some((entry) => entry.template.slug === openSlug);
+  useEffect(() => {
+    if (unknownSlug) window.location.replace('#/templates');
+  }, [unknownSlug]);
 
   return (
     <div className="templates-page">

@@ -37,6 +37,32 @@ describe('usePreviewNav', () => {
     expect(window.location.hash).toBe('#/templates');
   });
 
+  it('goes Back only once when several things ask to close at the same time', () => {
+    window.location.hash = '#/templates';
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+    const { result } = renderHook(() => usePreviewNav('monitoring'));
+    result.current.open('monitoring');
+    result.current.close();
+    result.current.close();
+    expect(back).toHaveBeenCalledTimes(1);
+  });
+
+  it('can close again after the route has changed', () => {
+    window.location.hash = '#/templates';
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+    const { result, rerender } = renderHook(({ slug }) => usePreviewNav(slug), {
+      initialProps: { slug: undefined as string | undefined },
+    });
+    result.current.open('monitoring');
+    rerender({ slug: 'monitoring' });
+    result.current.close();
+    rerender({ slug: undefined });
+    result.current.open('monitoring');
+    rerender({ slug: 'monitoring' });
+    result.current.close();
+    expect(back).toHaveBeenCalledTimes(2);
+  });
+
   it('closes a preview reached by a direct link by replacing the hash, never by leaving the page', () => {
     window.location.hash = '#/templates/monitoring';
     const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});

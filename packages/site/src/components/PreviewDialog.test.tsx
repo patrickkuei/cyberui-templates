@@ -37,12 +37,20 @@ describe('PreviewDialog', () => {
     expect(dialog()).toHaveAttribute('open');
   });
 
-  it('asks the parent to close on a click outside the dialog (the backdrop), not on a click inside', async () => {
+  it('asks the parent to close on a press and click on the backdrop, not on a click inside', async () => {
     const { dialog, onClose } = renderDialog(true);
     await userEvent.click(screen.getByText('inside'));
     expect(onClose).not.toHaveBeenCalled();
+    fireEvent.mouseDown(dialog());
     fireEvent.click(dialog());
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close when a press starts inside and is released on the backdrop (drag-selecting text)', () => {
+    const { dialog, onClose } = renderDialog(true);
+    fireEvent.mouseDown(screen.getByText('inside'));
+    fireEvent.click(dialog());
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('asks the parent to close from the close button', async () => {

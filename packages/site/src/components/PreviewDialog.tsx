@@ -3,7 +3,7 @@ import { Button } from 'cyberui-2045';
 
 export interface PreviewDialogProps {
   isOpen: boolean;
-  /** Called on Esc and on the close button. The parent owns whether the dialog is open. */
+  /** Called on Esc, the close button and a click on the backdrop. The parent owns whether the dialog is open. */
   onClose: () => void;
   title: string;
   /** Mounted only while the dialog is open, so an iframe inside never loads until asked for. */
@@ -22,6 +22,7 @@ export interface PreviewDialogProps {
 export function PreviewDialog({ isOpen, onClose, title, children }: PreviewDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const pressStartedOnBackdrop = useRef(false);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -40,9 +41,17 @@ export function PreviewDialog({ isOpen, onClose, title, children }: PreviewDialo
         onClose();
       }}
       // A click on the ::backdrop is delivered to the <dialog> itself, while a
-      // click on anything inside it targets a child (the dialog has no padding).
+      // click on anything inside it targets a child (the dialog has no
+      // padding). Closing needs the press to have started on the backdrop too:
+      // drag-selecting text inside and releasing outside also ends with a
+      // click on the dialog element, and must not close it.
+      onMouseDown={(event) => {
+        pressStartedOnBackdrop.current = event.target === event.currentTarget;
+      }}
       onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        const fromBackdrop = pressStartedOnBackdrop.current && event.target === event.currentTarget;
+        pressStartedOnBackdrop.current = false;
+        if (fromBackdrop) onClose();
       }}
     >
       {isOpen && (

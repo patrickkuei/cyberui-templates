@@ -49,6 +49,18 @@ describe('TemplatesPage', () => {
     expect(document.querySelector('dialog[open]')).toBeNull();
   });
 
+  it('replaces an unknown slug in the URL with the plain page, so Back cannot land on it later', () => {
+    window.location.hash = '#/templates/typo';
+    render(<TemplatesPage openSlug="typo" />, { wrapper: CyberNotificationProvider });
+    expect(window.location.hash).toBe('#/templates');
+  });
+
+  it('leaves a known slug in the URL alone', () => {
+    window.location.hash = '#/templates/monitoring';
+    render(<TemplatesPage openSlug="monitoring" />, { wrapper: CyberNotificationProvider });
+    expect(window.location.hash).toBe('#/templates/monitoring');
+  });
+
   it('with two templates, opens only the one that matches and keeps ids distinct (Review Focus #5)', () => {
     render(<TemplatesPage entries={[monitoring, second]} openSlug="second" />, { wrapper: CyberNotificationProvider });
     expect(screen.getByTitle('Second Template live preview')).toBeInTheDocument();

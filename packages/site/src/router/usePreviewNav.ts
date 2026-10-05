@@ -17,24 +17,36 @@ import { useCallback, useEffect, useRef } from 'react';
 // falls back to Back, which is no worse than before.) A page reached by a
 // link straight to #/templates/:slug has nothing of ours to go Back to, so
 // it also replaces.
+//
+// Closing is asked for by several things at once (Esc, the close button, the
+// backdrop, Esc inside the iframe), and history.back() is asynchronous. Until
+// the route actually changes, further close requests are ignored: a second
+// one would otherwise see a stale state and go Back a second time, or replace
+// the entry the first Back is about to pop.
 export function usePreviewNav(openSlug: string | undefined) {
   const openedHere = useRef(false);
   const lengthAfterOpen = useRef(0);
+  const closing = useRef(false);
 
-  // Once nothing is open the flag is stale (the user may have used Back).
+  // Whenever the open preview changes, the previous open/close has settled.
+  // With nothing open the "opened here" flag is stale too (the user may have
+  // used Back).
   useEffect(() => {
+    closing.current = false;
     if (!openSlug) openedHere.current = false;
   }, [openSlug]);
 
   const open = useCallback((slug: string) => {
     openedHere.current = true;
+    closing.current = false;
     window.location.hash = `#/templates/${slug}`;
     lengthAfterOpen.current = window.history.length;
   }, []);
 
   const close = useCallback(() => {
+    if (closing.current) return;
+    closing.current = true;
     const untouched = openedHere.current && window.history.length === lengthAfterOpen.current;
-    openedHere.current = false;
     if (untouched) {
       window.history.back();
     } else {

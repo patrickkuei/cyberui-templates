@@ -23,6 +23,16 @@ export function parseTemplates(source) {
   if (found.length === 0) {
     throw new Error('Could not find any template (slug followed by name) in templates.ts. Did the property order change?');
   }
+  // Every entry must have been read. A slug or name written another way (a name
+  // with an apostrophe, a template literal) would otherwise be skipped in
+  // silence and the README never checked for it.
+  const declared = [...source.matchAll(/^\s*slug:\s*['"`]/gm)].length;
+  if (declared !== found.length) {
+    throw new Error(
+      `Could not read every template in templates.ts: found ${declared} slug${declared === 1 ? '' : 's'} but only ${found.length} slug-and-name pair${found.length === 1 ? '' : 's'}. ` +
+        'Write each slug and name as a plain single- or double-quoted string without quotes inside.'
+    );
+  }
   return found.map((match) => ({ slug: match[2], name: match[4] }));
 }
 

@@ -38,6 +38,13 @@ test('fails loudly when templates.ts has no entries it can read', () => {
   assert.throws(() => parseTemplates('export const TEMPLATES = [];'), /could not find any template/i);
 });
 
+test('refuses to pass when an entry cannot be read, instead of skipping it', () => {
+  const apostrophe = "[{ slug: 'ok', name: 'Fine' }, { slug: 'odd', name: 'Don\\'t Panic' }]";
+  assert.throws(() => parseTemplates(apostrophe), /could not read every template/i);
+  const literal = "[{ slug: 'ok', name: 'Fine' }, { slug: 'tpl', name: `Back ticks` }]";
+  assert.throws(() => parseTemplates(literal), /could not read every template/i);
+});
+
 test('reads the README table rows between "## Templates" and the next heading', () => {
   assert.deepEqual(parseReadmeRows(README), [
     { slug: 'monitoring', name: 'AI Product Monitoring' },

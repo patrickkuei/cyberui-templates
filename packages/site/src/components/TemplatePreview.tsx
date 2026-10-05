@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Skeleton, TabNavigation } from 'cyberui-2045';
 import type { Template } from '../data/templates';
 import type { CodeTabContent } from '../content/types';
@@ -10,6 +10,8 @@ type Tab = (typeof TABS)[number];
 export interface TemplatePreviewProps {
   template: Template;
   code: CodeTabContent;
+  /** Called when Esc is pressed while focus is inside the running template. */
+  onClose: () => void;
 }
 
 // The live preview is the template's own built index.html, served from the
@@ -20,19 +22,60 @@ export interface TemplatePreviewProps {
 //
 // Until the iframe fires `load` a skeleton covers it. `load` also fires for an
 // error page, so this says "loaded", not "working".
-export function TemplatePreview({ template, code }: TemplatePreviewProps) {
+//
+// Esc: once someone clicks into the running template, key presses go to the
+// iframe's own document and never reach the dialog, so its native Esc handling
+// is blind. The preview is same-origin, so on load we listen for Esc inside it
+// and forward it to `onClose`. (A cross-origin preview would throw on access;
+// that is caught and Esc then simply does not forward.)
+export function TemplatePreview({ template, code, onClose }: TemplatePreviewProps) {
   const [tab, setTab] = useState<Tab>('Live preview');
   const [loaded, setLoaded] = useState(false);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const onCloseRef = useRef(onClose);
+  const forwarded = useRef<{ target: EventTarget; handler: (event: Event) => void } | null>(null);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  function stopForwarding() {
+    if (forwarded.current) {
+      forwarded.current.target.removeEventListener('keydown', forwarded.current.handler);
+      forwarded.current = null;
+    }
+  }
+
+  // A navigation inside the iframe fires `load` again, possibly on a new
+  // window, so drop the old listener before adding one.
+  function handleLoad() {
+    setLoaded(true);
+    stopForwarding();
+    try {
+      const target = frameRef.current?.contentWindow;
+      if (!target) return;
+      const handler = (event: Event) => {
+        if ((event as KeyboardEvent).key === 'Escape') onCloseRef.current();
+      };
+      target.addEventListener('keydown', handler);
+      forwarded.current = { target, handler };
+    } catch {
+      // Cross-origin: nothing to forward.
+    }
+  }
+
+  useEffect(() => stopForwarding, []);
 
   return (
     <div className="template-preview">
       <TabNavigation tabs={TABS} activeTab={tab} onTabChange={(next) => setTab(next as Tab)} />
       <div className="template-preview-body">
         <iframe
+          ref={frameRef}
           title={`${template.name} live preview`}
           src={template.livePreviewPath}
           hidden={tab !== 'Live preview'}
-          onLoad={() => setLoaded(true)}
+          onLoad={handleLoad}
         />
         {!loaded && tab === 'Live preview' && (
           <div className="template-preview-loading" role="status">

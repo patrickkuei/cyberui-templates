@@ -46,10 +46,9 @@
         "detail": "Styling is in CSS, and a test enforces it.",
         "file": "src/noInlineStyles.test.ts",
         "excerpt": [
-          "    const offenders = Object.entries(sources)",
-          "      .filter(([file]) => !/\\.test\\.tsx$/.test(file))",
-          "      .filter(([, code]) => /\\bstyle=\\{/.test(code))",
-          "      .map(([file]) => file);"
+          "  const visit = (node: ts.Node) => {",
+          "    if (ts.isJsxAttribute(node) && node.name.getText(sourceFile) === 'style') found = true;",
+          "    ts.forEachChild(node, visit);"
         ]
       },
       {
@@ -78,13 +77,34 @@
       }
     ],
     "folders": [
-      { "path": "src/pages", "purpose": "One component per page." },
-      { "path": "src/components", "purpose": "Charts, tables and panels." },
-      { "path": "src/data", "purpose": "Simulation, limits, the data hook. Your data goes here." },
-      { "path": "src/router", "purpose": "Hash routing." },
-      { "path": "src/theme", "purpose": "Chart colors from theme variables." },
-      { "path": "src/utils", "purpose": "Formatting and trend helpers." },
-      { "path": "src/icons", "purpose": "Inline SVG icons." }
+      {
+        "path": "src/pages",
+        "purpose": "One component per page."
+      },
+      {
+        "path": "src/components",
+        "purpose": "Charts, tables and panels."
+      },
+      {
+        "path": "src/data",
+        "purpose": "Simulation, limits, the data hook. Your data goes here."
+      },
+      {
+        "path": "src/router",
+        "purpose": "Hash routing."
+      },
+      {
+        "path": "src/theme",
+        "purpose": "Chart colors from theme variables."
+      },
+      {
+        "path": "src/utils",
+        "purpose": "Formatting and trend helpers."
+      },
+      {
+        "path": "src/icons",
+        "purpose": "Inline SVG icons."
+      }
     ]
   }
 }

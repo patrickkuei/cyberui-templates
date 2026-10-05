@@ -48,19 +48,14 @@ export function TemplateSection({ template, content, previewOpen, onOpenPreview,
             <span className="template-frame-dot" />
             <span className="template-frame-path">live/{template.slug}</span>
           </div>
-          {/* The whole screen is clickable for mouse users; the Button inside is the
-              keyboard and screen-reader target, so it stops the click from also
-              reaching this handler. */}
-          <div className="template-frame-screen" onClick={onOpenPreview}>
+          <div className="template-frame-screen">
             <img src={template.screenshotSrc} alt={`${template.name} screenshot`} />
+            {/* Lets a mouse user click anywhere on the screenshot. It is hidden from
+                assistive technology and out of the tab order on purpose: the "Run the
+                live demo" button below is the keyboard and screen-reader target. */}
+            <button type="button" className="template-frame-hit" tabIndex={-1} aria-hidden="true" onClick={onOpenPreview} />
             <div className="template-frame-overlay">
-              <Button
-                variant="secondary"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onOpenPreview();
-                }}
-              >
+              <Button variant="secondary" onClick={onOpenPreview}>
                 <span aria-hidden="true">▶</span> Run the live demo
               </Button>
             </div>
@@ -91,7 +86,7 @@ export function TemplateSection({ template, content, previewOpen, onOpenPreview,
       <StartBlock name={template.name} slug={template.slug} accentHex={template.accentHex} />
 
       <PreviewDialog isOpen={previewOpen} onClose={onClosePreview} title={template.name}>
-        <TemplatePreview template={template} code={content.code} />
+        <TemplatePreview template={template} code={content.code} onClose={onClosePreview} />
       </PreviewDialog>
     </section>
   );

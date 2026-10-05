@@ -12,9 +12,13 @@ const CODE_TABS: Record<string, CodeTabContent> = codeTabsJson;
 // before it can ship.
 //
 // The examples are not real customers. Each is an AI role-playing a person in
-// a simulated interview (see docs/superpowers/specs/2026-10-05-templates-page-design.md,
-// section 2), kept in the AI's own words and truncated with an ellipsis.
-// Do not reword them into something tidier; that would make them marketing.
+// a simulated interview (no real user was interviewed), kept in the AI's own
+// words and truncated with an ellipsis. Do not reword them into something
+// tidier; that would make them marketing.
+//
+// The headsUp line is a promise about what is mock: say exactly what the mock
+// controls do (here they change the screen but never the data, and nothing is
+// exported or saved), so a visitor who clicks one in the demo is not surprised.
 export const TEMPLATE_CONTENT: Record<string, TemplateContent> = {
   monitoring: {
     code: CODE_TABS.monitoring!,
@@ -24,7 +28,7 @@ export const TEMPLATE_CONTENT: Record<string, TemplateContent> = {
       'a dashboard for yourself or your team',
     ],
     headsUp:
-      "The data is made up, and a few buttons (time range, Acknowledge, Export CSV, Download) don't do anything yet. You get the screens, not the data connection. Your AI can help you hook up yours.",
+      'The data is made up, and a few buttons (time range, Acknowledge, Export CSV, Download) only change how the screen looks: nothing is exported or saved. You get the screens, not the data connection. Your AI can help you hook up yours.',
     notFor: "if you're after a native mobile app or a landing page. (A marketing dashboard is fine.)",
     examples: [
       {

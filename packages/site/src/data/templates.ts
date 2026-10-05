@@ -6,10 +6,10 @@
 //   3. its section copy in src/content/templateContent.ts (a test fails
 //      without it),
 //   4. a screenshot at public/screenshots/<slug>.png, plus its build copied
-//      to live/<slug>/ (scripts/sync-template-builds.mjs for local dev, the
-//      deploy workflow for production).
-// The root README's template table must list it too; scripts/check-templates-readme.mjs
-// fails CI if the two disagree.
+//      to live/<slug>/ (packages/site/scripts/sync-template-builds.mjs for
+//      local dev, the deploy workflow for production).
+// The repo-root README's template table must list it too; the repo-root script
+// scripts/check-templates-readme.mjs fails CI if the two disagree.
 export interface Template {
   slug: string;
   name: string;

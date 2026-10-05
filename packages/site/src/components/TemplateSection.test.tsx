@@ -29,9 +29,12 @@ describe('TemplateSection', () => {
     expect(props.onOpenPreview).toHaveBeenCalledTimes(1);
   });
 
-  it('opens the preview from a click on the screenshot, once', async () => {
+  it('opens the preview from a click on the screenshot area, once, through a button hidden from assistive technology', async () => {
     const props = renderSection();
-    await userEvent.click(screen.getByAltText('AI Product Monitoring screenshot'));
+    const hit = document.querySelector('.template-frame-hit') as HTMLElement;
+    expect(hit).toHaveAttribute('aria-hidden', 'true');
+    expect(hit).toHaveAttribute('tabindex', '-1');
+    await userEvent.click(hit);
     expect(props.onOpenPreview).toHaveBeenCalledTimes(1);
   });
 

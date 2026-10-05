@@ -35,8 +35,10 @@ export default function App() {
   const route = useHashRoute();
 
   return (
-    // The provider is for the toasts (the Templates page's "Copied").
-    <CyberNotificationProvider position="bottom-right">
+    // The provider is for the toasts (the Templates page's "Copied"). top-right, not
+    // bottom-*: the library lays toasts out with absolutely positioned children, so
+    // at a bottom edge they start on the edge and fall off-screen (cyberui-2045 v2.6.0).
+    <CyberNotificationProvider position="top-right">
       <Nav transparentUntilScroll={route.name === 'home'} />
       <main className="shell">{renderRoute(route)}</main>
     </CyberNotificationProvider>

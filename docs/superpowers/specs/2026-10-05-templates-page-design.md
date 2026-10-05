@@ -44,11 +44,11 @@
 4. Examples (two, each folded).
 5. Start building: Copy button, a one-line explanation, and a fold with the full prompt and the terminal route.
 
-**The dialog.** Opens at roughly 80-90% of the viewport (full-screen on phones). Tabs: Live preview and Code. Live preview is an iframe of the template's built `index.html`. A visible close button is required, because key presses inside an iframe do not reach the page, so Esc does not close it from there.
+**The dialog.** Opens at roughly 80-90% of the viewport (full-screen on phones). Tabs: Live preview and Code. Live preview is an iframe of the template's built `index.html`. A visible close button is required. Key presses inside an iframe do not reach the page, so once someone clicks into the running template Esc would be blind; the preview is same-origin, so Esc pressed inside it is forwarded to close the dialog. A click on the backdrop also closes it, but only when the press started there too (drag-selecting text inside and releasing outside must not close it).
 
 **Back button.** Opening the dialog must be a browser history step, so Back closes it instead of leaving the page (otherwise Android Back would leave `/templates` and lose the preview). The existing `#/templates/:slug` route is the candidate: it would mean "the Templates page with this template's dialog open", which also gives a shareable link. The router has not been checked to see whether it can support that; this is a question for the plan.
 
-**Found in the first browser check:** the live preview is an iframe of a hash-routed app, and each click inside it that changes its own hash adds an entry to the same joint history. Closing with `history.back()` then undid the click inside the iframe and left the dialog open. Closing now goes Back only when `history.length` is unchanged since the dialog opened, and otherwise replaces the hash. One consequence: after clicking around inside the preview, the browser Back button first steps back through those clicks inside the iframe, and only then closes the dialog. A leftover history entry can also remain after closing with the close button, so a later Back may reopen the dialog.
+**Found in the first browser check:** the live preview is an iframe of a hash-routed app, and each click inside it that changes its own hash adds an entry to the same joint history. Closing with `history.back()` then undid the click inside the iframe and left the dialog open. Closing now goes Back only when `history.length` is unchanged since the dialog opened, and otherwise replaces the hash. One consequence: after clicking around inside the preview, the browser Back button first steps back through those clicks inside the iframe, and only then closes the dialog. A leftover history entry can also remain after closing with the close button, so a later Back may reopen the dialog. Several things can ask to close at once (Esc, the button, the backdrop, Esc inside the iframe) and `history.back()` is asynchronous, so further close requests are ignored until the route changes. A hash naming a template that does not exist (`#/templates/typo`) is replaced with `#/templates`, so Back cannot land on it later.
 
 **Constraints for the plan.**
 - Adding a template is adding data and content, with no layout work.
@@ -103,7 +103,7 @@ The dialog:
 - anything made of charts, a table and a list of things that need attention
 - a dashboard for yourself or your team
 
-*Heads-up:* The data is made up, and a few buttons (time range, Acknowledge, Export CSV, Download) don't do anything yet. You get the screens, not the data connection. Your AI can help you hook up yours.
+*Heads-up:* The data is made up, and a few buttons (time range, Acknowledge, Export CSV, Download) only change how the screen looks: nothing is exported or saved. You get the screens, not the data connection. Your AI can help you hook up yours.
 
 *Probably not for you* if you're after a native mobile app or a landing page. (A marketing dashboard is fine.)
 

@@ -239,24 +239,15 @@ Decided after the first build: excerpts are shown (short, one per principle), no
 
 ## Verification status
 
-**Automated** (Claude): the site's tests,  and production build; the monitoring package's tests,  and build; the three root checks (, , ). All pass.
+**Automated** (Claude): the site's tests, `tsc` and production build; the monitoring package's tests, `tsc` and build; the three root checks (`check:process-excerpts`, `check:templates-readme`, `check:code-tab`). All pass.
 
-**Browser pass** (the user, on the running site) found, and the build then fixed: the dialog not centred (the library's CSS reset zeroes the  auto margin); the live preview reloading on every tab switch; no loading state; no hover state on the screenshot; no list markers (same reset); no click-outside dismissal; the Copy confirmation not visible (the library lays bottom-positioned toasts off screen); the close button going Back through clicks made inside the preview iframe (§3); scroll not resetting between pages; and several layout and copy points (duplicate heading, line wrapping, contrast inside open folds, content width, terminal palette). The glow moved from the demo button to Copy (§5).
+**Browser pass** (the user, on the running site) found, and the build then fixed: the dialog not centred (the library's CSS reset zeroes the `<dialog>` auto margin); the live preview reloading on every tab switch; no loading state; no hover state on the screenshot; no list markers (same reset); no click-outside dismissal; the Copy confirmation not visible (the library lays bottom-positioned toasts off screen); the close button going Back through clicks made inside the preview iframe (§3); scroll not resetting between pages; and several layout and copy points (duplicate heading, line wrapping, contrast inside open folds, content width, terminal palette). The glow moved from the demo button to Copy (§5).
 
 **Still not checked by anyone:**
 - The Code tab at dialog width, and the folder-map tree's alignment in the system monospace font.
-- The  override fully removing the Accordion's expanded accent border and the secondary Button's accent colour.
+- The `.neutral-scope` override fully removing the Accordion's expanded accent border and the secondary Button's accent colour.
 - The dialog's focus ring (yellow) and active tab (cyan) are the library's raw accent, because the dialog sits outside any accent scope. Known, not fixed; the fix is to scope the dialog to the neutral accent.
-- The dialog at 390px and under ; the focus trap and focus return in a real browser; the dialog in the accessibility tree.
+- The dialog at 390px and under `prefers-reduced-motion`; the focus trap and focus return in a real browser; the dialog in the accessibility tree.
 - Android Back after clicking around inside the preview.
--  and   cyberui-2045 — AI assistant setup
-
-  Non-interactive environment detected. Run one of:
-
-    npx cyberui-2045 init --claude
-    npx cyberui-2045 init --cursor
-    npx cyberui-2045 init --copilot
-    npx cyberui-2045 init --agents
-    npx cyberui-2045 init --all as the start prompt describes them.
-- That  still matches the demo after the template cleanup (the cleanup was meant not to change how it looks).
-
+- `npx tiged …/packages/monitoring` and `npx cyberui-2045 init` as the start prompt describes them.
+- That `monitoring.png` still matches the demo after the template cleanup (the cleanup was meant not to change how it looks).

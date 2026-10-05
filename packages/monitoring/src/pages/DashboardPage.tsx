@@ -1,3 +1,4 @@
+import { isErrorRateHigh, isLatencyHigh } from '../data/thresholds';
 import type { DashboardState } from '../data/simulation';
 import { StatTile } from '../components/StatTile';
 import { RequestVolumeChart } from '../components/RequestVolumeChart';
@@ -29,8 +30,8 @@ export function DashboardPage({ state, chartRange, onChartRangeChange, refreshMs
   // The action panel watches both alarms, using the same thresholds as the stat tiles.
   // incidentKey stays stable while an incident continues, so an acknowledgment
   // survives the headline's live number ticking on every refresh.
-  const hasErrorIncident = state.errorRatePct > 2;
-  const hasLatencyIncident = state.p95LatencyMs > 500;
+  const hasErrorIncident = isErrorRateHigh(state.errorRatePct);
+  const hasLatencyIncident = isLatencyHigh(state.p95LatencyMs);
   const actionIncidentKey = hasErrorIncident ? 'errors' : hasLatencyIncident ? 'latency' : 'healthy';
   const actionHeadline =
     actionIncidentKey === 'errors'
@@ -60,7 +61,7 @@ export function DashboardPage({ state, chartRange, onChartRangeChange, refreshMs
         <StatTile
           label="p95 latency"
           value={formatMs(state.p95LatencyMs)}
-          tone={state.p95LatencyMs > 500 ? 'warning' : 'default'}
+          tone={isLatencyHigh(state.p95LatencyMs) ? 'warning' : 'default'}
           icon={<ClockIcon />}
           status={latencyTrend.text}
           statusTone={latencyTrend.tone}
@@ -68,7 +69,7 @@ export function DashboardPage({ state, chartRange, onChartRangeChange, refreshMs
         <StatTile
           label="Error rate"
           value={formatPercent(state.errorRatePct)}
-          tone={state.errorRatePct > 2 ? 'error' : 'success'}
+          tone={isErrorRateHigh(state.errorRatePct) ? 'error' : 'success'}
           icon={<AlertTriangleIcon />}
           status={errorTrend.text}
           statusTone={errorTrend.tone}

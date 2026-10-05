@@ -12,11 +12,6 @@ export interface ActionPanelProps {
   primaryActionLabel?: string;
 }
 
-const TONE_VAR: Record<ActionPanelProps['headlineTone'], string> = {
-  success: 'var(--color-success)',
-  error: 'var(--color-error)',
-};
-
 export function ActionPanel({ incidentKey, headline, headlineTone, primaryActionLabel }: ActionPanelProps) {
   const [acknowledged, setAcknowledged] = useState(false);
   // Reset during render (not in an effect) when a genuinely new incident starts.
@@ -30,7 +25,7 @@ export function ActionPanel({ incidentKey, headline, headlineTone, primaryAction
     <Card title="What needs attention" className="action-panel panel-surface">
       {primaryActionLabel && (
         <div className="action-item">
-          <span className="action-dot" style={{ background: TONE_VAR[headlineTone] }} aria-hidden="true" />
+          <span className={`action-dot tone-${headlineTone}`} aria-hidden="true" />
           <div className="action-item-body">
             <p className="action-item-title">{headline}</p>
             {!acknowledged ? (
@@ -44,7 +39,7 @@ export function ActionPanel({ incidentKey, headline, headlineTone, primaryAction
         </div>
       )}
       <div className="action-item action-item--static">
-        <span className="action-dot" style={{ background: 'var(--color-success)' }} aria-hidden="true" />
+        <span className="action-dot tone-success" aria-hidden="true" />
         <div className="action-item-body">
           <p className="action-item-title">Model rollout: model-router v2.3.1</p>
           <p className="action-item-subtitle">Deployed to all regions, 0 rollbacks.</p>

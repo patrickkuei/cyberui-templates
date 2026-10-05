@@ -29,7 +29,7 @@ describe('describeLatency', () => {
   it('reports within target under 500ms', () => {
     expect(describeLatency(220)).toEqual({ text: 'within target', tone: 'success' });
   });
-  it('reports elevated at or above 500ms', () => {
+  it('reports elevated above 500ms', () => {
     expect(describeLatency(520)).toEqual({ text: 'elevated', tone: 'warning' });
   });
 });

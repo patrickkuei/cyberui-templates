@@ -1,3 +1,5 @@
+import { isErrorRateHigh, isLatencyHigh } from './thresholds';
+
 export interface MetricPoint {
   t: number;
   value: number;
@@ -61,10 +63,6 @@ export interface DashboardState {
 export const HISTORY_LENGTH = 30;
 export const MAX_ALERTS = 20;
 export const TICK_MS = 2000;
-
-/** Same thresholds the page uses to colour the badge and stat tiles (App.tsx). */
-export const ERROR_RATE_THRESHOLD_PCT = 2;
-export const P95_LATENCY_THRESHOLD_MS = 500;
 
 // Alarms clear with a little hysteresis so a value hovering at the threshold
 // doesn't spam raise/resolve pairs into the feed.
@@ -310,14 +308,14 @@ function step(state: DashboardState, now: number, rng: () => number, allowIncide
   };
 
   const alarms = { ...state.alarms };
-  if (!alarms.errorRate && errorRatePct > ERROR_RATE_THRESHOLD_PCT) {
+  if (!alarms.errorRate && isErrorRateHigh(errorRatePct)) {
     alarms.errorRate = true;
     push('critical', 'Error rate above threshold on us-east-1', 'Error rate above threshold');
   } else if (alarms.errorRate && errorRatePct < ERROR_RATE_RESOLVE_PCT) {
     alarms.errorRate = false;
     push('info', 'Resolved: error rate back to normal', 'Resolved');
   }
-  if (!alarms.latency && p95LatencyMs > P95_LATENCY_THRESHOLD_MS) {
+  if (!alarms.latency && isLatencyHigh(p95LatencyMs)) {
     alarms.latency = true;
     push('warning', 'p95 latency spike on /v1/chat/completions', 'p95 latency spike');
   } else if (alarms.latency && p95LatencyMs < P95_LATENCY_RESOLVE_MS) {

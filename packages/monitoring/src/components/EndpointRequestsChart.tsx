@@ -13,7 +13,7 @@ export function EndpointRequestsChart({ endpoints }: EndpointRequestsChartProps)
 
   return (
     <Card title="Requests by endpoint" className="panel-surface">
-      <div style={{ height: 280 }}>
+      <div className="chart-body chart-body--tall">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={endpoints} margin={{ bottom: 24 }}>
             <CartesianGrid stroke={colors.border} strokeDasharray="3 3" />

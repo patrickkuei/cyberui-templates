@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "check:process-excerpts": "node scripts/check-process-excerpts.mjs",
-    "test:scripts": "node --test scripts/check-process-excerpts.test.mjs"
+    "check:templates-readme": "node scripts/check-templates-readme.mjs",
+    "test:scripts": "node --test scripts/check-process-excerpts.test.mjs scripts/check-templates-readme.test.mjs"
   },
   "packageManager": "pnpm@10.34.2",
   "engines": {

@@ -4,13 +4,11 @@ Ready-made starting points for building with AI: complete example apps built wit
 
 ## Templates
 
-| Template | Status |
-|----------|--------|
-| AI product monitoring dashboard | ready |
-| Agent/assistant control panel | planned |
-| Landing page / marketing site | planned |
-| Mobile-first app | planned |
-| Community / social interface | planned |
+| Template | What it is |
+|----------|------------|
+| [AI Product Monitoring](packages/monitoring) | Request volume, latency percentiles, error rate, and a live alerts feed for a production AI API. |
+
+More are planned; follow [the open issues](https://github.com/patrickkuei/cyberui-templates/issues) to see what is next. The [site](https://patrickkuei.github.io/cyberui-templates/) has a live preview and a one-step start for each template that is ready.
 
 ## Get just one template
 

@@ -1,0 +1,49 @@
+{
+  "monitoring": {
+    "principles": [
+      {
+        "name": "Single source of truth",
+        "detail": "Alarm limits live in one file that the simulation, the trend labels, the stat tiles and the header badge all read. Chart colors come from the theme variables through one hook. Routes come from one list.",
+        "files": [
+          { "label": "thresholds.ts", "path": "src/data/thresholds.ts" },
+          { "label": "chartColors.ts", "path": "src/theme/chartColors.ts" },
+          { "label": "useHashRoute.ts", "path": "src/router/useHashRoute.ts" }
+        ]
+      },
+      {
+        "name": "DRY",
+        "detail": "What each tone (success, warning, error) looks like is defined once, as CSS classes. Every component that shows a tone uses them.",
+        "files": [{ "label": "App.css", "path": "src/App.css" }]
+      },
+      {
+        "name": "State in hooks, components presentational",
+        "detail": "The only timer is in one hook. Components and pages take props and render.",
+        "files": [{ "label": "useSimulatedMetrics.ts", "path": "src/data/useSimulatedMetrics.ts" }]
+      },
+      {
+        "name": "No inline styles",
+        "detail": "All styling is in CSS classes, and a test fails if a style prop appears.",
+        "files": [{ "label": "noInlineStyles.test.ts", "path": "src/noInlineStyles.test.ts" }]
+      },
+      {
+        "name": "Typed and exhaustive",
+        "detail": "Adding a page without its label or component is a compile error, not a blank screen.",
+        "files": [{ "label": "App.tsx", "path": "src/App.tsx" }]
+      },
+      {
+        "name": "Tested",
+        "detail": "A test file sits next to each component, page and helper.",
+        "files": [{ "label": "components/", "path": "src/components" }]
+      }
+    ],
+    "folders": [
+      { "path": "src/pages", "purpose": "One component per page: Dashboard, Endpoints, Alerts, Reports." },
+      { "path": "src/components", "purpose": "The charts, tables and panels the pages are built from." },
+      { "path": "src/data", "purpose": "Where the data comes from: the simulation, the alarm limits, and the hook the app reads. Your data goes here." },
+      { "path": "src/router", "purpose": "Hash-based routing. The list of routes is defined once." },
+      { "path": "src/theme", "purpose": "Chart colors, read from the theme variables." },
+      { "path": "src/utils", "purpose": "Small pure helpers for formatting and trend labels." },
+      { "path": "src/icons", "purpose": "Inline SVG icons." }
+    ]
+  }
+}

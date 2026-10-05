@@ -91,7 +91,7 @@ export function TemplateSection({ template, content, previewOpen, onOpenPreview,
       <StartBlock name={template.name} slug={template.slug} accentHex={template.accentHex} />
 
       <PreviewDialog isOpen={previewOpen} onClose={onClosePreview} title={template.name}>
-        <TemplatePreview template={template} />
+        <TemplatePreview template={template} code={content.code} />
       </PreviewDialog>
     </section>
   );

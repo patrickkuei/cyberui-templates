@@ -40,4 +40,20 @@ export interface TemplateContent {
   /** Completes the sentence "Probably not for you …". */
   notFor: string;
   examples: ExampleCase[];
+  /** The dialog's Code tab: the principles the template follows and a map of its folders. */
+  code: CodeTabContent;
+}
+
+/** A principle the template's code follows, and the real files where it shows. */
+export interface CodePrinciple {
+  name: string;
+  detail: string;
+  /** `path` is relative to the template's package folder, e.g. "src/data/thresholds.ts". */
+  files: { label: string; path: string }[];
+}
+
+/** What the dialog's Code tab shows: the principles, then a map of the folders. */
+export interface CodeTabContent {
+  principles: CodePrinciple[];
+  folders: { path: string; purpose: string }[];
 }

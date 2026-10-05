@@ -1,5 +1,10 @@
 import { TEMPLATES, type Template } from '../data/templates';
-import type { TemplateContent } from './types';
+import type { CodeTabContent, TemplateContent } from './types';
+import codeTabsJson from './codeTabs.json';
+
+// Plain JSON (not TS) so scripts/check-code-tab.mjs can read it with Node and
+// confirm every path it names still exists in the template's package.
+const CODE_TABS: Record<string, CodeTabContent> = codeTabsJson;
 
 // Plain typed content, one entry per template, keyed by the template's slug.
 // To add a template's section: add its entry to TEMPLATES (src/data/templates.ts)
@@ -12,6 +17,7 @@ import type { TemplateContent } from './types';
 // Do not reword them into something tidier; that would make them marketing.
 export const TEMPLATE_CONTENT: Record<string, TemplateContent> = {
   monitoring: {
+    code: CODE_TABS.monitoring!,
     useIf: [
       'a screen to keep an eye on something: orders, usage, errors, support tickets',
       'anything made of charts, a table and a list of things that need attention',

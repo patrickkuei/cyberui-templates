@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { Skeleton, TabNavigation } from 'cyberui-2045';
 import type { Template } from '../data/templates';
-import { CODE_SNIPPETS } from '../content/codeSnippets';
-import { CodeViewer } from './CodeViewer';
+import type { CodeTabContent } from '../content/types';
+import { CodeTab } from './CodeTab';
 
 const TABS = ['Live preview', 'Code'] as const;
 type Tab = (typeof TABS)[number];
 
 export interface TemplatePreviewProps {
   template: Template;
+  code: CodeTabContent;
 }
 
 // The live preview is the template's own built index.html, served from the
@@ -19,10 +20,9 @@ export interface TemplatePreviewProps {
 //
 // Until the iframe fires `load` a skeleton covers it. `load` also fires for an
 // error page, so this says "loaded", not "working".
-export function TemplatePreview({ template }: TemplatePreviewProps) {
+export function TemplatePreview({ template, code }: TemplatePreviewProps) {
   const [tab, setTab] = useState<Tab>('Live preview');
   const [loaded, setLoaded] = useState(false);
-  const snippets = CODE_SNIPPETS[template.slug] ?? [];
 
   return (
     <div className="template-preview">
@@ -41,7 +41,7 @@ export function TemplatePreview({ template }: TemplatePreviewProps) {
           </div>
         )}
         <div className="template-preview-code" hidden={tab !== 'Code'}>
-          <CodeViewer snippets={snippets} />
+          <CodeTab slug={template.slug} content={code} />
         </div>
       </div>
     </div>

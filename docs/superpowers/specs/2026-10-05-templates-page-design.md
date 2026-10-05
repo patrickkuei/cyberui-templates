@@ -178,7 +178,7 @@ The user then chose the simple way for this page: a small `PreviewDialog` compon
 
 To remove: `TemplatesIndexPage`, `TemplateTile`, the `status` field and the `small` tile size, the coming-soon fallback image, the "isn't built yet" branch of `TemplatePage`, and the four placeholder entries in `TEMPLATES`. `CaseStudy` and `caseStudies.ts` hold the engineering story, which has no place in the new layout and is replaced by the examples above. Home's "N templates ready. M more coming soon." sentence and the root README's status table also change, because they were written for the placeholders.
 
-## 7. The Code tab (agreed after the first browser look; not built yet)
+## 7. The Code tab (agreed after the first browser look; built)
 
 **Purpose.** Let a developer judge how clean the template's code is. It is not a component exhibition: the template is not required to use a library component for everything (a plain `<button>` is fine), and the tab does not audit the template against the library's own guide.
 
@@ -187,7 +187,7 @@ To remove: `TemplatesIndexPage`, `TemplateTile`, the `status` field and the `sma
 **What it shows.**
 1. **The principles the code follows,** each with a link to a real file that shows it. A claim that is not true of the code does not go on the list.
 2. **A folder map** with one line of purpose per folder, each file linking to its current source on GitHub. The `data/` line says it is the one place data comes from, so it is where your own data goes.
-3. Possibly a few real files in full, chosen by a stated rule and not for how they look (open; see below).
+Decided at build time: the tab shows the principles and the folder map only, not code in full. A full file browser, or a few files chosen by a stated rule, can be added later if developers ask for more. The content is `packages/site/src/content/codeTabs.json` (JSON so `scripts/check-code-tab.mjs` can confirm in CI that every linked path still exists).
 
 **The principles** (evidence is what a developer opens):
 
@@ -217,8 +217,6 @@ To remove: `TemplatesIndexPage`, `TemplateTile`, the `status` field and the `sma
 
 - Whether to add a short stack, license and GitHub-repo line under the description. Two of the four simulated reviewers asked for it. The `monitoring` package has no license file of its own (see below).
 - Whether to add a one-line "this is the only template right now" note, so a visitor who is not a fit does not wonder whether others exist.
-- Whether the Code tab also shows a few real files in full (a code file with its test, and a page), chosen by a stated rule such as "typical size", or only the principles and the folder map (§7). Alternatively a full file browser over every source file, which needs a build step that copies the template's source into the site. Not chosen.
-- Whether `useSimulatedMetrics.ts` really is the only place the simulated data enters, before the folder map says so. Not verified.
 - Whether `npx cyberui-2045 init` can be run by an AI without answering an interactive prompt (it reads from readline; flags such as `--claude` exist). Check when the prompt is written into code, and adjust its wording if needed.
 - Whether `npx tiged …/packages/monitoring` and `npm run dev` work exactly as written, and whether the dev server prints an address. Not tested.
 
@@ -242,6 +240,7 @@ To remove: `TemplatesIndexPage`, `TemplateTile`, the `status` field and the `sma
 Checked by Claude: the site's tests, `tsc`, the production build, the two root scripts (`check:process-excerpts`, `check:templates-readme`) all pass. The new components are covered by tests in a simulated DOM (happy-dom).
 
 **Not checked, because no browser was available in the build session** (the plan's Task 12 checklist is still open and belongs to a human):
+- That the Code tab reads well at dialog width and its links open the right GitHub pages (the paths are checked by CI; the pages themselves were not opened).
 - Whether the Copy start prompt glow is strong enough and the outlined demo button still reads as clickable on the screenshot (§5).
 - Whether the Heads-up is easy to skim past (§5 "revisit"; the boxed callout is the fallback).
 - The `.neutral-scope` override actually removing the Accordion's expanded accent border and the secondary Button's accent colour in a real browser.

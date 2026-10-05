@@ -39,6 +39,11 @@ export function PreviewDialog({ isOpen, onClose, title, children }: PreviewDialo
         event.preventDefault();
         onClose();
       }}
+      // A click on the ::backdrop is delivered to the <dialog> itself, while a
+      // click on anything inside it targets a child (the dialog has no padding).
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
       {isOpen && (
         <>

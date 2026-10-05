@@ -37,6 +37,14 @@ describe('PreviewDialog', () => {
     expect(dialog()).toHaveAttribute('open');
   });
 
+  it('asks the parent to close on a click outside the dialog (the backdrop), not on a click inside', async () => {
+    const { dialog, onClose } = renderDialog(true);
+    await userEvent.click(screen.getByText('inside'));
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.click(dialog());
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('asks the parent to close from the close button', async () => {
     const { onClose } = renderDialog(true);
     await userEvent.click(screen.getByRole('button', { name: 'Close preview' }));

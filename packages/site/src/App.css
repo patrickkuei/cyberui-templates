@@ -1183,6 +1183,34 @@ body:has(dialog[open]) {
   height: auto;
 }
 
+/* Hover state for pointer devices only (touch has no hover): the frame picks
+   up the template's accent and the screenshot brightens, so it reads as
+   something to click. The transition is off under reduced motion. */
+@media (hover: hover) {
+  .template-frame {
+    transition: border-color 160ms ease-out;
+  }
+
+  .template-frame-screen img {
+    transition: filter 160ms ease-out;
+  }
+
+  .template-frame:hover {
+    border-color: var(--color-accent);
+  }
+
+  .template-frame-screen:hover img {
+    filter: brightness(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .template-frame,
+  .template-frame-screen img {
+    transition: none;
+  }
+}
+
 /* Always visible, never hover-only: touch has no hover. */
 .template-frame-overlay {
   position: absolute;
@@ -1216,12 +1244,31 @@ body:has(dialog[open]) {
   color: var(--color-muted);
 }
 
+/* The library's CSS reset removes list markers, so draw one: the same
+   family of glyph as the Accordion's own indicator. Neutral on purpose. */
 .template-fit ul {
   margin: 0;
-  padding-left: 1.25rem;
+  padding: 0;
+  list-style: none;
   font-size: 1.125rem;
   line-height: 1.55;
   color: var(--color-default);
+}
+
+.template-fit li {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.template-fit li + li {
+  margin-top: 0.375rem;
+}
+
+.template-fit li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--color-muted);
 }
 
 /* Information, not a warning: plain text with a neutral rule. */

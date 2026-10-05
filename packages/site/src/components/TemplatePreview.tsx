@@ -28,6 +28,8 @@ export interface TemplatePreviewProps {
 // is blind. The preview is same-origin, so on load we listen for Esc inside it
 // and forward it to `onClose`. (A cross-origin preview would throw on access;
 // that is caught and Esc then simply does not forward.)
+// Note for forks: this also fires when the template itself uses Esc (to close
+// its own modal, say), so that press closes the preview as well as the modal.
 export function TemplatePreview({ template, code, onClose }: TemplatePreviewProps) {
   const [tab, setTab] = useState<Tab>('Live preview');
   const [loaded, setLoaded] = useState(false);

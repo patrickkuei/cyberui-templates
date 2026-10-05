@@ -47,6 +47,26 @@ describe('usePreviewNav', () => {
     expect(back).toHaveBeenCalledTimes(1);
   });
 
+  it('is not stuck when Back did not close the dialog: after the settle window the next close replaces the hash', () => {
+    vi.useFakeTimers();
+    try {
+      window.location.hash = '#/templates';
+      const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const { result } = renderHook(() => usePreviewNav('monitoring'));
+      result.current.open('monitoring');
+      result.current.close(); // goes Back, but the route never changes (it popped an iframe entry)
+      expect(back).toHaveBeenCalledTimes(1);
+      result.current.close(); // still inside the settle window: ignored
+      expect(back).toHaveBeenCalledTimes(1);
+      vi.advanceTimersByTime(500);
+      result.current.close(); // dialog is still open, so Back is no longer trusted
+      expect(back).toHaveBeenCalledTimes(1);
+      expect(window.location.hash).toBe('#/templates');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('can close again after the route has changed', () => {
     window.location.hash = '#/templates';
     const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});

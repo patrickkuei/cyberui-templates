@@ -36,6 +36,10 @@ export default defineConfig({
   },
   test: {
     environment: 'happy-dom',
+    // The preview iframe points at a build that does not exist under the test
+    // server, and happy-dom would try (and noisily fail) to fetch it. Tests that
+    // need the iframe's load behave by firing the event themselves.
+    environmentOptions: { happyDOM: { settings: { disableIframePageLoading: true } } },
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
   },

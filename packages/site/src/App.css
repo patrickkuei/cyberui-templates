@@ -248,79 +248,7 @@ body {
   }
 }
 
-/* ---- Template detail page ---- */
-
-.template-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.back-link {
-  align-self: flex-start;
-  color: var(--color-muted);
-  text-decoration: none;
-  font-size: 0.9375rem;
-}
-
-.back-link:hover {
-  color: var(--color-secondary);
-}
-
-.back-link:focus-visible {
-  outline: 2px solid var(--color-secondary);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
-.template-page-header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.template-page-header h1 {
-  margin: 0;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
-}
-
-.template-page-tagline {
-  margin: 0;
-  max-width: 60ch;
-  color: var(--color-muted);
-  line-height: 1.55;
-}
-
-.template-page-body {
-  margin-top: 0.5rem;
-}
-
-.preview-frame {
-  border: 1px solid var(--color-border-default);
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--color-surface);
-}
-
-.preview-frame::before {
-  content: '';
-  display: block;
-  height: 2rem;
-  background: var(--color-base);
-  border-bottom: 1px solid var(--color-border-default);
-}
-
-.preview-frame iframe {
-  display: block;
-  width: 100%;
-  height: min(70vh, 720px);
-  border: 0;
-  background: var(--color-base);
-}
-
-/* ---- Code tab + case study "Key snippet" ---- */
+/* ---- Code blocks ---- */
 
 .code-viewer {
   display: flex;
@@ -367,63 +295,6 @@ body {
   max-width: 68ch;
 }
 
-/* ---- Case study ---- */
-
-.case-study {
-  max-width: 68ch;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.case-study-lede {
-  margin: 0;
-  font-size: 1.125rem;
-  line-height: 1.6;
-  color: var(--color-default);
-}
-
-.case-study-section h2 {
-  margin: 0 0 1rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-
-.case-study-decisions {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.case-study-decision dt {
-  font-weight: 600;
-  margin-bottom: 0.35rem;
-}
-
-.case-study-decision dd {
-  margin: 0;
-  color: var(--color-muted);
-  line-height: 1.6;
-}
-
-.case-study-takeaways {
-  margin: 0;
-  padding-left: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  color: var(--color-muted);
-  line-height: 1.6;
-}
-
-@media (max-width: 640px) {
-  .template-page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
 /* ---- Site nav ---- */
 
 .site-nav {
@@ -465,56 +336,6 @@ body {
 .site-nav-links a:hover,
 .site-nav-links a:focus-visible {
   color: var(--color-secondary);
-}
-
-/* ---- Template tiles (Templates index) ---- */
-
-.template-tile-image {
-  width: 100%;
-  border-radius: 6px;
-  margin-bottom: 0.75rem;
-}
-
-.template-tile-tagline {
-  margin: 0 0 1.25rem;
-  color: var(--color-muted);
-  line-height: 1.55;
-}
-
-.template-tile-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.template-tile-dimmed {
-  opacity: 0.6;
-}
-
-/* ---- Templates index ---- */
-
-.templates-index {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.templates-index-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  grid-auto-rows: min-content;
-  gap: 1.25rem;
-}
-
-.template-tile-large {
-  grid-column: span 2;
-}
-
-@media (max-width: 640px) {
-  .template-tile-large {
-    grid-column: span 1;
-  }
 }
 
 /* ---- Hero scene (Home only) ---- */
@@ -1166,4 +987,215 @@ body:has(dialog[open]) {
 .template-preview-code {
   height: 100%;
   overflow: auto;
+}
+
+/* ---- Neutral scope: no neon after the hero ----
+   The library reads --color-accent / --color-secondary for expanded
+   Accordion borders and secondary Buttons. Pointing them at neutral tokens
+   here keeps the page's one neon spot (the hero's "Run the live demo"). */
+
+.neutral-scope {
+  --color-accent: var(--color-border-default);
+  --color-secondary: var(--color-muted);
+}
+
+/* ---- Template examples ---- */
+
+.template-examples-note {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.example-case h4 {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.example-case h4:first-child {
+  margin-top: 0;
+}
+
+.example-case ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.example-case p {
+  margin: 0;
+}
+
+/* ---- Start block ---- */
+
+.template-start-copy {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.template-start-note {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.start-details h4 {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.start-details h4:first-child {
+  margin-top: 0;
+}
+
+.start-details p {
+  margin: 0.75rem 0 0;
+}
+
+.start-pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  background: var(--color-base);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.start-pre-wrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Templates page: one section per template ---- */
+
+.templates-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
+}
+
+.templates-page > h1 {
+  margin: 0;
+}
+
+.template-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+}
+
+.template-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack);
+}
+
+.template-section-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.template-section-header h2 {
+  margin: 0;
+}
+
+.template-section-tagline {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+/* Window frame around the screenshot (neutral chrome). */
+.template-frame {
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+}
+
+.template-frame-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2rem;
+  padding-inline: 0.75rem;
+  background: var(--color-base);
+  border-bottom: 1px solid var(--color-border-default);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.template-frame-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-border-default);
+}
+
+.template-frame-path {
+  margin-left: 0.5rem;
+}
+
+.template-frame-screen {
+  position: relative;
+  cursor: pointer;
+}
+
+.template-frame-screen img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Always visible, never hover-only: touch has no hover. */
+.template-frame-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: center;
+  padding: 4rem 1rem 1.25rem;
+  background: linear-gradient(to top, var(--color-base) 10%, transparent);
+}
+
+.template-fit,
+.template-examples,
+.template-start {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack);
+  max-width: 68ch;
+}
+
+.template-fit h3,
+.template-examples h3,
+.template-start h3 {
+  margin: 0;
+}
+
+.template-fit ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.55;
+}
+
+/* Information, not a warning: plain text with a neutral rule. */
+.template-headsup,
+.template-notfor {
+  margin: 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--color-border-default);
+  color: var(--color-muted);
+  line-height: 1.55;
 }

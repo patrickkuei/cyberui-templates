@@ -22,10 +22,8 @@ describe('HomePage', () => {
 
   it('derives the template count from TEMPLATES instead of a hardcoded string', () => {
     render(<HomePage />);
-    const liveCount = TEMPLATES.filter((item) => item.status === 'live').length;
-    const comingSoonCount = TEMPLATES.length - liveCount;
-    expect(
-      screen.getByText(`${liveCount} template${liveCount === 1 ? '' : 's'} ready. ${comingSoonCount} more coming soon.`)
-    ).toBeInTheDocument();
+    const count = TEMPLATES.length;
+    expect(screen.getByText(`${count} template${count === 1 ? '' : 's'} ready.`)).toBeInTheDocument();
+    expect(screen.queryByText(/coming soon/i)).not.toBeInTheDocument();
   });
 });

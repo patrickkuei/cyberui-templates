@@ -13,16 +13,22 @@ describe('useHashRoute', () => {
     expect(result.current).toEqual({ name: 'home' });
   });
 
-  it('parses #/templates as the templates index', () => {
+  it('parses #/templates as the templates page with nothing open', () => {
     window.location.hash = '#/templates';
     const { result } = renderHook(() => useHashRoute());
-    expect(result.current).toEqual({ name: 'templates-index' });
+    expect(result.current).toEqual({ name: 'templates' });
   });
 
-  it('parses #/templates/monitoring as a template detail route', () => {
+  it('parses #/templates/monitoring as the templates page with that preview open', () => {
     window.location.hash = '#/templates/monitoring';
     const { result } = renderHook(() => useHashRoute());
-    expect(result.current).toEqual({ name: 'template', slug: 'monitoring' });
+    expect(result.current).toEqual({ name: 'templates', openSlug: 'monitoring' });
+  });
+
+  it('treats a trailing slash with no slug as nothing open', () => {
+    window.location.hash = '#/templates/';
+    const { result } = renderHook(() => useHashRoute());
+    expect(result.current).toEqual({ name: 'templates' });
   });
 
   it('parses #/process as the process route', () => {

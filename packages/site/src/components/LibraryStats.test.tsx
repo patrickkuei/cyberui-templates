@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { LibraryStats } from './LibraryStats';
+import { TEMPLATES } from '../data/templates';
 
 describe('LibraryStats', () => {
   it('shows the component count and palette injected from the installed cyberui-2045', () => {
@@ -14,6 +15,12 @@ describe('LibraryStats', () => {
     expect(__LIBRARY_STATS__.components).toBeGreaterThan(10);
     expect(__LIBRARY_STATS__.palette).toHaveLength(5);
     for (const { hex } of __LIBRARY_STATS__.palette) expect(hex).toMatch(/^#[0-9a-fA-F]{3,8}$/);
+  });
+
+  it('counts every published template as ready', () => {
+    render(<LibraryStats />);
+    const label = screen.getByText('ready templates');
+    expect(label.nextElementSibling).toHaveTextContent(String(TEMPLATES.length));
   });
 
   it('says the numbers are counted at build time', () => {

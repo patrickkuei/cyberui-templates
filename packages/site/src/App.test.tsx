@@ -9,10 +9,10 @@ describe('App', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Built by AI.');
   });
 
-  it('renders the template page for a known template hash', () => {
+  it('renders the templates page with its preview open for a known template hash', () => {
     window.location.hash = '#/templates/monitoring';
     render(<App />);
-    expect(screen.getByRole('heading', { name: 'AI Product Monitoring' })).toBeInTheDocument();
+    expect(screen.getByTitle('AI Product Monitoring live preview')).toBeInTheDocument();
   });
 
   it('renders the nav solid immediately on non-home routes (Review Focus #3)', () => {
@@ -27,10 +27,11 @@ describe('App', () => {
     expect(screen.getByRole('navigation')).not.toHaveClass('site-nav-solid');
   });
 
-  it('renders the templates index for #/templates', () => {
+  it('renders the templates page for #/templates, with no preview open', () => {
     window.location.hash = '#/templates';
     render(<App />);
-    expect(screen.getByRole('heading', { name: 'All templates' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Templates' })).toBeInTheDocument();
+    expect(screen.queryByTitle('AI Product Monitoring live preview')).not.toBeInTheDocument();
   });
 
   it('renders the process page for #/process', () => {

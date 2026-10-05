@@ -1,7 +1,6 @@
 import { useHashRoute, type Route } from './router/useHashRoute';
 import { HomePage } from './pages/HomePage';
-import { TemplatesIndexPage } from './pages/TemplatesIndexPage';
-import { TemplatePage } from './pages/TemplatePage';
+import { TemplatesPage } from './pages/TemplatesPage';
 import { ProcessPage } from './pages/ProcessPage';
 import { Nav } from './components/Nav';
 import './App.css';
@@ -13,10 +12,8 @@ import './App.css';
 // monitoring template's case study hold up as best practice.
 function renderRoute(route: Route) {
   switch (route.name) {
-    case 'template':
-      return <TemplatePage slug={route.slug} />;
-    case 'templates-index':
-      return <TemplatesIndexPage />;
+    case 'templates':
+      return <TemplatesPage openSlug={route.openSlug} />;
     case 'process':
       return <ProcessPage />;
     case 'home':

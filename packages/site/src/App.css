@@ -1315,9 +1315,9 @@ body:has(dialog[open]) {
 
 .code-tab-section h3 {
   margin: 0 0 0.75rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--color-muted);
+  color: var(--color-default);
 }
 
 .code-tab-principles {

@@ -1,5 +1,6 @@
 import { CyberNotificationProvider } from 'cyberui-2045';
 import { useHashRoute, type Route } from './router/useHashRoute';
+import { useScrollToTopOnChange } from './hooks/useScrollToTopOnChange';
 import { HomePage } from './pages/HomePage';
 import { TemplatesPage } from './pages/TemplatesPage';
 import { ProcessPage } from './pages/ProcessPage';
@@ -33,6 +34,8 @@ function renderRoute(route: Route) {
 
 export default function App() {
   const route = useHashRoute();
+  // Keyed on the page, not the whole route: opening a preview on /templates is a hash change too.
+  useScrollToTopOnChange(route.name);
 
   return (
     // The provider is for the toasts (the Templates page's "Copied"). top-right, not

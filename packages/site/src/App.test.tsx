@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { act, render, screen } from '@testing-library/react';
 import App from './App';
 
 describe('App', () => {
@@ -38,5 +38,33 @@ describe('App', () => {
     window.location.hash = '#/process';
     render(<App />);
     expect(screen.getByRole('heading', { name: 'How we design' })).toBeInTheDocument();
+  });
+
+  describe('scroll position between pages', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    function goTo(hash: string) {
+      act(() => {
+        window.location.hash = hash;
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
+      });
+    }
+
+    it('scrolls to the top when the page changes', () => {
+      window.location.hash = '#/templates';
+      render(<App />);
+      const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+      goTo('#/process');
+      expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+    });
+
+    it('does not scroll when a preview opens or closes on the templates page', () => {
+      window.location.hash = '#/templates';
+      render(<App />);
+      const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+      goTo('#/templates/monitoring');
+      goTo('#/templates');
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
   });
 });

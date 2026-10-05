@@ -13,10 +13,14 @@ describe('TemplatePreview', () => {
     expect(frame).toHaveAttribute('src', './live/monitoring/index.html');
   });
 
-  it('switches to the Code tab, which replaces the iframe', async () => {
+  it('switches to the Code tab, hiding the iframe without unmounting it (no reload on the way back)', async () => {
     render(<TemplatePreview template={monitoring} />);
+    const frame = screen.getByTitle('AI Product Monitoring live preview', { exact: true });
     await userEvent.click(screen.getByRole('tab', { name: 'Code' }));
-    expect(screen.getByText('Bounded random walk — src/data/simulation.ts')).toBeInTheDocument();
-    expect(screen.queryByTitle('AI Product Monitoring live preview')).not.toBeInTheDocument();
+    expect(screen.getByText('Bounded random walk — src/data/simulation.ts')).toBeVisible();
+    expect(frame).not.toBeVisible();
+    await userEvent.click(screen.getByRole('tab', { name: 'Live preview' }));
+    expect(screen.getByTitle('AI Product Monitoring live preview')).toBe(frame);
+    expect(frame).toBeVisible();
   });
 });

@@ -144,8 +144,7 @@ How they'd know it worked: "I log in with a test customer's key and the numbers 
 ## 5. Visual direction
 
 All within the hub rule: neutral chrome, neon only where it means something, no new colors.
-- **Accent** is scoped to the template's own section, as a local override (the same technique the old live tile used). It is used once: on the "Run the live demo" button. Nothing else on the page uses the accent. *Agreed with the user over two alternatives (accent on the label badge and frame border; glow around the whole frame). Revisit once the screenshot section is built: the user suspects the neon may feel too tight against the screenshot, which can only be judged on screen.*
-- **Copy start prompt** is a neutral button, not a primary one, so the page keeps one neon spot (the same reasoning as the `/process` closing block).
+- **Accent** is scoped to the template's own section, as a local override (the same technique the old live tile used). It glows in one place: the **Copy start prompt** button (primary), because copying the prompt is the page's main action. The hero (name badge) and the outlined **Run the live demo** button (secondary) carry the accent colour without a glow. Nothing else uses it. *First agreed as glow-on-the-demo-button; changed after the first browser look, when the user found Copy too weak and asked which matters more. The demo is how a visitor decides; Copy is what they do once they have.*
 - **Screenshot frame:** a window frame with a 2rem top bar (like the existing `.preview-frame`), a dark gradient over the bottom edge, neutral. The "Run the live demo" hint is always visible, never hover-only, because touch has no hover.
 - **Heads-up** is plain text with a neutral left rule, not a warning color. It is information, not an alert. "Use this if" and "Probably not for you" are plain text too. *Agreed with the user over a two-column layout and a boxed callout. Revisit if the Heads-up is easy to skim past once built; the boxed callout is the fallback.*
 - **Dialog:** neutral surface, 1px border, no glow.
@@ -162,8 +161,8 @@ Checked against cyberui-2045 v2.6.0's types and built code, not in a browser.
 | Dialog | Site-local `PreviewDialog` on the native `<dialog>` element | See below. |
 | Dialog tabs | Library `TabNavigation` (already used by the old `TemplatePage`) | None. |
 | Accent label | Library `Badge` (already used) | None. |
-| "Run the live demo" | Library `Button` `primary`, inside the accent-scoped section | None. |
-| Copy start prompt | Library `Button` `secondary` | None. |
+| "Run the live demo" | Library `Button` `secondary`, inside the accent-scoped hero | None. |
+| Copy start prompt | Library `Button` `primary`, inside an accent-scoped wrapper | None. |
 | Code tab | Site-local `CodeViewer` (exists) | Possibly extended; see "Decisions not made". |
 | Copy to clipboard | Small site-local piece; no library component | |
 | Screenshot frame and overlay | Custom CSS | |
@@ -208,7 +207,7 @@ To remove: `TemplatesIndexPage`, `TemplateTile`, the `status` field and the `sma
 Checked by Claude: the site's tests, `tsc`, the production build, the two root scripts (`check:process-excerpts`, `check:templates-readme`) all pass. The new components are covered by tests in a simulated DOM (happy-dom).
 
 **Not checked, because no browser was available in the build session** (the plan's Task 12 checklist is still open and belongs to a human):
-- Whether the single neon spot on the "Run the live demo" button feels too tight against the screenshot (§5 "revisit").
+- Whether the Copy start prompt glow is strong enough and the outlined demo button still reads as clickable on the screenshot (§5).
 - Whether the Heads-up is easy to skim past (§5 "revisit"; the boxed callout is the fallback).
 - The `.neutral-scope` override actually removing the Accordion's expanded accent border and the secondary Button's accent colour in a real browser.
 - The dialog at about 90vw by 90vh on desktop and full-screen at 390px, its fade, and the `prefers-reduced-motion` path.

@@ -8,13 +8,14 @@ export interface CopyButtonProps {
   text: string;
   /** The button's resting label. */
   label: string;
+  /** `primary` glows in whatever accent the surrounding scope sets. Defaults to quiet. */
+  variant?: 'primary' | 'secondary';
 }
 
-// `secondary` on purpose: a primary Button glows, and this page spends its
-// one neon spot on "Run the live demo". navigator.clipboard is undefined on
-// insecure origins and rejects when permission is denied; both land in the
-// same catch, so the button reports failure instead of throwing.
-export function CopyButton({ text, label }: CopyButtonProps) {
+// navigator.clipboard is undefined on insecure origins and rejects when
+// permission is denied; both land in the same catch, so the button reports
+// failure instead of throwing.
+export function CopyButton({ text, label, variant = 'secondary' }: CopyButtonProps) {
   const [state, setState] = useState<CopyState>('idle');
 
   async function copy() {
@@ -28,7 +29,7 @@ export function CopyButton({ text, label }: CopyButtonProps) {
 
   return (
     <>
-      <Button variant="secondary" onClick={copy}>
+      <Button variant={variant} onClick={copy}>
         {state === 'copied' ? 'Copied' : state === 'failed' ? 'Copy failed' : label}
       </Button>
       <span className="visually-hidden" role="status">

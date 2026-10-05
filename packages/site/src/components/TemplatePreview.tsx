@@ -13,7 +13,9 @@ export interface TemplatePreviewProps {
 
 // The live preview is the template's own built index.html, served from the
 // same origin (live/<slug>/index.html). It is a full running app, so the
-// iframe is only ever mounted while the surrounding dialog is open.
+// iframe is only ever mounted while the surrounding dialog is open. Both
+// panes stay mounted and the inactive one is `hidden`, so switching to Code
+// and back does not reload (and reset) the running template.
 export function TemplatePreview({ template }: TemplatePreviewProps) {
   const [tab, setTab] = useState<Tab>('Live preview');
   const snippets = CODE_SNIPPETS[template.slug] ?? [];
@@ -22,12 +24,10 @@ export function TemplatePreview({ template }: TemplatePreviewProps) {
     <div className="template-preview">
       <TabNavigation tabs={TABS} activeTab={tab} onTabChange={(next) => setTab(next as Tab)} />
       <div className="template-preview-body">
-        {tab === 'Live preview' && <iframe title={`${template.name} live preview`} src={template.livePreviewPath} />}
-        {tab === 'Code' && (
-          <div className="template-preview-code">
-            <CodeViewer snippets={snippets} />
-          </div>
-        )}
+        <iframe title={`${template.name} live preview`} src={template.livePreviewPath} hidden={tab !== 'Live preview'} />
+        <div className="template-preview-code" hidden={tab !== 'Code'}>
+          <CodeViewer snippets={snippets} />
+        </div>
       </div>
     </div>
   );

@@ -890,6 +890,9 @@ body {
   height: 90vh;
   max-width: none;
   max-height: none;
+  /* The library's CSS reset zeroes margins, which removes the auto margin a
+     modal <dialog> uses to centre itself. */
+  margin: auto;
   padding: 0;
   overflow: hidden;
   background: var(--color-surface);
@@ -989,10 +992,17 @@ body:has(dialog[open]) {
   overflow: auto;
 }
 
-/* ---- Neutral scope: no neon after the hero ----
+/* The Live preview iframe stays mounted while the Code tab shows, so
+   switching tabs does not reload the running template. */
+.template-preview-body [hidden] {
+  display: none;
+}
+
+/* ---- Neutral scope: no neon outside the hero and the Copy button ----
    The library reads --color-accent / --color-secondary for expanded
    Accordion borders and secondary Buttons. Pointing them at neutral tokens
-   here keeps the page's one neon spot (the hero's "Run the live demo"). */
+   here keeps the page's neon to the template's hero and its Copy start
+   prompt button. */
 
 .neutral-scope {
   --color-accent: var(--color-border-default);
@@ -1007,10 +1017,16 @@ body:has(dialog[open]) {
   line-height: 1.55;
 }
 
+/* The library's Accordion panel text is muted; restore full contrast inside. */
+.example-case,
+.start-details {
+  color: var(--color-default);
+}
+
 .example-case h4 {
   margin: 1rem 0 0.25rem;
   font-size: 0.875rem;
-  color: var(--color-muted);
+  font-weight: 600;
 }
 
 .example-case h4:first-child {
@@ -1046,7 +1062,7 @@ body:has(dialog[open]) {
 .start-details h4 {
   margin: 1rem 0 0.25rem;
   font-size: 0.875rem;
-  color: var(--color-muted);
+  font-weight: 600;
 }
 
 .start-details h4:first-child {
@@ -1057,16 +1073,25 @@ body:has(dialog[open]) {
   margin: 0.75rem 0 0;
 }
 
-.start-pre {
+/* Terminal palette: near-black ground, success-green text. Shared by the
+   start block's command blocks and the dialog's Code tab (not /process,
+   whose evidence blocks keep the quiet surface look). */
+.start-pre,
+.template-preview-code .code-block pre {
   margin: 0;
   padding: 0.75rem 1rem;
   overflow-x: auto;
-  background: var(--color-base);
+  background: var(--color-black);
   border: 1px solid var(--color-border-default);
   border-radius: 6px;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 0.8125rem;
   line-height: 1.5;
+}
+
+.start-pre code,
+.template-preview-code .code-block code {
+  color: var(--color-success);
 }
 
 .start-pre-wrap {
@@ -1111,7 +1136,6 @@ body:has(dialog[open]) {
 
 .template-section-tagline {
   margin: 0;
-  max-width: 60ch;
   color: var(--color-muted);
   line-height: 1.55;
 }
@@ -1175,7 +1199,7 @@ body:has(dialog[open]) {
   display: flex;
   flex-direction: column;
   gap: var(--space-stack);
-  max-width: 68ch;
+  max-width: 60rem;
 }
 
 .template-fit h3,
@@ -1184,10 +1208,20 @@ body:has(dialog[open]) {
   margin: 0;
 }
 
+/* The lead-in is the same on every template, so it is a quiet label; the
+   list under it is what changes per template, so it carries the weight. */
+.template-fit h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
 .template-fit ul {
   margin: 0;
   padding-left: 1.25rem;
+  font-size: 1.125rem;
   line-height: 1.55;
+  color: var(--color-default);
 }
 
 /* Information, not a warning: plain text with a neutral rule. */

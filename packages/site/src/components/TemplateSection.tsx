@@ -19,9 +19,10 @@ export interface TemplateSectionProps {
 // One template, top to bottom: what it is, a screenshot that opens the
 // running template, whether it fits, two folded examples, how to start.
 //
-// The template's accent hue is scoped to the hero only (name badge, frame
-// and "Run the live demo"); the rest of the section sits in .neutral-scope or
-// plain text, so a page of several templates has one neon spot per section.
+// The template's accent hue is scoped to two places: the hero (name badge and
+// the outlined "Run the live demo" button) and the glowing "Copy start prompt"
+// button inside StartBlock, which is the main action. Everything else sits in
+// .neutral-scope or is plain text.
 export function TemplateSection({ template, content, previewOpen, onOpenPreview, onClosePreview }: TemplateSectionProps) {
   const headingId = useId();
   const accentStyle = {
@@ -54,7 +55,7 @@ export function TemplateSection({ template, content, previewOpen, onOpenPreview,
             <img src={template.screenshotSrc} alt={`${template.name} screenshot`} />
             <div className="template-frame-overlay">
               <Button
-                variant="primary"
+                variant="secondary"
                 onClick={(event) => {
                   event.stopPropagation();
                   onOpenPreview();
@@ -87,7 +88,7 @@ export function TemplateSection({ template, content, previewOpen, onOpenPreview,
         <ExampleFolds examples={content.examples} />
       </div>
 
-      <StartBlock name={template.name} slug={template.slug} />
+      <StartBlock name={template.name} slug={template.slug} accentHex={template.accentHex} />
 
       <PreviewDialog isOpen={previewOpen} onClose={onClosePreview} title={template.name}>
         <TemplatePreview template={template} />

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Card } from 'cyberui-2045';
 import type { Tone } from '../utils/trend';
+import { TONE_CLASS } from '../theme/tones';
 
 export interface StatTileProps {
   label: string;
@@ -11,9 +12,10 @@ export interface StatTileProps {
   statusTone?: Tone;
 }
 
-// Colour comes from the shared .tone-* classes in App.css, not from a map in
-// this file or an inline style, so every component that shows a tone reads
-// the same single definition.
+// Colour comes from the shared .tone-* classes in App.css through TONE_CLASS
+// (theme/tones.ts), not from a map in this file or an inline style, so every
+// component that shows a tone reads the same single definition and a new Tone
+// without a class is a compile error.
 export function StatTile({ label, value, tone = 'default', icon, status, statusTone = 'default' }: StatTileProps) {
   return (
     <Card title={label} variant="small" titleBorder={false} className="panel-surface">
@@ -23,10 +25,10 @@ export function StatTile({ label, value, tone = 'default', icon, status, statusT
             {icon}
           </span>
         )}
-        <p className={`stat-tile-value tone-${tone}`}>{value}</p>
+        <p className={`stat-tile-value ${TONE_CLASS[tone]}`}>{value}</p>
       </div>
       {status && (
-        <p className={`stat-tile-status tone-${statusTone}`}>
+        <p className={`stat-tile-status ${TONE_CLASS[statusTone]}`}>
           <span className="stat-tile-status-dot" aria-hidden="true" />
           {status}
         </p>

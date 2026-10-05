@@ -41,7 +41,7 @@ export function TemplatePreview({ template, code }: TemplatePreviewProps) {
           </div>
         )}
         <div className="template-preview-code" hidden={tab !== 'Code'}>
-          <CodeTab slug={template.slug} content={code} />
+          <CodeTab content={code} />
         </div>
       </div>
     </div>

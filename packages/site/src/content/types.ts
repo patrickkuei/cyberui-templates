@@ -44,12 +44,15 @@ export interface TemplateContent {
   code: CodeTabContent;
 }
 
-/** A principle the template's code follows, and the real files where it shows. */
+/** A principle the template's code follows, shown with a real excerpt as evidence. */
 export interface CodePrinciple {
   name: string;
+  /** One short sentence. */
   detail: string;
-  /** `path` is relative to the template's package folder, e.g. "src/data/thresholds.ts". */
-  files: { label: string; path: string }[];
+  /** Path of the file the excerpt comes from, relative to the template's package folder. */
+  file: string;
+  /** Lines copied verbatim from `file`, indentation included. scripts/check-code-tab.mjs fails CI if they drift. */
+  excerpt: string[];
 }
 
 /** What the dialog's Code tab shows: the principles, then a map of the folders. */

@@ -185,9 +185,9 @@ To remove: `TemplatesIndexPage`, `TemplateTile`, the `status` field and the `sma
 **What the tab does not show.** No stack line (every template is TypeScript, so it distinguishes nothing). Nothing about how the data is simulated. The current snippets (`simulation.ts`: a random walk, a capped alerts list) are engineering trivia to a visitor and are removed.
 
 **What it shows.**
-1. **The principles the code follows,** each with a link to a real file that shows it. A claim that is not true of the code does not go on the list.
-2. **A folder map** with one line of purpose per folder, each file linking to its current source on GitHub. The `data/` line says it is the one place data comes from, so it is where your own data goes.
-Decided at build time: the tab shows the principles and the folder map only, not code in full. A full file browser, or a few files chosen by a stated rule, can be added later if developers ask for more. The content is `packages/site/src/content/codeTabs.json` (JSON so `scripts/check-code-tab.mjs` can confirm in CI that every linked path still exists).
+1. **The principles the code follows,** each with one short sentence and a short real excerpt from the template, copied verbatim, with its file name. No links: the code is shown on the page. A claim that is not true of the code does not go on the list, and every sentence is kept short.
+2. **A folder map** with a few words of purpose per folder, no links. The `data/` line says it is where your own data goes.
+Decided after the first build: excerpts are shown (short, one per principle), not linked to. A full file browser can be added later if developers ask for more. The content is `packages/site/src/content/codeTabs.json` (JSON so `scripts/check-code-tab.mjs` can confirm in CI that every excerpt still appears verbatim in its file and every folder still exists).
 
 **The principles** (evidence is what a developer opens):
 
@@ -240,7 +240,7 @@ Decided at build time: the tab shows the principles and the folder map only, not
 Checked by Claude: the site's tests, `tsc`, the production build, the two root scripts (`check:process-excerpts`, `check:templates-readme`) all pass. The new components are covered by tests in a simulated DOM (happy-dom).
 
 **Not checked, because no browser was available in the build session** (the plan's Task 12 checklist is still open and belongs to a human):
-- That the Code tab reads well at dialog width and its links open the right GitHub pages (the paths are checked by CI; the pages themselves were not opened).
+- That the Code tab reads well at dialog width, with the excerpts in the terminal palette.
 - Whether the Copy start prompt glow is strong enough and the outlined demo button still reads as clickable on the screenshot (§5).
 - Whether the Heads-up is easy to skim past (§5 "revisit"; the boxed callout is the fallback).
 - The `.neutral-scope` override actually removing the Accordion's expanded accent border and the secondary Button's accent colour in a real browser.

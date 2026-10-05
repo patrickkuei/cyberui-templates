@@ -28,10 +28,3 @@ export function startPrompt(name: string, slug: string): string {
     'Then run `npx cyberui-2045 init` so you know how to use the component library from now on.',
   ].join(' ');
 }
-
-// Links to a template's source on GitHub (main), for the Code tab. A folder
-// uses /tree/, a file /blob/; GitHub redirects either to the right view, so
-// the caller does not need to know which a path is.
-export function sourceUrl(slug: string, path: string): string {
-  return `https://github.com/${REPO}/blob/main/packages/${slug}/${path}`;
-}

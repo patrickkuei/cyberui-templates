@@ -43,11 +43,11 @@ export function StartBlock({ name, slug, accentHex }: StartBlockProps) {
               content: (
                 <div className="start-details">
                   <h4>The prompt</h4>
-                  <pre className="start-pre start-pre-wrap">
+                  <pre className="terminal-pre terminal-pre-wrap">
                     <code>{startPrompt(name, slug)}</code>
                   </pre>
                   <h4>In a terminal</h4>
-                  <pre className="start-pre">
+                  <pre className="terminal-pre">
                     <code>{terminalSteps(slug).join('\n')}</code>
                   </pre>
                   <p>Needs Node {NODE_MIN} or newer.</p>

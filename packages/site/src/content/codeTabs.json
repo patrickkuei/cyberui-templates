@@ -3,46 +3,87 @@
     "principles": [
       {
         "name": "Single source of truth",
-        "detail": "Alarm limits live in one file that the simulation, the trend labels, the stat tiles and the header badge all read. Chart colors come from the theme variables through one hook. Routes come from one list.",
-        "files": [
-          { "label": "thresholds.ts", "path": "src/data/thresholds.ts" },
-          { "label": "chartColors.ts", "path": "src/theme/chartColors.ts" },
-          { "label": "useHashRoute.ts", "path": "src/router/useHashRoute.ts" }
+        "detail": "Alarm limits live in one file.",
+        "file": "src/data/thresholds.ts",
+        "excerpt": [
+          "export const ERROR_RATE_THRESHOLD_PCT = 2;",
+          "export const P95_LATENCY_THRESHOLD_MS = 500;",
+          "",
+          "export function isErrorRateHigh(errorRatePct: number): boolean {",
+          "  return errorRatePct > ERROR_RATE_THRESHOLD_PCT;",
+          "}"
         ]
       },
       {
         "name": "DRY",
-        "detail": "What each tone (success, warning, error) looks like is defined once, as CSS classes. Every component that shows a tone uses them.",
-        "files": [{ "label": "App.css", "path": "src/App.css" }]
+        "detail": "Each tone's color is defined once.",
+        "file": "src/App.css",
+        "excerpt": [
+          ".tone-success {",
+          "  color: var(--color-success);",
+          "}",
+          "",
+          ".tone-warning {",
+          "  color: var(--color-warning);",
+          "}"
+        ]
       },
       {
-        "name": "State in hooks, components presentational",
-        "detail": "The only timer is in one hook. Components and pages take props and render.",
-        "files": [{ "label": "useSimulatedMetrics.ts", "path": "src/data/useSimulatedMetrics.ts" }]
+        "name": "State in hooks",
+        "detail": "The only timer lives in one hook.",
+        "file": "src/data/useSimulatedMetrics.ts",
+        "excerpt": [
+          "  useEffect(() => {",
+          "    const id = setInterval(() => {",
+          "      setState((prev) => tick(prev, Date.now()));",
+          "    }, intervalMs);",
+          "    return () => clearInterval(id);",
+          "  }, [intervalMs]);"
+        ]
       },
       {
         "name": "No inline styles",
-        "detail": "All styling is in CSS classes, and a test fails if a style prop appears.",
-        "files": [{ "label": "noInlineStyles.test.ts", "path": "src/noInlineStyles.test.ts" }]
+        "detail": "Styling is in CSS, and a test enforces it.",
+        "file": "src/noInlineStyles.test.ts",
+        "excerpt": [
+          "    const offenders = Object.entries(sources)",
+          "      .filter(([file]) => !/\\.test\\.tsx$/.test(file))",
+          "      .filter(([, code]) => /\\bstyle=\\{/.test(code))",
+          "      .map(([file]) => file);"
+        ]
       },
       {
         "name": "Typed and exhaustive",
-        "detail": "Adding a page without its label or component is a compile error, not a blank screen.",
-        "files": [{ "label": "App.tsx", "path": "src/App.tsx" }]
+        "detail": "A page without a label fails to compile.",
+        "file": "src/App.tsx",
+        "excerpt": [
+          "const ROUTE_LABELS: Record<Route, string> = {",
+          "  dashboard: 'Dashboard',",
+          "  endpoints: 'Endpoints',",
+          "  alerts: 'Alerts',",
+          "  reports: 'Reports',",
+          "};"
+        ]
       },
       {
         "name": "Tested",
-        "detail": "A test file sits next to each component, page and helper.",
-        "files": [{ "label": "components/", "path": "src/components" }]
+        "detail": "Tests sit next to the code they cover.",
+        "file": "src/utils/trend.test.ts",
+        "excerpt": [
+          "describe('describeLatency', () => {",
+          "  it('reports within target under 500ms', () => {",
+          "    expect(describeLatency(220)).toEqual({ text: 'within target', tone: 'success' });",
+          "  });"
+        ]
       }
     ],
     "folders": [
-      { "path": "src/pages", "purpose": "One component per page: Dashboard, Endpoints, Alerts, Reports." },
-      { "path": "src/components", "purpose": "The charts, tables and panels the pages are built from." },
-      { "path": "src/data", "purpose": "Where the data comes from: the simulation, the alarm limits, and the hook the app reads. Your data goes here." },
-      { "path": "src/router", "purpose": "Hash-based routing. The list of routes is defined once." },
-      { "path": "src/theme", "purpose": "Chart colors, read from the theme variables." },
-      { "path": "src/utils", "purpose": "Small pure helpers for formatting and trend labels." },
+      { "path": "src/pages", "purpose": "One component per page." },
+      { "path": "src/components", "purpose": "Charts, tables and panels." },
+      { "path": "src/data", "purpose": "Simulation, limits, the data hook. Your data goes here." },
+      { "path": "src/router", "purpose": "Hash routing." },
+      { "path": "src/theme", "purpose": "Chart colors from theme variables." },
+      { "path": "src/utils", "purpose": "Formatting and trend helpers." },
       { "path": "src/icons", "purpose": "Inline SVG icons." }
     ]
   }

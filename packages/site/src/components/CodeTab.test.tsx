@@ -6,35 +6,32 @@ import { contentFor } from '../content/templateContent';
 const code = contentFor('monitoring').code;
 
 describe('CodeTab', () => {
-  it('lists every principle with its explanation', () => {
-    render(<CodeTab slug="monitoring" content={code} />);
-    for (const principle of code.principles) {
-      expect(screen.getByText(principle.name)).toBeInTheDocument();
-    }
-    expect(screen.getByText(/Alarm limits live in one file/)).toBeInTheDocument();
+  it('shows every principle with one short line, its file, and a real excerpt', () => {
+    const { container } = render(<CodeTab content={code} />);
+    const figures = container.querySelectorAll('figure');
+    expect(figures).toHaveLength(code.principles.length);
+    const first = within(figures[0] as HTMLElement);
+    expect(first.getByText('Single source of truth')).toBeInTheDocument();
+    expect(first.getByText('src/data/thresholds.ts')).toBeInTheDocument();
+    expect(figures[0]!.querySelector('pre')!.textContent).toBe(code.principles[0]!.excerpt.join('\n'));
   });
 
-  it('links each principle to real source files on GitHub, in a new tab', () => {
-    render(<CodeTab slug="monitoring" content={code} />);
-    const link = screen.getByRole('link', { name: /thresholds\.ts/ });
-    expect(link).toHaveAttribute(
-      'href',
-      'https://github.com/patrickkuei/cyberui-templates/blob/main/packages/monitoring/src/data/thresholds.ts'
-    );
-    expect(link).toHaveAttribute('target', '_blank');
-    expect(link).toHaveAttribute('rel', expect.stringContaining('noreferrer'));
+  it('keeps each explanation to a single short sentence', () => {
+    for (const principle of code.principles) {
+      expect(principle.detail.length).toBeLessThanOrEqual(60);
+      expect(principle.detail.endsWith('.')).toBe(true);
+    }
+  });
+
+  it('has no links: the code is shown, not linked to', () => {
+    render(<CodeTab content={code} />);
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('maps every folder to its purpose, and says the data folder is where your data goes', () => {
-    render(<CodeTab slug="monitoring" content={code} />);
+    render(<CodeTab content={code} />);
     const folders = screen.getByRole('heading', { name: "What's where" }).closest('section')!;
-    const items = within(folders).getAllByRole('listitem');
-    expect(items).toHaveLength(code.folders.length);
+    expect(within(folders).getAllByRole('listitem')).toHaveLength(code.folders.length);
     expect(within(folders).getByText(/Your data goes here/)).toBeInTheDocument();
-  });
-
-  it('shows no source code blocks: the tab links to code instead of quoting it', () => {
-    const { container } = render(<CodeTab slug="monitoring" content={code} />);
-    expect(container.querySelector('pre')).toBeNull();
   });
 });

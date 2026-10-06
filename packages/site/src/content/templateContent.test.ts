@@ -25,7 +25,7 @@ describe('template content', () => {
     const content = TEMPLATE_CONTENT['agent-panel']!;
     expect(content.useIf).toHaveLength(3);
     expect(content.headsUp).toMatch(/screens, not the agent/);
-    expect(content.headsUp).toMatch(/no AI model is called/);
+    expect(content.headsUp).toMatch(/no AI model is running/);
     expect(content.examples).toHaveLength(2);
   });
 

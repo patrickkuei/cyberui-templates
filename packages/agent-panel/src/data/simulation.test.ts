@@ -213,7 +213,7 @@ describe('steering', () => {
     let s = approve(untilApproval(sendMessage(fresh(), 'refund order', NOW)));
     for (let i = 0; i < 50 && !s.tasks.some((t) => t.title === 'Process refund #4821'); i++) s = tick(s, NOW + i);
     const task = s.tasks.find((t) => t.title === 'Process refund #4821')!;
-    const done = settle(cancelTask(s, task.id));
+    const done = settle(cancelTask(s, task.id, NOW));
     expect(done.messages.at(-1)!.text).toMatch(/stopped before it finished/i);
   });
 
@@ -221,13 +221,26 @@ describe('steering', () => {
     const s = fresh();
     const failed = s.tasks.find((t) => t.status === 'failed')!;
     const done = s.tasks.find((t) => t.status === 'done')!;
-    expect(cancelTask(s, done.id)).toBe(s);
+    expect(cancelTask(s, done.id, NOW)).toBe(s);
     expect(retryTask(s, done.id)).toBe(s);
     const retried = retryTask(s, failed.id).tasks.find((t) => t.id === failed.id)!;
     expect(retried).toMatchObject({ status: 'queued', ticksDone: 0 });
     expect(retried.error).toBeUndefined();
-    const cancelled = cancelTask(s, s.tasks.find((t) => t.status === 'queued')!.id);
+    const cancelled = cancelTask(s, s.tasks.find((t) => t.status === 'queued')!.id, NOW);
     expect(cancelled.tasks.filter((t) => t.status === 'cancelled')).toHaveLength(1);
+  });
+
+  it('stamps when a task finished or was cancelled, and a retry clears it', () => {
+    let s = fresh();
+    // The seeded running task has 60 ticks left; the last one is at NOW + 59.
+    for (let i = 0; i < 60; i++) s = tick(s, NOW + i);
+    const finished = s.tasks.find((t) => t.id === 'seed-t1')!;
+    expect(finished).toMatchObject({ status: 'done', finishedAt: NOW + 59 });
+
+    const cancelled = cancelTask(fresh(), 'seed-t2', NOW + 100);
+    const gone = cancelled.tasks.find((t) => t.status === 'cancelled')!;
+    expect(gone.finishedAt).toBe(NOW + 100);
+    expect(retryTask(cancelled, gone.id).tasks.find((t) => t.id === gone.id)!.finishedAt).toBeUndefined();
   });
 });
 

@@ -27,13 +27,15 @@ export function MessageBubble({ message, selected, onSelect }: MessageBubbleProp
       <span className="bubble-author">Vesper</span>
       {runId ? (
         // A real button, so it is keyboard reachable: choosing it shows that
-        // run's steps in the reasoning trace. The author label sits outside the
-        // button so the accessible name is just the message.
+        // run's steps in the reasoning trace, and choosing it again goes back to
+        // following the latest run (it is a toggle, as aria-pressed says; see
+        // ConversationPanel). The author label sits outside the button so the
+        // accessible name is just the message.
         <button
           type="button"
           className={selected ? 'bubble bubble--agent bubble--selected' : 'bubble bubble--agent'}
           aria-pressed={selected}
-          title="Show the reasoning trace for this message"
+          title={selected ? 'Showing this message’s trace. Click again to follow the latest run.' : 'Show the reasoning trace for this message'}
           onClick={() => onSelect(runId)}
         >
           {text}

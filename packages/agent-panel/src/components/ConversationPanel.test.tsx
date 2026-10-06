@@ -44,6 +44,12 @@ describe('ConversationPanel', () => {
     expect(onSelectRun).toHaveBeenCalledWith('seed-run');
   });
 
+  it('selecting the message that is already selected goes back to following the latest run', async () => {
+    const { panel, onSelectRun } = renderPanel(fresh(), 'seed-run');
+    await userEvent.click(panel.getByRole('button', { name: /^Four items/ }));
+    expect(onSelectRun).toHaveBeenCalledWith(null);
+  });
+
   it('marks the message of the selected run as pressed', () => {
     const { panel } = renderPanel(fresh(), 'seed-run');
     expect(panel.getByRole('button', { name: /^Four items/ })).toHaveAttribute('aria-pressed', 'true');

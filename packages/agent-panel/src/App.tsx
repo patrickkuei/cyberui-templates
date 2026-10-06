@@ -60,7 +60,7 @@ export default function App() {
   };
 
   return (
-    <div className="agent-panel">
+    <div className={route === 'console' ? 'agent-panel agent-panel--console' : 'agent-panel'}>
       <nav className="topnav" aria-label="Primary">
         <div className="topnav-brand">
           <span className="topnav-logo" aria-hidden="true">

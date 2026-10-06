@@ -79,7 +79,7 @@ export function createInitialState(now: number): AgentState {
       { id: 'seed-t1', title: 'Index refresh: help-center articles', status: 'running', priority: 'low', ticksDone: 20, ticksTotal: 80, createdAt: now - 20 * min },
       { id: 'seed-t2', title: 'Weekly digest draft', status: 'queued', priority: 'normal', ticksDone: 0, ticksTotal: 30, createdAt: now - 15 * min },
       { id: 'seed-t3', title: 'Sync CRM contacts', status: 'failed', priority: 'normal', ticksDone: 14, ticksTotal: 40, error: 'Timed out after 30 s', createdAt: now - 3 * 60 * min },
-      { id: 'seed-t4', title: 'Archive resolved chats', status: 'done', priority: 'low', ticksDone: 24, ticksTotal: 24, createdAt: now - 4 * 60 * min },
+      { id: 'seed-t4', title: 'Archive resolved chats', status: 'done', priority: 'low', ticksDone: 24, ticksTotal: 24, createdAt: now - 4 * 60 * min, finishedAt: now - 3 * 60 * min },
     ],
     runs: [{ id: 'seed-run', scenarioId: 'seed', remaining: [], current: null, approval: null, ended: 'done' }],
   };
@@ -137,10 +137,10 @@ export function cancelRun(state: AgentState, now: number): AgentState {
   return trim(s);
 }
 
-export function cancelTask(state: AgentState, taskId: string): AgentState {
+export function cancelTask(state: AgentState, taskId: string, now: number): AgentState {
   const task = state.tasks.find((t) => t.id === taskId);
   if (!task || (task.status !== 'queued' && task.status !== 'running')) return state;
-  return { ...state, tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, status: 'cancelled' } : t)) };
+  return { ...state, tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, status: 'cancelled', finishedAt: now } : t)) };
 }
 
 export function retryTask(state: AgentState, taskId: string): AgentState {
@@ -148,6 +148,7 @@ export function retryTask(state: AgentState, taskId: string): AgentState {
   if (!task || (task.status !== 'failed' && task.status !== 'cancelled')) return state;
   const retried: Task = { ...task, status: 'queued', ticksDone: 0 };
   delete retried.error;
+  delete retried.finishedAt;
   return { ...state, tasks: state.tasks.map((t) => (t.id === taskId ? retried : t)) };
 }
 
@@ -164,19 +165,19 @@ export function setPaused(state: AgentState, paused: boolean): AgentState {
 export function tick(state: AgentState, now: number, charsPerTick: number = CHARS_PER_TICK): AgentState {
   if (state.paused) return state;
   const s = draft(state);
-  const tasksMoved = advanceTasks(s);
+  const tasksMoved = advanceTasks(s, now);
   const run = activeRun(s);
   const runMoved = run ? advanceRun(s, run, now, charsPerTick) : false;
   return tasksMoved || runMoved ? trim(s) : state;
 }
 
-function advanceTasks(s: AgentState): boolean {
+function advanceTasks(s: AgentState, now: number): boolean {
   let moved = false;
   s.tasks = s.tasks.map((task) => {
     if (task.status !== 'running') return task;
     moved = true;
     const ticksDone = task.ticksDone + 1;
-    return ticksDone >= task.ticksTotal ? { ...task, ticksDone: task.ticksTotal, status: 'done' } : { ...task, ticksDone };
+    return ticksDone >= task.ticksTotal ? { ...task, ticksDone: task.ticksTotal, status: 'done', finishedAt: now } : { ...task, ticksDone };
   });
   const free = TASK_CONCURRENCY - s.tasks.filter((t) => t.status === 'running').length;
   if (free > 0) {

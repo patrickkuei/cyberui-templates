@@ -77,6 +77,39 @@ describe('TaskList', () => {
     expect(panel.getByText('Timed out after 30 s')).toBeInTheDocument();
   });
 
+  it('groups the tasks under Active, Failed and Finished headings with counts', () => {
+    const { panel } = renderList();
+    const headings = panel.getAllByRole('heading', { level: 4 }).map((h) => h.textContent);
+    expect(headings).toEqual(['Active (2)', 'Failed (1)', 'Finished (2)']);
+    const finished = within(panel.getByRole('heading', { name: /^Finished/ }).parentElement!);
+    expect(finished.getAllByRole('listitem')).toHaveLength(2);
+  });
+
+  it('says when a finished task finished, so a done row is not a dead end', () => {
+    const finishedAt = new Date(2026, 9, 6, 12, 3, 41).getTime();
+    const { panel } = renderList([make({ id: 'a', title: 'Archive chats', status: 'done', finishedAt })]);
+    expect(panel.getByText('Finished at 12:03:41')).toBeInTheDocument();
+    // Done has nothing to retry or cancel; the detail line is what the row offers.
+    expect(panel.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('highlights a task that finishes while you watch, and not the ones already finished', () => {
+    const running = make({ id: 'r', title: 'Index refresh', status: 'running', ticksDone: 7, ticksTotal: 8, createdAt: 5 });
+    const before = [make({ id: 'old', title: 'Archive chats', status: 'done', createdAt: 1, finishedAt: 10 }), running];
+    const { rerender } = render(<TaskList tasks={before} onCancel={vi.fn()} onRetry={vi.fn()} />);
+    const row = (title: string) => screen.getByText(title).closest('li')!;
+    expect(row('Archive chats')).not.toHaveClass('task-row--arrived');
+
+    rerender(<TaskList tasks={[before[0]!, { ...running, status: 'done', ticksDone: 8, finishedAt: 20 }]} onCancel={vi.fn()} onRetry={vi.fn()} />);
+    expect(row('Index refresh')).toHaveClass('task-row--arrived');
+    expect(row('Archive chats')).not.toHaveClass('task-row--arrived');
+    // It moved to the top of Finished, above the one that finished earlier.
+    expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      expect.stringContaining('Index refresh'),
+      expect.stringContaining('Archive chats'),
+    ]);
+  });
+
   it('says so when there are no tasks', () => {
     const { panel } = renderList([]);
     expect(panel.getByText('No tasks.')).toBeInTheDocument();

@@ -37,6 +37,14 @@ export interface Task {
   /** Why a failed task failed. */
   error?: string;
   createdAt: number;
+  /**
+   * When the task became done or cancelled (ms since the epoch). The queue
+   * sorts finished work by this, so a task that just finished lands at the top
+   * of the finished group, and shows it as the detail line. Cleared by a retry.
+   * Absent on a task that never finished, and on a failed one (its `error` is
+   * its detail).
+   */
+  finishedAt?: number;
 }
 
 /** One step of a scripted scenario. A scenario is plain data; the engine in simulation.ts runs it. */

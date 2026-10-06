@@ -3,6 +3,7 @@ import type { TableColumn } from 'cyberui-2045';
 import { sortTasks } from '../data/tasks';
 import { taskProgress } from '../data/simulation';
 import { TaskActions } from './TaskActions';
+import { TaskFinished } from './TaskFinished';
 import { TaskStatusBadge } from './TaskStatusBadge';
 import type { Task } from '../data/types';
 
@@ -22,6 +23,7 @@ export function TaskTable({ tasks, onCancel, onRetry }: TaskTableProps) {
         <>
           <span className="task-title">{task.title}</span>
           {task.status === 'failed' && task.error && <span className="task-error task-error--inline">{task.error}</span>}
+          <TaskFinished task={task} />
         </>
       ),
     },

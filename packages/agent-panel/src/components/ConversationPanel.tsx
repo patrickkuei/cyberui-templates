@@ -12,7 +12,8 @@ export interface ConversationPanelProps {
   state: AgentState;
   /** The run whose trace is on screen because the person picked its message; null follows the latest. */
   selectedRunId: string | null;
-  onSelectRun: (runId: string) => void;
+  /** Called with the run to show, or null to follow the latest again. */
+  onSelectRun: (runId: string | null) => void;
   onSend: (text: string) => void;
   onResolveApproval: (approvalId: string, approved: boolean) => void;
 }
@@ -39,7 +40,7 @@ export function ConversationPanel({ state, selectedRunId, onSelectRun, onSend, o
   const scrollRef = useStickToBottom<HTMLDivElement>(`${state.messages.length}:${last?.revealed ?? 0}:${approval?.id ?? ''}`);
 
   return (
-    <section aria-label="Conversation">
+    <section aria-label="Conversation" className="panel-fill">
       <Card title="Conversation" className="panel-surface">
         {/* aria-relevant="additions": a reply is meant to be announced as a new
             message, not character by character as it grows. Whether screen
@@ -50,7 +51,9 @@ export function ConversationPanel({ state, selectedRunId, onSelectRun, onSend, o
               key={message.id}
               message={message}
               selected={message.runId !== undefined && message.runId === selectedRunId}
-              onSelect={onSelectRun}
+              // Picking the message that is already picked un-picks it, so the way
+              // back is the same control that got you here, not a button in another pane.
+              onSelect={(runId) => onSelectRun(runId === selectedRunId ? null : runId)}
             />
           ))}
           {approval && (

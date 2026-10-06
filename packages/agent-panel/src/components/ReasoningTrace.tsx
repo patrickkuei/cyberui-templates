@@ -32,7 +32,7 @@ export function ReasoningTrace({ steps, runLabel, onFollowLatest }: ReasoningTra
   });
 
   return (
-    <section aria-label="Reasoning trace">
+    <section aria-label="Reasoning trace" className="panel-fill">
       <Card title="Reasoning trace (scripted)" className="panel-surface">
         {runLabel === 'selected' && (
           <div className="trace-picked">

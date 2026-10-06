@@ -58,7 +58,7 @@ export function useSimulatedAgent({ tickMs = TICK_MS, charsPerTick = CHARS_PER_T
       send: (text) => setState((prev) => sendMessage(prev, text, Date.now())),
       resolveApproval: (approvalId, approved) => setState((prev) => resolveApproval(prev, approvalId, approved, Date.now())),
       stopRun: () => setState((prev) => cancelRun(prev, Date.now())),
-      cancelTask: (taskId) => setState((prev) => cancelTask(prev, taskId)),
+      cancelTask: (taskId) => setState((prev) => cancelTask(prev, taskId, Date.now())),
       retryTask: (taskId) => setState((prev) => retryTask(prev, taskId)),
       setPaused: (paused) => setState((prev) => setPaused(prev, paused)),
       reset: () => setState(createInitialState(Date.now())),

@@ -66,66 +66,153 @@ body {
 }
 
 /* ---- Console grid ----
-   One column below 720px (and only the active pane shows), two columns from
-   720px (conversation wide, queue and side stacked), three from 1180px. The
-   panes are always in the DOM; only CSS decides which are visible. */
+   The console fits the window instead of growing the page. The page itself does
+   not scroll; each pane scrolls on its own (the messages, the task list, the
+   trace) and the composer stays at the foot of the conversation, so the box you
+   type into is never scrolled out of reach. Below 720px there is room for one
+   pane at a time (chosen with the tabs); from 720px two columns (conversation
+   wide; queue and side stacked), from 1180px three. The panes are always in
+   the DOM; only CSS decides which are visible. If the window is too short for
+   the grid's minimum height, the page scrolls instead of squashing the panes. */
+
+.agent-panel--console {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: var(--pad-top);
+}
+
+.agent-panel--console .panel-body {
+  flex: 1;
+  min-height: 0;
+}
 
 .console-grid {
+  flex: 1;
+  min-height: 26rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'queue' 'conversation' 'trace';
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: 'pane';
   gap: var(--gap);
 }
 
 .console-pane {
   display: none;
+  grid-area: pane;
   min-width: 0;
+  min-height: 0;
 }
 
 .console-pane--active {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .console-side {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--gap);
 }
 
-.pane-queue {
-  grid-area: queue;
+/* A section that stretches to its pane, with its card stretched to it, so the
+   scroll area inside the card can take whatever height the title and the
+   composer leave. */
+.panel-fill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.pane-conversation {
-  grid-area: conversation;
+.panel-fill > .panel-surface {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.pane-trace {
-  grid-area: trace;
+.panel-fill > .panel-surface > h3 {
+  flex: none;
 }
 
 @media (min-width: 720px) {
   .console-pane {
-    display: block;
+    display: flex;
+    flex-direction: column;
   }
 
   .pane-tabs {
     display: none;
   }
 
+  .pane-queue {
+    grid-area: queue;
+  }
+
+  .pane-conversation {
+    grid-area: conversation;
+  }
+
+  .pane-trace {
+    grid-area: trace;
+  }
+
   .console-grid {
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
     grid-template-areas:
       'conversation queue'
       'conversation trace';
-    align-items: start;
+  }
+}
+
+/* In the two-column layout the side pane is short: Live status alone takes most
+   of it. So there the whole pane (status, then trace) scrolls as one unit
+   instead of squeezing the trace to nothing. */
+@media (min-width: 720px) and (max-width: 1179px) {
+  .console-side {
+    overflow: auto;
+  }
+
+  .console-side > * {
+    flex: none;
+  }
+
+  .console-side .trace-scroll {
+    flex: none;
+    overflow: visible;
   }
 }
 
 @media (min-width: 1180px) {
   .console-grid {
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
+    grid-template-rows: minmax(0, 1fr);
     grid-template-areas: 'queue conversation trace';
+  }
+}
+
+/* Phones: the pane tabs already name the pane, so its card title is dropped to
+   give the content the height, and the suggested prompts become one scrolling
+   line instead of wrapping into three. */
+@media (max-width: 719px) {
+  .console-pane .panel-fill > .panel-surface > h3 {
+    display: none;
+  }
+
+  /* .composer in front of the selector so this wins over the base rule further down. */
+  .composer .suggested-prompts {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .composer .suggested-prompts .chip {
+    flex: none;
   }
 }
 
@@ -380,9 +467,10 @@ body {
 
 /* ---- Reasoning trace ---- */
 
-/* Bounded, so a long trace scrolls inside the panel instead of growing the page. */
+/* Takes the height the card has left and scrolls inside it (see .panel-fill). */
 .trace-scroll {
-  max-height: 22rem;
+  flex: 1;
+  min-height: 6rem;
   overflow: auto;
   padding-right: 0.25rem;
 }
@@ -408,13 +496,13 @@ body {
    There is no chat component in cyberui-2045, so bubbles, the approval card and
    the composer are plain markup styled with the same tokens. */
 
-/* Bounded, so a long conversation scrolls inside the panel instead of growing the page. */
+/* Takes the height the card has left, above the composer, and scrolls inside it (see .panel-fill). */
 .conversation-scroll {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-height: 26rem;
-  min-height: 12rem;
+  flex: 1;
+  min-height: 8rem;
   overflow: auto;
   padding: 0.25rem 0.25rem 0.5rem 0;
 }
@@ -609,6 +697,27 @@ button.bubble:focus-visible {
 
 /* ---- Task queue and table ---- */
 
+/* The queue's scroll area, like the other two: it takes the height the card has left. */
+.task-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.task-section + .task-section {
+  margin-top: 0.75rem;
+}
+
+.task-section-title {
+  margin: 0 0 0.125rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .task-list {
   display: flex;
   flex-direction: column;
@@ -622,8 +731,27 @@ button.bubble:focus-visible {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.375rem;
-  padding: 0.625rem 0;
+  /* The side padding is cancelled by the margin; it gives the arrival highlight room around the text. */
+  padding: 0.625rem 0.5rem;
+  margin-inline: -0.5rem;
   border-bottom: 1px solid var(--color-border-default);
+}
+
+/* A task that just finished lands in the Finished section with a green wash
+   that fades, so the move from Active reads as "completed", not "gone". */
+.task-row--arrived {
+  animation: task-arrive 2.6s ease-out;
+}
+
+@keyframes task-arrive {
+  0% {
+    background: color-mix(in srgb, var(--color-success) 24%, transparent);
+    box-shadow: inset 3px 0 0 var(--color-success);
+  }
+  100% {
+    background: transparent;
+    box-shadow: inset 3px 0 0 transparent;
+  }
 }
 
 .task-row:last-child {
@@ -672,6 +800,12 @@ button.bubble:focus-visible {
   display: block;
 }
 
+.task-finished {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
 .live-dot {
   flex: none;
   width: 0.5rem;
@@ -694,7 +828,8 @@ button.bubble:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .live-dot {
+  .live-dot,
+  .task-row--arrived {
     animation: none;
   }
 }

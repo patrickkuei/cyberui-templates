@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
 import { Button, Card, Timeline } from 'cyberui-2045';
 import type { TimelineEvent } from 'cyberui-2045';
+import { useStickToBottom } from '../hooks/useStickToBottom';
 import { TRACE_KIND_LABEL, TRACE_STATUS } from '../theme/tones';
 import { formatClock } from '../utils/format';
 import type { TraceStep } from '../data/types';
@@ -16,13 +16,8 @@ export interface ReasoningTraceProps {
 // (see data/scenarios.ts), so the panel says so in its title: it illustrates
 // the shape of an agent's trace, it is not a model's real reasoning.
 export function ReasoningTrace({ steps, runLabel, onFollowLatest }: ReasoningTraceProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Keep the newest step in view as the trace grows.
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [steps.length]);
+  // Keeps the newest step in view as the trace grows, unless the reader scrolled up.
+  const scrollRef = useStickToBottom<HTMLDivElement>(steps.length);
 
   // Timeline events carry a plain title string, so the kind goes in the title
   // text ("Thought: ...") rather than only in the marker colour.

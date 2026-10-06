@@ -3,13 +3,21 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 
+// Pages are React.lazy chunks (see App.tsx), so the nav renders immediately but
+// the page body appears a tick later. Wait for it so a test never races the
+// import (or leaves it resolving after the test ends).
+async function renderApp() {
+  render(<App />);
+  await screen.findByRole('heading', { name: 'Dashboard', level: 1 });
+}
+
 describe('App', () => {
   afterEach(() => {
     window.location.hash = '';
   });
 
-  it('renders the Dashboard route by default, with the nav, health badge, and action panel', () => {
-    render(<App />);
+  it('renders the Dashboard route by default, with the nav, health badge, and action panel', async () => {
+    await renderApp();
     expect(screen.getByRole('navigation', { name: /primary/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Dashboard', level: 1 })).toBeInTheDocument();
     expect(screen.getByText('Requests/sec')).toBeInTheDocument();
@@ -18,7 +26,7 @@ describe('App', () => {
   });
 
   it('navigates to the Endpoints page and back via real links (Review Focus #5)', async () => {
-    render(<App />);
+    await renderApp();
     const nav = screen.getByRole('navigation', { name: /primary/i });
 
     await userEvent.click(within(nav).getByRole('link', { name: 'Endpoints' }));
@@ -31,7 +39,7 @@ describe('App', () => {
   });
 
   it('navigates to Alerts and Reports (Review Focus #5)', async () => {
-    render(<App />);
+    await renderApp();
     const nav = screen.getByRole('navigation', { name: /primary/i });
 
     await userEvent.click(within(nav).getByRole('link', { name: 'Alerts' }));
@@ -43,7 +51,7 @@ describe('App', () => {
   });
 
   it('nav links are keyboard-focusable real links, and Enter navigates (Review Focus #3)', async () => {
-    render(<App />);
+    await renderApp();
     const nav = screen.getByRole('navigation', { name: /primary/i });
     const endpointsLink = within(nav).getByRole('link', { name: 'Endpoints' });
     expect(endpointsLink.tagName).toBe('A');
@@ -57,7 +65,7 @@ describe('App', () => {
   });
 
   it('sets the document title to the current page', async () => {
-    render(<App />);
+    await renderApp();
     expect(document.title).toBe('Dashboard — Nexus AI Platform');
     const nav = screen.getByRole('navigation', { name: /primary/i });
     await userEvent.click(within(nav).getByRole('link', { name: 'Reports' }));
@@ -66,7 +74,7 @@ describe('App', () => {
   });
 
   it("keeps the request volume chart's rendered SVG unchanged when the mock range toggle is clicked", async () => {
-    render(<App />);
+    await renderApp();
     const svgBefore = document.querySelector('svg.recharts-surface')?.outerHTML;
     expect(svgBefore).toBeDefined();
 
@@ -79,7 +87,7 @@ describe('App', () => {
   });
 
   it('moves the pressed state to the clicked range, proving the toggle is wired to real state', async () => {
-    render(<App />);
+    await renderApp();
     const fiveMin = screen.getByRole('button', { name: '5m' });
     expect(fiveMin).toHaveAttribute('aria-pressed', 'false');
 

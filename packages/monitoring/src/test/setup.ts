@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { configure } from '@testing-library/react';
 
 // vite-node provides __dirname; it is not in this project's types (only
 // vite/client is), so declare it.
@@ -82,3 +83,10 @@ Element.prototype.getBoundingClientRect = function getBoundingClientRect(): DOMR
   const { width, height } = layoutSize(this);
   return new DOMRect(0, 0, width, height);
 };
+
+// App's pages are React.lazy chunks (see App.tsx). The first findBy* for a page
+// waits on vite-node transforming that page plus recharts/cyberui-2045, which
+// can outlast findBy's 1s default on a cold or busy machine. A longer ceiling
+// only changes how long a failing test waits; passing tests still return as
+// soon as the element appears.
+configure({ asyncUtilTimeout: 5000 });

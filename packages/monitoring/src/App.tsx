@@ -1,15 +1,23 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { Badge } from 'cyberui-2045';
 import { useSimulatedMetrics } from './data/useSimulatedMetrics';
 import { ROUTES, useHashRoute, type Route } from './router/useHashRoute';
-import { DashboardPage } from './pages/DashboardPage';
-import { EndpointsPage } from './pages/EndpointsPage';
-import { AlertsPage } from './pages/AlertsPage';
-import { ReportsPage } from './pages/ReportsPage';
 import type { ChartRange } from './components/ChartRangeToggle';
 import { BellIcon } from './icons';
 import './App.css';
 import { isErrorRateHigh } from './data/thresholds';
+
+// Pages are code-split so the initial JS download stays under Vite's 500 kB
+// chunk warning (recharts alone is most of it). Each page is fetched the first
+// time its route is visited; Rollup puts code shared by several pages (e.g.
+// recharts) into one extra shared chunk.
+// To add a page: add its name to ROUTES, add a lazy() line here (pages use named
+// exports, hence the .then that maps to the `default` lazy() expects), and add
+// its entries to ROUTE_LABELS and `pages` below.
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const EndpointsPage = lazy(() => import('./pages/EndpointsPage').then((m) => ({ default: m.EndpointsPage })));
+const AlertsPage = lazy(() => import('./pages/AlertsPage').then((m) => ({ default: m.AlertsPage })));
+const ReportsPage = lazy(() => import('./pages/ReportsPage').then((m) => ({ default: m.ReportsPage })));
 
 const REFRESH_MS = 2000;
 
@@ -86,7 +94,10 @@ export default function App() {
         <BellIcon className="topnav-bell" />
       </nav>
 
-      <main className="dashboard-body">{pages[route]()}</main>
+      <main className="dashboard-body">
+        {/* null fallback: the chunk is a local fetch away, so a spinner would only flash. */}
+        <Suspense fallback={null}>{pages[route]()}</Suspense>
+      </main>
     </div>
   );
 }

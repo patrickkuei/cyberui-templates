@@ -19,7 +19,7 @@ export function LiveStatus({ state }: LiveStatusProps) {
   const queued = state.tasks.filter((t) => t.status === 'queued').length;
 
   return (
-    <section aria-label="Live status">
+    <section aria-label="Live status" className="live-status">
       <Card title="Live status" className="panel-surface">
         <div className="live-headline">
           <StatusBadge status={deriveStatus(state)} />
@@ -31,7 +31,9 @@ export function LiveStatus({ state }: LiveStatusProps) {
             via this wrapper's tone class, not on the bar itself. */}
         <div role="group" aria-label="Context window" className={`context-meter ${TONE_CLASS[CONTEXT_TONE[level]]}`}>
           <div className="context-meter-head">
-            <span>Context</span>
+            <span>
+              Context <span className="live-note">(token counts are simulated)</span>
+            </span>
             <span className="context-meter-pct">{pct}%</span>
           </div>
           <LinearProgress progress={pct} size="sm" className="meter-bar" />
@@ -42,7 +44,6 @@ export function LiveStatus({ state }: LiveStatusProps) {
             {label && <span className="context-meter-level">{label}</span>}
           </div>
         </div>
-        <p className="live-note">Token counts are simulated.</p>
 
         <dl className="live-stats">
           <div>

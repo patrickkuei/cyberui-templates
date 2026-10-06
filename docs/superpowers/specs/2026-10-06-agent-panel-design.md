@@ -65,26 +65,29 @@ Routing is `window.location.hash` (`#/console`, `#/tasks`, `#/logs`), as in moni
 
 ### 3.2 Console layout
 
-Desktop (1180px and up), three columns:
+Desktop (1180px and up), three columns. What is happening is on the left (the queue, with Live status under it), the conversation is in the middle, and the reasoning trace has the whole right column, because it is what you read to debug the agent:
 
 ```
  ⬡ Vesper   Console  Tasks  Logs                              ● Waiting for approval   (nav)
  ┌─────────────────────────────────────────────────────────────────────────────────────┐
  │ (V)● Vesper  [Simulated]  Waiting for approval        [ Pause ] [ Stop run ] [ Reset ]│  header
  ├──────────────┬────────────────────────────────────────┬─────────────────────────────┤
- │ Task queue   │ Conversation                           │ Live status                 │
- │              │                                        │  ● Waiting for approval     │
- │ ● Index      │  you   Please refund order #4821…      │  Asking you before going on │
- │   refresh    │  ───                                   │  Context  ▓▓▓░░░░ 17%       │
- │   ▓▓░░ 25%   │  Vesper  (selected → its trace shows)  │  Tool calls 5 · Tasks 1+1   │
- │ ○ Weekly     │  ┌ Approval needed ────────────────┐   ├─────────────────────────────┤
- │   digest     │  │ Refund $42.00 for order #4821?  │   │ Reasoning trace             │
- │ ✕ Sync CRM   │  │ [ Approve ]   [ Reject ]        │   │ ◆ Plan the refund           │
- │   [ Retry ]  │  └─────────────────────────────────┘   │ ◆ orders.lookup(order #4821)│
- │              │ [ Message Vesper…            ] [ Send ]│ ◆ Order #4821, $42.00 …     │
- │              │  Scripted demo: replies are pre-written│ ◇ Waiting for your approval │
+ │ Task queue   │ Conversation                           │ Reasoning trace             │
+ │ ACTIVE (1)   │                                        │                             │
+ │ ● Index      │  you   Please refund order #4821…      │ ◆ Plan the refund           │
+ │   refresh    │  ───                                   │ ◆ orders.lookup(order #4821)│
+ │   ▓▓░░ [Cancel]  Vesper  (selected → its trace shows) │ ◆ Order #4821, $42.00 …     │
+ │ FAILED (1)   │  ┌ Approval needed ────────────────┐   │ ◇ Waiting for your approval │
+ │ ✕ Sync CRM   │  │ Refund $42.00 for order #4821?  │   │                             │
+ │   error [Retry] │ [ Approve ]   [ Reject ]        │   │                             │
+ ├──────────────┤  └─────────────────────────────────┘   │                             │
+ │ ● Waiting …  │ [ Message Vesper…            ] [ Send ]│                             │
+ │ Context ▓ 17%│  Scripted demo: replies are pre-written│                             │
+ │ Tool calls 5 │                                        │                             │
  └──────────────┴────────────────────────────────────────┴─────────────────────────────┘
 ```
+
+The console fits the window: the page does not scroll, and the queue, the messages and the trace scroll on their own. In the markup Live status stays inside the trace pane (below 1180px it travels with the trace); at 1180px and up CSS (`display: contents` on the pane) lets it sit under the queue.
 
 Below 1180px the grid becomes two columns (conversation wide; queue and the right column stacked). Below 720px only one pane shows at a time, chosen with a `TabNavigation` ("Conversation", "Tasks", "Trace"); the status header stays. The tab bar is hidden at desktop widths by CSS, and all panes are always in the DOM (tests do not evaluate media queries).
 
@@ -387,3 +390,4 @@ The owner ran the console and reported three UX problems; each was fixed and the
 - **Two scrollbars.** The page scrolled, and the conversation and trace scrolled inside it on caps unrelated to the window, so the composer drifted out of view. The Console now fits the window: the page does not scroll, each pane (messages, task list, trace) scrolls on its own, and the composer stays at the foot of the conversation. Checked: with six exchanges the page height equalled the viewport at all three sizes and the composer did not move. Below the grid's minimum height (26rem) the page scrolls instead. In the two-column layout (720-1179px) the side pane scrolls as one unit because Live status alone takes most of it. On phones the card title is dropped (the tab names the pane) and the suggested prompts are one scrolling line.
 - **A finished task looked like it vanished.** The task jumped from the top of the list to the bottom with no sign it had completed, and a done row said nothing beyond its badge. The queue now has Active / Failed / Finished sections with counts, finished work sorts by `finishedAt`, a done or cancelled row says when it finished, and a task that finishes while you watch gets a green wash that fades (not under reduced motion). Done tasks still have no Retry: retry is for failed and cancelled work. A "Run again" for done tasks would be a new feature, not a fix.
 - **Trace title and size.** The "(scripted)" suffix is gone from the Reasoning trace title (the Simulated badge, the composer line and the README carry the honesty message). Live status now puts its badge and sentence on one row, which gave the trace about 24% more height at 1440x900 (276px to 343px). Mid-run that is still only about four steps, so a larger trace is an open design question.
+- **Trace column and queue scrolling.** At 1180px and up Live status sits under the Task queue (its card title is hidden there) so the trace gets the whole right column: 645px of visible trace at 1440x900, against 276px when Live status sat above it. Cancel and Retry sit beside the row's progress, error or finish time instead of under it, which keeps the default queue from needing a scrollbar at 900px tall. At shorter windows (about 800px) the list scrolls by a few rows; the inner scrollbars are thin and appear only on hover. A horizontal scrollbar that had appeared on the queue came from the rows' negative side margin sticking out of the scroll box; the scroll box now carries the padding instead, and no scroller on the Console overflows sideways at the sizes checked (1440x900, 1440x800, 1000x800, 390x800).

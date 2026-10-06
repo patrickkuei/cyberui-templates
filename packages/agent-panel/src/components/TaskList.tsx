@@ -60,15 +60,22 @@ export function TaskList({ tasks, onCancel, onRetry }: TaskListProps) {
                         <span className="task-title">{task.title}</span>
                         <TaskStatusBadge status={task.status} />
                       </div>
-                      {task.status === 'running' && (
-                        <div className="task-progress">
-                          <LinearProgress progress={taskProgress(task)} size="sm" className="meter-bar" />
-                          <span className="task-progress-pct">{taskProgress(task)}%</span>
+                      {/* One line under the title: the detail (progress, error or finish time) with the
+                          action beside it, not under it. A task is two lines tall instead of three, so
+                          the queue fits without a scrollbar in the default state. */}
+                      <div className="task-row-foot">
+                        <div className="task-row-detail">
+                          {task.status === 'running' && (
+                            <div className="task-progress">
+                              <LinearProgress progress={taskProgress(task)} size="sm" className="meter-bar" />
+                              <span className="task-progress-pct">{taskProgress(task)}%</span>
+                            </div>
+                          )}
+                          {task.status === 'failed' && task.error && <p className="task-error">{task.error}</p>}
+                          <TaskFinished task={task} />
                         </div>
-                      )}
-                      {task.status === 'failed' && task.error && <p className="task-error">{task.error}</p>}
-                      <TaskFinished task={task} />
-                      <TaskActions task={task} onCancel={onCancel} onRetry={onRetry} />
+                        <TaskActions task={task} onCancel={onCancel} onRetry={onRetry} />
+                      </div>
                     </li>
                   ))}
                 </ul>

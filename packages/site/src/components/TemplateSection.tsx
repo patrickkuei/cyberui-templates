@@ -79,7 +79,7 @@ export function TemplateSection({ template, content, previewOpen, onOpenPreview,
       </div>
 
       <div className="template-examples neutral-scope">
-        <h3>Examples: how you might use it</h3>
+        <h3>Examples: how people would use it</h3>
         <ExampleFolds examples={content.examples} />
       </div>
 

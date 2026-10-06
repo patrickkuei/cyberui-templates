@@ -1,6 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { activeRun, createInitialState, deriveStatus, sendMessage, taskProgress, tick } from './simulation';
-import { CONTEXT_WINDOW_TOKENS, TASK_CONCURRENCY } from './limits';
+import {
+  activeRun,
+  cancelRun,
+  cancelTask,
+  createInitialState,
+  deriveStatus,
+  resolveApproval,
+  retryTask,
+  sendMessage,
+  setPaused,
+  taskProgress,
+  tick,
+} from './simulation';
+import { CONTEXT_WINDOW_TOKENS, MAX_FINISHED_TASKS, MAX_MESSAGES, MAX_RUNS, MAX_TRACE_STEPS, TASK_CONCURRENCY } from './limits';
 import type { AgentState, AgentStatus } from './types';
 
 const NOW = 1_000_000;
@@ -127,5 +139,110 @@ describe('taskProgress', () => {
     const s = fresh();
     expect(taskProgress({ ...s.tasks[0]!, ticksDone: 20, ticksTotal: 80 })).toBe(25);
     expect(taskProgress({ ...s.tasks[0]!, ticksDone: 0, ticksTotal: 0 })).toBe(100);
+  });
+});
+
+const approve = (s: AgentState) => resolveApproval(s, activeRun(s)!.approval!.id, true, NOW);
+const reject = (s: AgentState) => resolveApproval(s, activeRun(s)!.approval!.id, false, NOW);
+
+/** Ticks until the run parks on its approval. */
+function untilApproval(state: AgentState): AgentState {
+  let s = state;
+  for (let i = 0; i < 200 && !activeRun(s)?.approval; i++) s = tick(s, NOW + i, Infinity);
+  return s;
+}
+
+describe('approvals', () => {
+  it('parks the run, waits, and takes the approve branch: refund processed', () => {
+    const waiting = untilApproval(sendMessage(fresh(), 'refund order #4821', NOW));
+    expect(deriveStatus(waiting)).toBe('waiting');
+    expect(waiting.trace.at(-1)).toMatchObject({ kind: 'approval', outcome: 'waiting' });
+    // The run does not move while it waits, however many ticks pass (background tasks still do).
+    const later = tick(tick(waiting, NOW + 500, Infinity), NOW + 501, Infinity);
+    expect(deriveStatus(later)).toBe('waiting');
+    expect(later.trace).toHaveLength(waiting.trace.length);
+    expect(later.messages).toHaveLength(waiting.messages.length);
+    const done = settle(approve(waiting));
+    expect(done.messages.at(-1)!.text).toMatch(/refund .* is processed/i);
+    expect(done.trace.some((t) => t.kind === 'decision' && t.title === 'Approved by you')).toBe(true);
+    expect(done.tasks.some((t) => t.title === 'Process refund #4821' && t.status === 'done')).toBe(true);
+  });
+
+  it('takes the reject branch: nothing is processed', () => {
+    const done = settle(reject(untilApproval(sendMessage(fresh(), 'refund order #4821', NOW))));
+    expect(done.messages.at(-1)!.text).toMatch(/left order #4821 untouched/i);
+    expect(done.tasks.some((t) => t.title === 'Process refund #4821')).toBe(false);
+  });
+
+  it('shows a failed first attempt, then the retry succeeding (release notes)', () => {
+    const done = settle(approve(untilApproval(sendMessage(fresh(), 'draft the release notes', NOW))));
+    const run = done.runs.at(-1)!;
+    const observations = done.trace.filter((t) => t.runId === run.id && t.kind === 'observation').map((t) => t.outcome);
+    expect(observations.slice(0, 2)).toEqual(['error', 'ok']);
+  });
+
+  it('ignores an approval id that is not the one waiting', () => {
+    const waiting = untilApproval(sendMessage(fresh(), 'refund order', NOW));
+    expect(resolveApproval(waiting, 'nope', true, NOW)).toBe(waiting);
+  });
+});
+
+describe('steering', () => {
+  it('pausing freezes the whole simulation, and resuming restarts it', () => {
+    const paused = setPaused(fresh(), true);
+    expect(deriveStatus(paused)).toBe('paused');
+    expect(tick(paused, NOW)).toBe(paused);
+    expect(sendMessage(paused, 'hello', NOW)).toBe(paused);
+    expect(setPaused(paused, true)).toBe(paused);
+    expect(deriveStatus(setPaused(paused, false))).toBe('idle');
+  });
+
+  it('stopping a run cuts a half-streamed reply where it is and settles pending trace steps', () => {
+    let s = sendMessage(fresh(), 'hello there', NOW);
+    while (!(s.messages.at(-1)!.role === 'agent' && s.messages.at(-1)!.revealed > 0)) s = tick(s, NOW);
+    const stopped = cancelRun(s, NOW);
+    const reply = stopped.messages.at(-1)!;
+    expect(reply.text.length).toBe(reply.revealed);
+    expect(stopped.runs.at(-1)!.ended).toBe('cancelled');
+    expect(stopped.trace.some((t) => t.outcome === 'pending' || t.outcome === 'waiting')).toBe(false);
+    expect(activeRun(stopped)).toBeUndefined();
+    expect(cancelRun(stopped, NOW)).toBe(stopped);
+  });
+
+  it('cancelling the task a run is waiting for ends the run politely instead of hanging it (Review Focus #1)', () => {
+    let s = approve(untilApproval(sendMessage(fresh(), 'refund order', NOW)));
+    for (let i = 0; i < 50 && !s.tasks.some((t) => t.title === 'Process refund #4821'); i++) s = tick(s, NOW + i);
+    const task = s.tasks.find((t) => t.title === 'Process refund #4821')!;
+    const done = settle(cancelTask(s, task.id));
+    expect(done.messages.at(-1)!.text).toMatch(/stopped before it finished/i);
+  });
+
+  it('cancels only queued or running tasks, and retries only failed or cancelled ones', () => {
+    const s = fresh();
+    const failed = s.tasks.find((t) => t.status === 'failed')!;
+    const done = s.tasks.find((t) => t.status === 'done')!;
+    expect(cancelTask(s, done.id)).toBe(s);
+    expect(retryTask(s, done.id)).toBe(s);
+    const retried = retryTask(s, failed.id).tasks.find((t) => t.id === failed.id)!;
+    expect(retried).toMatchObject({ status: 'queued', ticksDone: 0 });
+    expect(retried.error).toBeUndefined();
+    const cancelled = cancelTask(s, s.tasks.find((t) => t.status === 'queued')!.id);
+    expect(cancelled.tasks.filter((t) => t.status === 'cancelled')).toHaveLength(1);
+  });
+});
+
+describe('caps (Review Focus #2)', () => {
+  it('keeps every list bounded however long the tab stays open', () => {
+    let s = fresh();
+    // 110 runs of a scenario that adds a task and four trace steps each: enough to pass every cap.
+    for (let i = 0; i < 110; i++) {
+      s = { ...s, contextTokens: 0 }; // a real tab would hit the context limit first; this test is about the lists
+      s = settle(sendMessage(s, 'summarise tickets', NOW + i));
+    }
+    expect(s.messages).toHaveLength(MAX_MESSAGES);
+    expect(s.trace).toHaveLength(MAX_TRACE_STEPS);
+    expect(s.runs).toHaveLength(MAX_RUNS);
+    const finished = s.tasks.filter((t) => t.status === 'done' || t.status === 'failed' || t.status === 'cancelled');
+    expect(finished.length).toBeLessThanOrEqual(MAX_FINISHED_TASKS);
   });
 });

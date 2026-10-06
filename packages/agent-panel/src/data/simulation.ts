@@ -104,6 +104,57 @@ export function sendMessage(state: AgentState, text: string, now: number, scenar
   return trim(s);
 }
 
+/** Answers the pending approval. Ignored if `approvalId` is not the one waiting. */
+export function resolveApproval(state: AgentState, approvalId: string, approved: boolean, now: number): AgentState {
+  const run = activeRun(state);
+  if (!run?.approval || run.approval.id !== approvalId) return state;
+  const s = draft(state);
+  const { approval } = run;
+  setOutcome(s, approval.traceId, 'ok');
+  addTrace(s, run.id, 'decision', approved ? 'Approved by you' : 'Rejected by you', undefined, 'ok', now);
+  replaceRun(s, {
+    ...run,
+    approval: null,
+    remaining: [...(approved ? approval.approve : approval.reject), ...run.remaining],
+  });
+  return trim(s);
+}
+
+/** Stops the active run. A reply that was mid-stream is cut off where it is. */
+export function cancelRun(state: AgentState, now: number): AgentState {
+  const run = activeRun(state);
+  if (!run) return state;
+  const s = draft(state);
+  const messageId = run.current?.messageId;
+  if (messageId) {
+    s.messages = s.messages.map((m) => (m.id === messageId ? { ...m, text: m.text.slice(0, m.revealed) } : m));
+  }
+  s.trace = s.trace.map((t) =>
+    t.runId === run.id && (t.outcome === 'pending' || t.outcome === 'waiting') ? { ...t, outcome: 'error' } : t,
+  );
+  addTrace(s, run.id, 'decision', 'Run stopped by you', undefined, 'error', now);
+  replaceRun(s, { ...run, current: null, approval: null, remaining: [], ended: 'cancelled' });
+  return trim(s);
+}
+
+export function cancelTask(state: AgentState, taskId: string): AgentState {
+  const task = state.tasks.find((t) => t.id === taskId);
+  if (!task || (task.status !== 'queued' && task.status !== 'running')) return state;
+  return { ...state, tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, status: 'cancelled' } : t)) };
+}
+
+export function retryTask(state: AgentState, taskId: string): AgentState {
+  const task = state.tasks.find((t) => t.id === taskId);
+  if (!task || (task.status !== 'failed' && task.status !== 'cancelled')) return state;
+  const retried: Task = { ...task, status: 'queued', ticksDone: 0 };
+  delete retried.error;
+  return { ...state, tasks: state.tasks.map((t) => (t.id === taskId ? retried : t)) };
+}
+
+export function setPaused(state: AgentState, paused: boolean): AgentState {
+  return state.paused === paused ? state : { ...state, paused };
+}
+
 // ---- Time -------------------------------------------------------------------
 
 /**

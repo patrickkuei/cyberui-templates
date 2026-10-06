@@ -82,7 +82,7 @@ export default function App() {
         </div>
         <div className="topnav-status" role="status">
           <span className="live-dot" aria-hidden="true" />
-          <Badge variant={STATUS_VIEW[status].badge}>{STATUS_VIEW[status].label}</Badge>
+          <Badge variant={STATUS_VIEW[status].badge} size="sm">{STATUS_VIEW[status].label}</Badge>
         </div>
       </nav>
       <main className="panel-body">{pages[route]()}</main>

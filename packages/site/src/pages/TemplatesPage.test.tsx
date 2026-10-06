@@ -34,7 +34,9 @@ describe('TemplatesPage', () => {
   it('opens a template preview by pushing its hash', async () => {
     window.location.hash = '#/templates';
     render(<TemplatesPage />, { wrapper: CyberNotificationProvider });
-    await userEvent.click(screen.getByRole('button', { name: 'Run the live demo' }));
+    // Every template's section has its own "Run the live demo" button, so scope to monitoring's (the first).
+    const section = document.querySelector<HTMLElement>('section.template-section')!;
+    await userEvent.click(within(section).getByRole('button', { name: 'Run the live demo' }));
     expect(window.location.hash).toBe('#/templates/monitoring');
   });
 

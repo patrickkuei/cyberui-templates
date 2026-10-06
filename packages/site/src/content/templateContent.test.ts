@@ -21,6 +21,14 @@ describe('template content', () => {
     expect(content.examples.map((example) => example.title)).toEqual(['A small shop owner', 'An LLM API developer']);
   });
 
+  it('gives the agent panel fit copy that says plainly the agent is a script, and two examples', () => {
+    const content = TEMPLATE_CONTENT['agent-panel']!;
+    expect(content.useIf).toHaveLength(3);
+    expect(content.headsUp).toMatch(/screens, not the agent/);
+    expect(content.headsUp).toMatch(/no AI model is called/);
+    expect(content.examples).toHaveLength(2);
+  });
+
   it('keeps every example request verbatim and in order', () => {
     const [shop, api] = TEMPLATE_CONTENT.monitoring!.examples;
     expect(shop!.requests).toHaveLength(5);

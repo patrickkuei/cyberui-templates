@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { TEMPLATES, getTemplate } from './templates';
 
@@ -22,6 +24,18 @@ describe('templates', () => {
   it("every item's screenshot path is relative, matching the vite base: './' convention", () => {
     for (const item of TEMPLATES) {
       expect(item.screenshotSrc.startsWith('./screenshots/')).toBe(true);
+    }
+  });
+
+  it('looks up the agent panel and gives it a violet accent distinct from monitoring', () => {
+    expect(getTemplate('agent-panel')?.name).toBe('Agent Control Panel');
+    expect(getTemplate('agent-panel')?.accentHex).toBe('#c084fc');
+  });
+
+  it("every item's screenshot file exists, because nothing else in CI would notice a missing one", () => {
+    for (const item of TEMPLATES) {
+      const file = resolve(__dirname, '../../public', item.screenshotSrc.replace(/^\.\//, ''));
+      expect(existsSync(file), `${item.screenshotSrc} is missing from packages/site/public`).toBe(true);
     }
   });
 });

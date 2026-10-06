@@ -394,3 +394,37 @@ The owner ran the console and reported three UX problems; each was fixed and the
 - **Live status copy and stability.** The "(token counts are simulated)" note is gone from the Context line (the README says the counts are made up, and the Simulated badge is always on screen), and so is the status badge inside Live status, which only repeated the header and the nav. The activity sentence now sits in a fixed two-line slot (clamped, with the whole sentence as a tooltip): it runs from "Writing a reply." to a full approval question, and when it set the card's height the panels around it jumped on every change. Sampled every 250ms through a full release-notes run (ten different sentences), the card stayed at one height.
 - **No Reset button.** Reset rebuilt the first state, which also un-paused the agent (Pause, then Reset, put the header back to Pause and restarted the tasks), and it mixed two jobs: replaying the demo, and escaping a full context window. A real app has neither as a wipe: it has a New conversation control, which needs saved conversation history, too heavy for this template. So the button, the `reset` action and `resetState` are removed; a full context window now says "Context full. Reload the page to start again.", and a visitor reloads to replay. The earlier findings above that mention Reset describe the first browser check, before this change. Approving or rejecting while paused is still allowed: the decision is recorded and the run carries on at Resume (the status and the Live status sentence say Paused meanwhile).
 - **Composer helper line.** "Scripted demo: no model, nothing sent." sits under the whole composer row, not in the Input's helper slot, so it is one line at every width checked (1440 down to 390px). It is tied to the box with `aria-describedby`.
+
+## Findings from checking the published page
+
+Plan Task 18, run on 2026-10-06 against the site's dev server with both real builds copied in by `sync-templates`, driven with `puppeteer-core` and Microsoft Edge (headless) at 1440x900 and 390x844. One browser on Windows, phone size emulated; read "checked" as "checked there".
+
+**What needed a fix:**
+
+- **The "Copy start prompt" button ignored the template's hue.** It filled yellow-to-cyan under the violet hero. The library's primary button paints with `--gradient-accent`, which it substitutes on `:root`, so scoping `--color-accent` and `--color-secondary` to the section never reached it. `StartBlock` now scopes the gradient as well (own commit, with a test). Side effect: monitoring's button is now solid cyan instead of yellow-to-cyan, which is what its hue says.
+- **A site test assumed one template.** `TemplatesPage.test.tsx` looked up the only "Run the live demo" button; it is now scoped to monitoring's section.
+
+**What was checked and held:**
+
+- **Templates page.** One h1, two sections in order (monitoring, agent-panel). Each hero carries its own accent (`#00fff9`, `#c084fc`) on its badge and "Run the live demo". The folds and the Heads-up resolve to the library default, not the template hue, and the dialog chrome stays the library's cyan and yellow. This reads computed custom properties and screenshots, not every pixel.
+- **Screenshot.** 1440x900, 133 KB, shows the approval card, a populated trace, two running tasks and the violet theme. Its frame has the bottom gradient and a visible "Run the live demo" button.
+- **Dialog.** "Run the live demo" opens it at `#/templates/agent-panel`; the violet console runs inside the iframe (a Refund run reached "Waiting for approval"). The Code tab shows the seven principles with excerpts and the eight-folder tree. Switching to Code and back kept the running preview (a marker set in the iframe survived, status still "Waiting for approval"). Esc, the close button and a backdrop click each close it; Back closes it and stays on Templates; reloading with it open reopens it; Esc pressed inside the running preview closes it. Monitoring's dialog still opens and runs.
+- **Start prompt.** A real click put a prompt naming `packages/agent-panel` on the clipboard (the page's Copy button, read back with `navigator.clipboard`). The terminal fold's text contains `npx tiged patrickkuei/cyberui-templates/packages/agent-panel my-app` (read from the page, not looked at opened).
+- **Home** says "2 templates ready." and names no template.
+- **Phone, 390px.** No sideways scroll on `/templates` (also with the agent-panel folds open) or inside the dialog's Code tab. The dialog is full screen. The preview inside it is 356px wide; the Conversation, Tasks and Trace tabs each showed the right pane when tapped.
+- **Reduced motion.** The dialog's animation is `none`, and a reply inside the preview appeared whole in one step (the default streams about 6 characters per 250ms tick).
+- **Console.** Only a 404 for `/favicon.ico` on the site, which has no favicon link; nothing from the template.
+
+**Not fixed, for the owner:**
+
+- **The pane tabs do not fit at 356px.** In the dialog on a 390px phone the Console's three pane tabs need 367px in a 332px strip, so "Trace" is cut off at the edge. The strip scrolls inside itself and a tap on the visible part works, but nothing says there is more. It is in `packages/agent-panel` (out of scope for this PR); shorter labels or tighter padding would fix it.
+- **The Heads-up is easy to skim past.** This was the open "revisit" item of the `/templates` spec. "The agent is a script." is the first sentence, but the paragraph is in the page's quiet muted colour with a thin left rule, the same styling as monitoring's. If visitors miss it, give it more weight.
+- **The Code tab's first excerpt is long** (19 lines, from `CONTEXT_WINDOW_TOKENS` through `contextLevel`), against 4 to 13 for the others. It is exact, but a shorter slice would read better.
+
+**What was not checked:**
+
+- **The real production deploy**, which only happens after merge, and `npx tiged patrickkuei/cyberui-templates/packages/agent-panel` against the published repo.
+- **Firefox, Safari and a real phone**; a screen reader; pasting the copied prompt into an AI assistant.
+- **The two example folds' wording** was read on screen but not judged for tone beyond being the interviewees' own words.
+- **CI** (the new `template-builds` job) has not run; `deploy.yml` and `checks.yml` were checked only by the scripts and by reading them.
+- **Test runs.** `pnpm -r run test` run in parallel timed out 3 monitoring tests (the 5s default, on a loaded machine; two runs, same three). They pass alone and with `--workspace-concurrency=1` (91/91). Not caused by this PR.

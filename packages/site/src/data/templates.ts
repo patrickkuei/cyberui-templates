@@ -44,6 +44,15 @@ export const TEMPLATES: Template[] = [
     screenshotSrc: './screenshots/monitoring.png',
     livePreviewPath: './live/monitoring/index.html',
   },
+  {
+    slug: 'agent-panel',
+    name: 'Agent Control Panel',
+    tagline: 'A conversation, a task queue, live status and a reasoning trace for an AI assistant, with a human approval step.',
+    accentLabel: 'Violet',
+    accentHex: '#c084fc',
+    screenshotSrc: './screenshots/agent-panel.png',
+    livePreviewPath: './live/agent-panel/index.html',
+  },
 ];
 
 export function getTemplate(slug: string): Template | undefined {

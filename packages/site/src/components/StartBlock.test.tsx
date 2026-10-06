@@ -18,6 +18,13 @@ describe('StartBlock', () => {
     expect(writeText).toHaveBeenCalledWith(startPrompt('AI Product Monitoring', 'monitoring'));
   });
 
+  it("scopes the template's accent to the copy button, including the gradient the primary button actually paints with", () => {
+    const { container } = render(<StartBlock name="Agent Control Panel" slug="agent-panel" accentHex="#c084fc" />, { wrapper: CyberNotificationProvider });
+    const scope = container.querySelector<HTMLElement>('.template-start-copy')!;
+    expect(scope.style.getPropertyValue('--color-accent')).toBe('#c084fc');
+    expect(scope.style.getPropertyValue('--gradient-accent')).toBe('135deg, #c084fc 10%, #c084fc 90%');
+  });
+
   it('explains where to paste it and what it does', () => {
     render(<StartBlock name="AI Product Monitoring" slug="monitoring" accentHex="#00fff9" />, { wrapper: CyberNotificationProvider });
     expect(screen.getByText(/Paste it into your AI coding assistant/)).toBeInTheDocument();

@@ -860,9 +860,17 @@ button.bubble:focus-visible {
   display: none;
 }
 
+/* Cancel and Retry are small, quiet buttons here: a row is a title and one line
+   of detail, and a full-size glowing button beside that line made the row lopsided
+   (and taller than the rows with nothing to click). */
 .task-row-foot > button {
   flex: none;
   margin-left: auto;
+  min-height: 0;
+  padding: 0.1875rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  box-shadow: none;
 }
 
 .task-progress {

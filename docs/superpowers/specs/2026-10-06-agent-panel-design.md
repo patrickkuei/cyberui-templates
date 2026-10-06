@@ -344,3 +344,37 @@ Wording is fixed here (as for monitoring, spec 2026-10-05 §4); the data shape i
 ## 13. Out of scope
 
 Anything listed under "Not in scope" in §1; the CI test job (Q2; tracked in #35); the license sweep across packages (done by #28 / PR #31); a library chat component; changing issue #9's stale wording (PR B closes the issue with `Closes #9`).
+
+## Findings from the first browser check
+
+Plan Task 14, run on 2026-10-06 against the package's dev server (`vite`), driven with `puppeteer-core` and Microsoft Edge 154 (headless). The driving scripts were throwaway and are not in the repository; screenshots were looked at but are not committed. This is one browser on Windows, so read "checked" as "checked there".
+
+**What needed a fix (each its own commit):**
+
+- **`LinearProgress` did not fill its row, and its track was invisible.** The d.ts says the bar fills its container; the installed 2.6.0 renders a fixed `w-48` unless `className` is given (and passing one replaces that width class). Its track is `bg-surface`, the same colour as a panel. Both bars now pass `.meter-bar` and `.panel-surface [role='progressbar']` darkens the track (commit "make progress bars fill their row and show their track"). Worth telling the library owner; not filed from here.
+- **The nav status badge repeated the header badge at full size.** It is `size="sm"` now.
+
+**What was checked and held:**
+
+- **Violet coverage (1440px).** A scan of every element's computed colour, border, background, outline, shadow, fill and stroke for the library's own cyan (`#00fff9`) and yellow (`#fffb00`), within 12 per channel, found none on the Console (idle and waiting for approval), Tasks and Logs. It reads computed styles of the states visited, so hover and focus states were not scanned. Card title rules, tab underlines, table headers, and pagination rendered violet; the Avatar ring is violet with a magenta glow (its `shadow-primary`).
+- **No magenta body text in any card.** The same kind of scan found no text in a `section` coloured the primary magenta; the `.panel-surface` reset works.
+- **Q3, magenta primary beside violet (decided: keep).** The primary buttons (Send, Approve) render *violet*, not magenta, because the library builds their gradient from `--color-accent` and `--color-secondary` (`--gradient-accent`), which the override moved together. Magenta survives only as the button glow and the far end of the progress bars (their gradient runs from the accent to the primary). To my eye the two read as one palette, with no clash, so Send stays a primary button and the `secondary` fallback was not needed. That is a judgment from screenshots; the owner may want to look.
+- **The run.** Status went Thinking, Working, Waiting for approval; focus landed on Approve when the card appeared; trace entries appeared live; Approve finished the refund and the whole reply showed. Picking the earlier agent message switched the trace and said so; Back to latest worked. (Sending a message and Reset both returning to the latest run is covered by `App.test.tsx`, not by the browser.)
+- **Steering.** Pause (composer disabled with its reason, status Paused) and Resume; Stop run mid-reply (a 161-character reply was cut at 30, the trace gained "Decision: Run stopped by you", status Idle); Reset (back to the two seeded messages); Cancel and Retry on a task.
+- **Composer reasons** seen in the browser: paused, working, waiting for approval, context full.
+- **Context window.** With reduced motion on (to speed it up), 33 scripted fallback messages filled it: the meter went default, warning, error, the word "Full" appeared, the composer disabled with "Context full. Reset to start again.", and Reset recovered. The plan's "about 15 messages" was too few: each fallback exchange adds 730 made-up tokens to a start of 4,800.
+- **Auto-scroll.** Pinned to the bottom while a reply streamed; after scrolling the list to the top, a new streaming reply left it at the top.
+- **390px phone.** No sideways page scroll on any of the Console's three panes, Tasks or Logs (`scrollWidth` equal to the viewport). Each pane tab shows exactly one pane. The nav links wrap to a second row rather than clip.
+- **1000px** shows the two-column layout (conversation wide, queue and status stacked) and **1440px** the three columns, as designed.
+- **Reduced motion** (emulated media feature): a reply appeared whole within about a second and the status dot's pulse was off.
+- **Keyboard.** Tab order is Console, Tasks, Logs, Pause, Reset (the disabled Stop run is skipped), the task buttons, the agent message, the three prompt chips, the message box, Send. Every stop reported a focus indicator in its computed style (an outline on links, messages and chips; a box-shadow ring on the library's buttons and input). I did not judge those rings visually. Enter in the box sends.
+
+**What was not checked:**
+
+- **A screen reader.** Whether the streaming reply is announced once, character by character or not at all (spec §3.5) is still a guess. There is a reason for doubt: the list uses `aria-relevant="additions"`, and a reply that grows after its bubble was added is a text change, not an addition, so it may not be announced at all. Needs a real screen reader.
+- **Firefox and Safari**, a real touch device, and browsers without `color-mix`.
+- **On Tasks and Logs, the filter, search, paging and Export transcript were exercised by unit tests only,** not clicked in the browser (the pages were rendered and looked at).
+- **Pane switching with a long conversation on a phone.** Inactive panes are `display: none`, which has no scroll geometry, so the conversation's scroll position after switching away and back was not looked at with enough messages to scroll.
+- **Dev console:** one 404 for `/favicon.ico` (the page has no favicon link); no other errors or warnings.
+
+**Test-tooling note:** under vitest's fake timers `userEvent` hangs (Testing Library's async wrapper waits on a real `setTimeout`), so the two end-to-end flows in `App.test.tsx` use `fireEvent` and say why.

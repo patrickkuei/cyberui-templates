@@ -7,8 +7,9 @@
   "scripts": {
     "check:process-excerpts": "node scripts/check-process-excerpts.mjs",
     "check:templates-readme": "node scripts/check-templates-readme.mjs",
-    "test:scripts": "node --test scripts/check-process-excerpts.test.mjs scripts/check-templates-readme.test.mjs scripts/check-code-tab.test.mjs",
-    "check:code-tab": "node scripts/check-code-tab.mjs"
+    "test:scripts": "node --test scripts/check-process-excerpts.test.mjs scripts/check-templates-readme.test.mjs scripts/check-code-tab.test.mjs scripts/check-license.test.mjs",
+    "check:code-tab": "node scripts/check-code-tab.mjs",
+    "check:license": "node scripts/check-license.mjs"
   },
   "packageManager": "pnpm@10.34.2",
   "engines": {

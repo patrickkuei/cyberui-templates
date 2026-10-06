@@ -5,7 +5,9 @@ name: Checks
 # matches. The script uses only Node built-ins, so no pnpm install is needed.
 # Likewise the root README's template table is a copy of the site's template
 # list; the second job fails when they disagree. And the Code tab links to files
-# in the templates as evidence; the third job fails when one goes missing.
+# in the templates as evidence; the third job fails when one goes missing. And
+# a tiged fork gets only its package folder, so each template carries its own
+# LICENSE; the fourth job fails when a copy goes missing or differs from the root.
 on:
   pull_request:
   push:
@@ -53,3 +55,16 @@ jobs:
       - run: node --test scripts/check-code-tab.test.mjs
 
       - run: node scripts/check-code-tab.mjs
+
+  license:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: node --test scripts/check-license.test.mjs
+
+      - run: node scripts/check-license.mjs

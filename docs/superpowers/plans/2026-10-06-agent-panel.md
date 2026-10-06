@@ -1664,7 +1664,7 @@ export const CONTEXT_TONE: Record<ContextLevel, Tone> = { ok: 'default', high: '
 
 - [ ] **Step 1: Write the failing tests**
   - Renders each step as a Timeline event whose title starts with its kind label (`Thought: Plan the refund`), so meaning is not colour-only; shows the step's `detail` as the description; the time is `formatClock(at)`.
-  - The panel is titled "Reasoning trace (scripted)" (Review Focus #8: the honesty label) and is a `region` named "Reasoning trace".
+  - The panel is titled "Reasoning trace" (the owner dropped a "(scripted)" suffix: the Simulated badge, the composer line and the README carry the honesty message) and is a `region` named "Reasoning trace".
   - With `runLabel="selected"` it says "Showing the run for the message you picked" and a "Back to latest" button calls `onFollowLatest`; with `"latest"` neither appears.
   - Empty `steps` renders "Nothing yet. Send a message to see the agent's steps." instead of an empty Timeline.
   - Newest step is last, and the list scrolls inside its own container (assert the container has the class that sets `overflow: auto`, not a computed style).

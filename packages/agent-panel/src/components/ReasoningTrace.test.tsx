@@ -23,7 +23,7 @@ function renderTrace(props: Partial<React.ComponentProps<typeof ReasoningTrace>>
 describe('ReasoningTrace', () => {
   it('is titled as scripted, so nobody takes it for a real chain of thought (Review Focus #8)', () => {
     const { panel } = renderTrace();
-    expect(panel.getByText('Reasoning trace (scripted)')).toBeInTheDocument();
+    expect(panel.getByText('Reasoning trace')).toBeInTheDocument();
   });
 
   it('puts the kind in each title, so meaning is not carried by the marker colour alone', () => {

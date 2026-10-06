@@ -21,8 +21,10 @@ export function LiveStatus({ state }: LiveStatusProps) {
   return (
     <section aria-label="Live status">
       <Card title="Live status" className="panel-surface">
-        <StatusBadge status={deriveStatus(state)} />
-        <p className="live-activity">{describeActivity(state)}</p>
+        <div className="live-headline">
+          <StatusBadge status={deriveStatus(state)} />
+          <p className="live-activity">{describeActivity(state)}</p>
+        </div>
 
         {/* LinearProgress takes no colour prop (its bar is always the accent-to-primary
             gradient), so the meter's tone shows on the figures and the word beside it,

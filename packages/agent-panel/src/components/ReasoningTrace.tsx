@@ -12,9 +12,12 @@ export interface ReasoningTraceProps {
   onFollowLatest: () => void;
 }
 
-// A trace is the agent's steps as they happened. Here every step is scripted
-// (see data/scenarios.ts), so the panel says so in its title: it illustrates
-// the shape of an agent's trace, it is not a model's real reasoning.
+// A trace is the agent's steps as they happened, and the first place to look
+// when asking why the agent did something. Here every step is scripted (see
+// data/scenarios.ts): it illustrates the shape of an agent's trace, it is not a
+// model's real reasoning. The title does not repeat that; the "Simulated" badge
+// in the header, the line under the message box and the README already say so.
+// In a real app this is the panel to make richest (inputs, outputs, timings).
 export function ReasoningTrace({ steps, runLabel, onFollowLatest }: ReasoningTraceProps) {
   // Keeps the newest step in view as the trace grows, unless the reader scrolled up.
   const scrollRef = useStickToBottom<HTMLDivElement>(steps.length);
@@ -33,7 +36,7 @@ export function ReasoningTrace({ steps, runLabel, onFollowLatest }: ReasoningTra
 
   return (
     <section aria-label="Reasoning trace" className="panel-fill">
-      <Card title="Reasoning trace (scripted)" className="panel-surface">
+      <Card title="Reasoning trace" className="panel-surface">
         {runLabel === 'selected' && (
           <div className="trace-picked">
             <span>Showing the run for the message you picked</span>

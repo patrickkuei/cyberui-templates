@@ -2262,7 +2262,7 @@ git commit -m "ci: fail when a published template is not built or copied into th
 - [ ] **Step 1: Run the whole suite and the production builds**
 
 Run: `pnpm -r run build` and `pnpm -r run test` (monitoring, agent-panel and the site; expected all PASS), then from the repo root `npm run test:scripts` and the five checks (`check:process-excerpts`, `check:templates-readme`, `check:code-tab`, `check:license`, `check:template-builds`).
-Expected: all PASS. Note for the PR: CI does not run the package tests (decided out of scope, spec Q2: its own issue); these were run locally.
+Expected: all PASS. Note for the PR: CI does not run the package tests (decided out of scope, spec Q2; tracked in #35); these were run locally.
 
 - [ ] **Step 2: Start the site with both real builds**
 
@@ -2302,6 +2302,6 @@ The PR body ends with `🤖 Generated with [Claude Code](https://claude.com/clau
 ## Self-review notes
 
 - **Spec coverage:** §1 goal (all tasks). §3 experience: routes (3, 13), console layout and panes (13), interactions 1-6 (5, 6, 11, 13), honesty (8 header badge, 11 helper line, 12 mock export, 14 README, 15 Heads-up; asserted in tests), accessibility and reduced motion (7, 11, 13, 14). §4 theming (2, checked in 14). §5 data: model and scenarios (4), engine (5, 6), hook (7), Logs fixtures (12), README "where your data goes" (14). §6 structure and patterns (1-13; `ROUTES`/`Record<Route,…>` in 3 and 13, limits in 4, tones in 2 and 8-12, state in hooks in 7, no inline styles in 13). §7 components: `Avatar` (8), `Badge` (8, 10, 12), `Timeline` (9), `LinearProgress` (8, 10), `Table` (10, 12), `Pagination` (12), `Input` (11, 12), `Button` (8, 11, 12), `TabNavigation` (12, 13), `Card` (8, 9, 10, 13). §8 testing (every task; `within` in 8, 10, 13). §9 self-containment and license (1, 14). §10 integration points (15, 16, 17). §11 copy (15). §12 verification (14, 18).
-- **Not covered, by design:** the CI test job for packages (Q2, separate issue); the license sweep and its drift check (done by #28 / PR #31, which `check:license` now enforces); a real Export transcript (Q5); a library chat component; editing issue #9's wording.
+- **Not covered, by design:** the CI test job for packages (Q2; tracked in #35); the license sweep and its drift check (done by #28 / PR #31, which `check:license` now enforces); a real Export transcript (Q5); a library chat component; editing issue #9's wording.
 - **Types and names used consistently across tasks:** `AgentState`, `AgentStatus`, `Run`, `Step`, `Scenario`, `AgentActions`, `AgentController`, `STATUS_VIEW`, `CONTEXT_TONE`, `TRACE_STATUS`, `TRACE_KIND_LABEL`, `TASK_BADGE`, `OUTCOME_BADGE`, `TONE_CLASS`, `ROUTES`/`Route`; engine function names as in Tasks 5 and 6; panel names ("Task queue", "Conversation", "Live status", "Reasoning trace") are the `aria-label`s the tests scope with.
 - **Known soft spots a reviewer should look at first:** the context-meter tint (the library's `LinearProgress` takes no colour prop; Task 8 says what to do if the bar cannot be tinted), the screen-reader behavior of the streaming reply (Task 14), and the primary-magenta-beside-violet judgment (Q3).

@@ -74,4 +74,12 @@ describe('useSimulatedAgent', () => {
     act(() => result.current.actions.reset());
     expect(result.current.state.messages).toHaveLength(2);
   });
+
+  it('reset keeps a paused agent paused, instead of quietly resuming it', () => {
+    const { result } = renderHook(() => useSimulatedAgent());
+    act(() => result.current.actions.setPaused(true));
+    act(() => result.current.actions.reset());
+    expect(result.current.state.paused).toBe(true);
+    expect(result.current.state.messages).toHaveLength(2);
+  });
 });

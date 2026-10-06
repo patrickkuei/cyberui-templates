@@ -111,7 +111,7 @@ describe('ConversationPanel', () => {
   it('keeps the "Scripted demo" helper line in view (Review Focus #8)', () => {
     const { panel } = renderPanel(fresh());
     expect(
-      panel.getByText('Scripted demo: replies are pre-written. Nothing is sent to a model or leaves your browser.'),
+      panel.getByText('Scripted demo: no model, nothing sent.'),
     ).toBeInTheDocument();
   });
 });

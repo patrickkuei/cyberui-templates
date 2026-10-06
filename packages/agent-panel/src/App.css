@@ -425,6 +425,12 @@ body {
   gap: 0.5rem;
 }
 
+/* Reset throws the whole conversation away, so it sits a little apart from the
+   pause and stop controls it is easy to mis-click beside. */
+.agent-controls > :last-child {
+  margin-left: 0.5rem;
+}
+
 /* ---- Live status ---- */
 
 /* Always two lines tall, whatever the sentence: shorter ones leave the room
@@ -671,6 +677,13 @@ button.bubble:focus-visible {
 /* The Input draws its label above; this lines Send up with the box, not the label. */
 .composer-row > button {
   margin-top: 1.75rem;
+}
+
+.composer-helper {
+  margin: 0;
+  color: var(--color-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
 }
 
 .suggested-prompts {

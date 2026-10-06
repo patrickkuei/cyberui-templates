@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Composer } from './Composer';
 import { SUGGESTED_PROMPTS } from '../data/scenarios';
 
-const HELPER = 'Scripted demo: replies are pre-written. Nothing is sent to a model or leaves your browser.';
+const HELPER = 'Scripted demo: no model, nothing sent.';
 
 function renderComposer(props: Partial<React.ComponentProps<typeof Composer>> = {}) {
   const onSend = vi.fn();

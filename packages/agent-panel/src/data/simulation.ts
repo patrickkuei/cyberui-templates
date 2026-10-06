@@ -88,6 +88,16 @@ export function createInitialState(now: number): AgentState {
 // ---- Commands (user actions) ------------------------------------------------
 
 /**
+ * Restarts the simulation from its first state, keeping only whether the agent
+ * is paused. Pausing is a mode the person chose with its own button, so a Reset
+ * (which clears the conversation, the queue and the trace) must not silently
+ * undo it: reset while paused stays paused, with Resume still on the header.
+ */
+export function resetState(state: AgentState, now: number): AgentState {
+  return { ...createInitialState(now), paused: state.paused };
+}
+
+/**
  * Starts a run for the message. Ignored (state returned unchanged) when the
  * text is blank, a run is already going, the agent is paused, or the context
  * is full: the UI disables the composer in those cases and says why.

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { Button, Input } from 'cyberui-2045';
 import { SendIcon } from '../icons';
 
@@ -13,6 +13,7 @@ export interface ComposerProps {
 export function Composer({ onSend, disabledReason, suggested }: ComposerProps) {
   const [text, setText] = useState('');
   const disabled = disabledReason !== null;
+  const helperId = useId();
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -43,9 +44,7 @@ export function Composer({ onSend, disabledReason, suggested }: ComposerProps) {
             value={text}
             disabled={disabled}
             onChange={(event) => setText(event.target.value)}
-            // Always shown, in every state: nothing here talks to a model, and
-            // the line says so where a person is about to type.
-            helperText="Scripted demo: replies are pre-written. Nothing is sent to a model or leaves your browser."
+            aria-describedby={helperId}
           />
         </div>
         <Button type="submit" size="md" disabled={disabled}>
@@ -55,6 +54,13 @@ export function Composer({ onSend, disabledReason, suggested }: ComposerProps) {
           </span>
         </Button>
       </div>
+      {/* Always shown, in every state: nothing here talks to a model, and the line
+          says so where a person is about to type. It sits under the whole row, not
+          in the Input's own helper slot, so it has the row's full width and stays on
+          one line; aria-describedby above ties it to the box for screen readers. */}
+      <p id={helperId} className="composer-helper">
+        Scripted demo: no model, nothing sent.
+      </p>
     </form>
   );
 }

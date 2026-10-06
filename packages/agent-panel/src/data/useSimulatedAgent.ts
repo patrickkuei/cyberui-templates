@@ -4,6 +4,7 @@ import {
   cancelRun,
   cancelTask,
   createInitialState,
+  resetState,
   resolveApproval,
   retryTask,
   sendMessage,
@@ -19,7 +20,7 @@ export interface AgentActions {
   cancelTask: (taskId: string) => void;
   retryTask: (taskId: string) => void;
   setPaused: (paused: boolean) => void;
-  /** Back to the first state. The only way out of a full context window. */
+  /** Back to the first state (a paused agent stays paused). The only way out of a full context window. */
   reset: () => void;
 }
 
@@ -61,7 +62,7 @@ export function useSimulatedAgent({ tickMs = TICK_MS, charsPerTick = CHARS_PER_T
       cancelTask: (taskId) => setState((prev) => cancelTask(prev, taskId, Date.now())),
       retryTask: (taskId) => setState((prev) => retryTask(prev, taskId)),
       setPaused: (paused) => setState((prev) => setPaused(prev, paused)),
-      reset: () => setState(createInitialState(Date.now())),
+      reset: () => setState((prev) => resetState(prev, Date.now())),
     }),
     [],
   );

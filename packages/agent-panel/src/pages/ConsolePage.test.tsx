@@ -63,7 +63,7 @@ describe('ConsolePage', () => {
     const { region } = renderConsole(createInitialState(NOW));
     expect(screen.getByText('Simulated')).toBeInTheDocument();
     expect(
-      region('Conversation').getByText('Scripted demo: replies are pre-written. Nothing is sent to a model or leaves your browser.'),
+      region('Conversation').getByText('Scripted demo: no model, nothing sent.'),
     ).toBeInTheDocument();
   });
 

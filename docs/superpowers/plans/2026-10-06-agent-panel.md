@@ -66,7 +66,7 @@ A package that installs, type-checks, builds and runs one empty test. Nothing of
 - [ ] **Step 1: Check where issue #28 stands**
 
 Run: `gh issue view 28 --json state,title` and `git log --oneline -5 -- packages/monitoring/LICENSE packages/monitoring/package.json`
-Expected: if #28 has been fixed, `packages/monitoring` has a `LICENSE` file and `"license": "MIT"`; do exactly what it does here. If it is still open (the case when this plan was written), do both for this package (Steps 2 and 3) and add a line to the PR body: "#28 is still open; this package already carries a LICENSE and a license field, and #28's sweep should include it."
+Expected: if #28 has been fixed, `packages/monitoring` has a `LICENSE` file and `"license": "MIT"`; do exactly what it does here. If it is still open (the case when this plan was written), do both for this package (Steps 2 and 3) and add a line to the PR body: "#28 is still open; this package already carries a LICENSE and a license field, and #28's sweep should include it."  Decided (spec Q1): #28 (PR #31) merges before this PR, so expect the first case.
 
 - [ ] **Step 2: Write `package.json`**
 

@@ -1,4 +1,5 @@
 import { Avatar, Badge, Button } from 'cyberui-2045';
+import { PauseIcon, PlayIcon, StopIcon } from '../icons';
 import { STATUS_VIEW } from '../theme/tones';
 import { StatusBadge } from './StatusBadge';
 import type { AgentStatus } from '../data/types';
@@ -29,15 +30,24 @@ export function AgentHeader({ status, paused, running, onPause, onResume, onStop
       <div className="agent-controls">
         {paused ? (
           <Button variant="secondary" size="sm" onClick={onResume}>
-            Resume
+            <span className="button-with-icon">
+              <PlayIcon size={14} />
+              Resume
+            </span>
           </Button>
         ) : (
           <Button variant="secondary" size="sm" onClick={onPause}>
-            Pause
+            <span className="button-with-icon">
+              <PauseIcon size={14} />
+              Pause
+            </span>
           </Button>
         )}
         <Button variant="danger" size="sm" onClick={onStop} disabled={!running}>
-          Stop run
+          <span className="button-with-icon">
+            <StopIcon size={14} />
+            Stop run
+          </span>
         </Button>
         <Button variant="ghost" size="sm" onClick={onReset}>
           Reset

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Button, Input } from 'cyberui-2045';
+import { SendIcon } from '../icons';
 
 export interface ComposerProps {
   onSend: (text: string) => void;
@@ -48,7 +49,10 @@ export function Composer({ onSend, disabledReason, suggested }: ComposerProps) {
           />
         </div>
         <Button type="submit" size="md" disabled={disabled}>
-          Send
+          <span className="button-with-icon">
+            <SendIcon size={14} />
+            Send
+          </span>
         </Button>
       </div>
     </form>

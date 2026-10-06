@@ -1,4 +1,249 @@
-/* src/App.css (grows in later tasks). Colours come only from tokens. */
+/*
+ * Agent Control Panel: app layout.
+ * Colours come only from cyberui-2045's documented --color-* tokens (the one
+ * accent override lives in theme/violet.css), and no hex literal belongs in
+ * this file (noHexColors.test.ts). Direction: an operator console. Panels side
+ * by side on wide screens, one pane at a time on phones, tabular figures so
+ * live numbers don't jitter.
+ */
+
+.agent-panel {
+  --gap: clamp(0.625rem, 1.1vw, 1rem);
+  --readout-font: Bahnschrift, 'DIN Alternate', 'DIN 2014', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  /* Named so the top nav can bleed to the column edge and still align with the page content. */
+  --pad-top: clamp(0.875rem, 1.6vw, 1.25rem);
+  --pad-inline: clamp(0.75rem, 1.6vw, 1.25rem);
+
+  box-sizing: border-box;
+  min-height: 100vh;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: var(--pad-top) var(--pad-inline) 2.5rem;
+  /* Card sets magenta (text-primary) body text by default; reset it on the layout root, as .panel-surface does per card. */
+  color: var(--color-default);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The page background has to sit on <body> so it fills beyond the max-width column. */
+body {
+  margin: 0;
+  background: var(--color-base);
+}
+
+.panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* ---- Page header (Tasks, Logs) ---- */
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.375rem 1rem;
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--readout-font);
+  font-size: clamp(1.625rem, 1.1rem + 1.6vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--color-default);
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.task-filter {
+  margin-bottom: 0.75rem;
+}
+
+/* ---- Console grid ----
+   One column below 720px (and only the active pane shows), two columns from
+   720px (conversation wide, queue and side stacked), three from 1180px. The
+   panes are always in the DOM; only CSS decides which are visible. */
+
+.console-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'queue' 'conversation' 'trace';
+  gap: var(--gap);
+}
+
+.console-pane {
+  display: none;
+  min-width: 0;
+}
+
+.console-pane--active {
+  display: block;
+}
+
+.console-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.pane-queue {
+  grid-area: queue;
+}
+
+.pane-conversation {
+  grid-area: conversation;
+}
+
+.pane-trace {
+  grid-area: trace;
+}
+
+@media (min-width: 720px) {
+  .console-pane {
+    display: block;
+  }
+
+  .pane-tabs {
+    display: none;
+  }
+
+  .console-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-areas:
+      'conversation queue'
+      'conversation trace';
+    align-items: start;
+  }
+}
+
+@media (min-width: 1180px) {
+  .console-grid {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
+    grid-template-areas: 'queue conversation trace';
+  }
+}
+
+/* ---- Top nav ----
+   Chrome, not content: it bleeds to the column edges, stays a single quiet
+   line, and the active item is marked by a rule sitting on the nav's bottom
+   border, echoing the accent rule under the card titles. */
+
+.topnav {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 3rem;
+  margin: calc(-1 * var(--pad-top)) calc(-1 * var(--pad-inline)) clamp(0.875rem, 1.6vw, 1.25rem);
+  padding: 0 var(--pad-inline);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.topnav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--readout-font);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-default);
+}
+
+.topnav-logo {
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--color-secondary);
+}
+
+.topnav-links {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  margin-right: auto;
+  margin-left: 1rem;
+}
+
+.topnav-link {
+  display: flex;
+  align-items: center;
+  padding: 0 0.375rem; /* room for the inset focus ring beside the glyphs */
+  margin-bottom: -1px; /* lets the active rule overlap the nav's border */
+  border-bottom: 2px solid transparent;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 120ms ease-out,
+    border-color 120ms ease-out;
+}
+
+.topnav-link:hover {
+  color: var(--color-default);
+  border-bottom-color: var(--color-muted);
+}
+
+/* Inset, so the ring stays inside the nav bar instead of spilling over its border. */
+.topnav-link:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: -2px;
+  color: var(--color-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topnav-link {
+    transition: none;
+  }
+}
+
+.topnav-link--active,
+.topnav-link--active:hover {
+  border-bottom-color: var(--color-secondary);
+  color: var(--color-default);
+}
+
+.topnav-status {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+/* Phones: the links are the only way between pages, so they wrap to a second row rather than hide or scroll. */
+@media (max-width: 640px) {
+  .topnav {
+    flex-wrap: wrap;
+    row-gap: 0;
+    column-gap: 0.75rem;
+  }
+
+  .topnav-brand,
+  .topnav-status {
+    min-height: 2.75rem;
+  }
+
+  .topnav-status {
+    margin-left: auto;
+  }
+
+  .topnav-links {
+    order: 1;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    margin: 0;
+  }
+
+  .topnav-link {
+    min-height: 2.5rem;
+    margin-bottom: 0;
+  }
+}
 
 /* ---- Tones: the one definition of what each tone looks like ----
    Components add `tone-<name>` through TONE_CLASS instead of mapping a tone to
@@ -35,6 +280,12 @@
 }
 
 /* ---- Agent header ---- */
+
+.button-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
 
 .agent-header {
   display: flex;

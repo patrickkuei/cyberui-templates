@@ -62,6 +62,34 @@ describe('App', () => {
     expect(nav().getByText('Idle')).toBeInTheDocument();
   });
 
+  describe('the picked run (state that lives in App so it survives leaving the Console)', () => {
+    const BANNER = 'Showing the run for the message you picked';
+
+    it('survives going to another page and back', async () => {
+      render(<App />);
+      await userEvent.click(region('Conversation').getByRole('button', { name: /^Four items/ }));
+      expect(region('Reasoning trace').getByText(BANNER)).toBeInTheDocument();
+      goTo('#/tasks');
+      goTo('#/console');
+      expect(region('Reasoning trace').getByText(BANNER)).toBeInTheDocument();
+    });
+
+    it('goes back to following the latest run when a message is sent', async () => {
+      render(<App />);
+      await userEvent.click(region('Conversation').getByRole('button', { name: /^Four items/ }));
+      expect(region('Reasoning trace').getByText(BANNER)).toBeInTheDocument();
+      await userEvent.type(region('Conversation').getByRole('textbox', { name: 'Message Vesper' }), 'hello{enter}');
+      expect(region('Reasoning trace').queryByText(BANNER)).not.toBeInTheDocument();
+    });
+
+    it('goes back to following the latest run on Reset, whose old runs no longer exist', async () => {
+      render(<App />);
+      await userEvent.click(region('Conversation').getByRole('button', { name: /^Four items/ }));
+      await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
+      expect(region('Reasoning trace').queryByText(BANNER)).not.toBeInTheDocument();
+    });
+  });
+
   describe('end to end, with a fake clock', () => {
     // Every tick is 250ms (TICK_MS). The cap turns a hung run into a failing test instead of a hung one.
     function advanceUntil(done: () => boolean) {

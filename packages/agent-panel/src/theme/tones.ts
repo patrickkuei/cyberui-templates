@@ -1,5 +1,6 @@
 import type { AvatarStatus, BadgeProps, TimelineEvent } from 'cyberui-2045';
 import type { ContextLevel } from '../data/limits';
+import type { SessionOutcome } from '../data/sessions';
 import type { AgentStatus, TaskStatus, TraceKind, TraceOutcome } from '../data/types';
 
 export type Tone = 'default' | 'success' | 'warning' | 'error';
@@ -58,6 +59,13 @@ export const TASK_BADGE: Record<TaskStatus, BadgeVariant> = {
   done: 'success',
   failed: 'error',
   cancelled: 'warning',
+};
+
+/** How a past session ended -> badge variant. The badge also says the outcome in words. */
+export const OUTCOME_BADGE: Record<SessionOutcome, BadgeVariant> = {
+  resolved: 'success',
+  escalated: 'warning',
+  abandoned: 'error',
 };
 
 /** The tone of the context meter; the thresholds that pick the level live in data/limits.ts. */

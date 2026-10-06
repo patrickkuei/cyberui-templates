@@ -306,6 +306,41 @@ button.bubble:focus-visible {
   cursor: not-allowed;
 }
 
+/* ---- Past sessions (Logs) ---- */
+
+.session-table {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.session-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.session-pagination {
+  align-self: flex-start;
+}
+
+.session-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.export-done {
+  color: var(--color-success);
+  font-size: 0.8125rem;
+}
+
+.export-note {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
 /* ---- Task queue and table ---- */
 
 .task-list {

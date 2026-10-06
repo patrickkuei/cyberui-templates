@@ -1,14 +1,14 @@
 # Agent Control Panel Template (`packages/agent-panel`) — Design Spec
 
 **Date:** 2026-10-06
-**Status:** Draft. Written without interactive review (the owner was not available), so every judgment call is listed under "Decisions I made / open questions for the owner" and is meant to be overturned cheaply. Pending owner review.
+**Status:** Draft. Written without interactive review (the owner was not available), so every judgment call is listed under "Decisions I made / resolved questions" and is meant to be overturned cheaply. The owner then asked for the open questions to be settled without waiting for review; they are resolved below (2026-10-06) and remain cheap to reverse.
 **Issue:** [#9](https://github.com/patrickkuei/cyberui-templates/issues/9) (second flagship template); tracking issue [#1](https://github.com/patrickkuei/cyberui-templates/issues/1).
 **Builds on:** [2026-09-27-cyberui-showcase-design.md](2026-09-27-cyberui-showcase-design.md) (self-contained packages, accent-hue theming, one combined deploy), [2026-10-05-templates-page-design.md](2026-10-05-templates-page-design.md) (the `/templates` page every template is published through, including the Code tab) and the `packages/monitoring` template, which this one follows structurally.
 **Plan:** [docs/superpowers/plans/2026-10-06-agent-panel.md](../plans/2026-10-06-agent-panel.md).
 
 > **Vocabulary note.** Issue #9 was written before the repo was restructured and uses stale names: `packages/showcase`, `/gallery/agent-panel`, `patrickkuei/cyberui-showcase`. Today `packages/site` is the website, templates live in `packages/<name>`, the site page is the hash route `#/templates` (a live-preview dialog, folded examples, a one-step start), and the repo is `patrickkuei/cyberui-templates`. This spec uses the current names throughout. Nothing in issue #9 needs a "gallery page"; publishing means adding data to the site (§10).
 
-## Decisions I made / open questions for the owner
+## Decisions I made / resolved questions
 
 Decisions (each is cheap to reverse; the section that carries the reasoning is in brackets):
 
@@ -25,14 +25,14 @@ Decisions (each is cheap to reverse; the section that carries the reasoning is i
 11. **The plan ships in two pull requests.** PR A is the package (`feat/agent-panel-template`); PR B is the site, CI and README wiring (`feat/site-agent-panel`), because the Code tab's excerpts must exist in the package before CI will accept the site entry. [Plan, Conventions]
 12. **One extra CI check is proposed (plan Task 17, recommended, droppable).** Today three hand-kept lists must agree for a template to reach production: `TEMPLATES` in the site, `TEMPLATE_BUILDS` in the sync script and the build/copy steps in `deploy.yml`. Only the README table has a drift check. Forgetting the deploy step leaves the live preview blank in production and nothing in CI notices. [§10]
 
-Open questions:
+Questions raised in the first draft, and how they were settled (2026-10-06; the owner asked for these to be decided rather than left open):
 
-- **Q1. License (issue #28) and ordering.** Issue #28 (forks made with `tiged` get no LICENSE file) is still open. This spec assumes its fix will be: a `LICENSE` file inside each template package and `"license": "MIT"` in each package's `package.json`. If #28 lands first, the plan's Task 1 follows whatever it decided. If not, Task 1 adds both to `packages/agent-panel` only, and #28's sweep (and its proposed drift check) must then include this package. Which do you prefer?
-- **Q2. Template tests do not run in CI.** `checks.yml` runs only the three root scripts and `deploy.yml` only builds (`tsc --noEmit && vite build`). The monitoring package's 24 test files, and this package's, are never run by CI. This spec does not change that; it is worth a separate issue (a `pnpm -r test` job, or adding `test` to the deploy build job).
-- **Q3. Is the primary magenta next to violet acceptable?** Every button using `variant="primary"` (the Send button, for instance) stays magenta with a magenta glow beside violet panel accents. The repo's rule is that only the accent hue varies, so I left it. A browser look (plan Task 14) decides whether that clashes; the fallback is overriding `--color-primary` to a lighter violet or leaving Send as a `secondary` button.
-- **Q4. Is the name "Vesper" / "Agent Control Panel" right?** Pure taste; it is two constants and a handful of strings.
-- **Q5. Do you want the chat transcript to be exportable for real?** I made "Export transcript" a mock to match monitoring's mock Export CSV. A real client-side download of the JSON is a half-day addition and would remove the template's only dead control. Say so and it moves from mock to real.
-- **Q6. `Console` as the default route name.** Alternatives: `agent`, `live`. Not worth debating; it is one word in `ROUTES` and `ROUTE_LABELS`.
+- **Q1. License (issue #28) and ordering. Resolved: #28 lands first.** PR #31 (a `LICENSE` file plus `"license": "MIT"` in each template package, and a `check:license` script that finds templates through `packages/site/src/data/templates.ts`) merges before PR A. Task 1 then copies that pattern. Task 1 still adds both to `packages/agent-panel` if #28 has somehow not landed, so the package never ships without them. `check:license` starts covering this package automatically when PR B registers it in `templates.ts`; no extra work is needed.
+- **Q2. Template tests do not run in CI. Resolved: out of scope, tracked separately.** `checks.yml` runs only the root scripts and `deploy.yml` only builds (`tsc --noEmit && vite build`), so the monitoring package's tests and this package's never run in CI. That is a repo-wide gap, not part of this template: it gets its own issue (a `pnpm -r test` job), and this package's tests are run locally and the result stated in the PR.
+- **Q3. Primary magenta beside violet. Resolved: keep it; do not override `--color-primary`.** The repo's rule is that only the accent hue varies, and `primary` is a library-wide semantic colour. Task 14 still judges the Send and Approve buttons in a browser. If they clash, the fix is to make Send a `secondary` button (a local change), not to retheme `--color-primary`. Record the finding either way.
+- **Q4. Name. Resolved: keep "Vesper" / "Agent Control Panel".** Two constants and a handful of strings if that ever changes.
+- **Q5. Export transcript. Resolved: stays a mock.** It matches monitoring's mock Export CSV and is labelled as a mock in the README and the site's Heads-up. A real download is a possible follow-up, not part of this template.
+- **Q6. Default route name and the remaining plan choices. Resolved:** keep `console` as the default route. Keep Task 17 (the deploy-lists drift check): forgetting a deploy step leaves a blank production preview with CI green, which is worth one small check. PR B says `Closes #9`; the published section satisfies the issue's scope once its stale wording is read as the current `/templates` page (see the vocabulary note above).
 
 ## 1. Goal
 
@@ -142,7 +142,7 @@ Why this works, checked in the installed v2.6.0 build (`dist/cyberui-2045.css`):
 
 What to know, all from the same build:
 - `--color-secondary` and `--color-accent` are overridden *together*. In cyan-themed monitoring, secondary is the text/active colour and accent is the card-title rule; the site scopes both to the same hex for the same reason. Overriding only one would leave a yellow card-title rule in a violet panel.
-- `--color-primary` (magenta, `#ff005d`) is left alone. See open question Q3.
+- `--color-primary` (magenta, `#ff005d`) is left alone. See Q3 (resolved: kept).
 - Browsers without `color-mix` fall back to the library's own hard-coded cyan hex for the `/NN` opacity variants (`#00fff933` and friends). That is a library limitation affecting only old browsers and is not worked around.
 - Cyberui's `Card` sets `text-primary`, i.e. magenta body text, by default. Monitoring resets text colour on its layout root (`.dashboard { color: var(--color-default) }`); this template does the same on `.agent-panel` and then colours individual pieces through the shared tone classes (§6.2). A forker adding a new `Card` should expect to need the same reset.
 - The override has to be a *token* override, not hard-coded violet hex values in component CSS: components must keep reading `var(--color-secondary)`, so a forker changes their accent by editing the one file. A test (§8) fails if `src/**/*.css` other than `violet.css` contains a hex colour literal.
@@ -284,14 +284,14 @@ React Testing Library + Vitest + happy-dom, as in monitoring (its `vitest`/`happ
 - **Page and App tests.** `App`: renders `console` by default; navigates between the three routes via real links; an unknown hash falls back; the document title follows the route; and one **end-to-end flow** with fake timers: click the refund chip, send, advance until the approval card appears, check the status says Waiting and the trace has a waiting entry, Approve, advance, and see the full reply and an Idle status. A second flow rejects.
 - **`noInlineStyles.test.ts`** copied from monitoring, plus **a hex-literal check**: no `src/**/*.css` except `theme/violet.css` contains `#rrggbb` (so components keep reading tokens).
 - **Not tested, by design:** CSS layout and breakpoints (happy-dom has no layout engine), the Avatar's glitch effect, library internals.
-- **Not run by CI today** (open question Q2); run locally with `pnpm --filter agent-panel-template test`.
+- **Not run by CI today** (Q2: tracked as a separate issue); run locally with `pnpm --filter agent-panel-template test`.
 
 ## 9. Self-containment and forkability
 
 - **Own `package.json`**: `name: "agent-panel-template"`, `private: true`, `type: "module"`, `engines.node: ">=20.19"`, scripts `dev`, `build` (`tsc --noEmit && vite build`), `preview`, `test`. `cyberui-2045` is `^2.6.0` from npm, never a `workspace:` range; the same React/Vite/Vitest/TypeScript versions as monitoring; **no `recharts`**. `typescript` is a dev dependency because `noInlineStyles.test.ts` imports it.
 - **Own complete `tsconfig.json`**, copied from the root `tsconfig.json`/monitoring's (not `extends`ed), and its own `vite.config.ts` (`base: './'` so the build works at any subpath, including inside the site's iframe).
 - **No imports outside the package**, and duplication across templates is accepted on purpose: `useHashRoute`, `tones.ts`, `test/setup.ts` and the `noInlineStyles` test are copies of monitoring's, not shared code. A shared layer would break `tiged` extraction, which is the repo's central promise.
-- **License (issue #28).** Assumption: the fix lands as a `LICENSE` file in each template package and `"license": "MIT"` in each package's `package.json`. `packages/agent-panel` follows that from its first commit (see Q1 for ordering). The `README.md` license line in the template is not needed if the file is present.
+- **License (issue #28).** The fix (PR #31) lands as a `LICENSE` file in each template package and `"license": "MIT"` in each package's `package.json`. `packages/agent-panel` follows that from its first commit (see Q1: #28 lands first). The `README.md` license line in the template is not needed if the file is present.
 - **README** (`packages/agent-panel/README.md`) is the forker's documentation, in monitoring's shape and honesty standard: one paragraph saying what it is, that everything is simulated and which controls are mock (§3.4); the commands (`npm install && npm run dev`, `npm run build`, `npm test`, Node 20.19+); "Where your data goes" (§5.6); "Principles this code follows" (the same table as the Code tab, with file links); and "Re-theming" (change the two values in `src/theme/violet.css`).
 - **Verification that it is really standalone** (monitoring plan Task 9's method): copy the folder outside the workspace, `npm install` (zero errors and warnings is the bar), `npm run build`, `npm test`, `npm run dev`; and, once merged, `npx tiged patrickkuei/cyberui-templates/packages/agent-panel my-app` for real. The templates-page spec notes this was never run end to end for monitoring either.
 
@@ -335,7 +335,7 @@ Wording is fixed here (as for monitoring, spec 2026-10-05 §4); the data shape i
 ## 12. Risks and what is not verified
 
 - **Not built or run:** this spec and plan are documents. The only code exercised is the engine, type-checked under strict TypeScript 5.8 and smoke-run in a scratch directory with Node 20 (all scenarios on both approval branches, the fallback, pause, stop-run, mid-task cancel, `Infinity` reveal, the idle same-reference property, the caps). No component, CSS, page, hook or test has been written or run.
-- **Library assumptions to confirm in a browser:** that overriding the two tokens fully removes yellow and cyan from `Card` title rules, `TabNavigation`, `Badge`, `Table` and focus rings (confirmed in the CSS source, not rendered); that the library's own hover glows follow the override; that magenta primary beside violet looks acceptable (Q3); the Timeline's diamond colours for `info`/`success`/`warning`/`error`.
+- **Library assumptions to confirm in a browser:** that overriding the two tokens fully removes yellow and cyan from `Card` title rules, `TabNavigation`, `Badge`, `Table` and focus rings (confirmed in the CSS source, not rendered); that the library's own hover glows follow the override; that magenta primary beside violet looks acceptable (Q3: kept unless the browser check says otherwise); the Timeline's diamond colours for `info`/`success`/`warning`/`error`.
 - **Screen-reader behaviour of the streaming reply** (§3.5) is a guess about polite live regions; unchecked.
 - **Mobile pane switching** is the most layout-heavy part and is not testable under happy-dom; it is a browser check.
 - **Preview inside the site's dialog:** `Esc` pressed inside the running template closes the site dialog (spec 2026-10-05 §3). This template uses no Esc handling of its own, so nothing conflicts today; a forker adding a modal would see both close.
@@ -343,4 +343,4 @@ Wording is fixed here (as for monitoring, spec 2026-10-05 §4); the data shape i
 
 ## 13. Out of scope
 
-Anything listed under "Not in scope" in §1; the CI test job (Q2); the license sweep across packages (issue #28 owns it); a library chat component; changing issue #9's stale wording (the owner may want to edit it, or close it with the PR that merges plan Task 18).
+Anything listed under "Not in scope" in §1; the CI test job (Q2); the license sweep across packages (issue #28 owns it); a library chat component; changing issue #9's stale wording (PR B closes the issue with plan Task 18).

@@ -19,7 +19,7 @@
 - **Two pull requests.** PR A: Tasks 1-14 on branch `feat/agent-panel-template` (the package, nothing outside `packages/agent-panel` except `pnpm-lock.yaml`). PR B: Tasks 15-18 on branch `feat/site-agent-panel`, started after PR A is merged (the Code tab's excerpts must exist in the package before `check-code-tab` accepts them). Neither PR merges itself; the owner merges.
 - Work in `packages/agent-panel` unless a step says otherwise (Tasks 15-17 work from the repo root or `packages/site`, as each says). Run package tests as `npx vitest run <path>` from the package, or `pnpm --filter agent-panel-template test` from the root.
 - Commit with two `-m` flags, the second being exactly: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`. Conventional commit prefixes as in the log (`feat(agent-panel):`, `test(agent-panel):`, `docs:`, `ci:`, `feat(site):`).
-- Pull request bodies reference issue #9 (`Refs #9`) and end with the line `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. PR B may say `Closes #9` only if the owner agrees the published section satisfies the issue's scope (see spec decision list).
+- Pull request bodies reference issue #9 (`Refs #9`) and end with the line `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. PR B says `Closes #9` (decided; see the spec's resolved questions, Q6).
 - `pnpm` is the package manager. No `workspace:` ranges, and nothing in `packages/agent-panel` imports outside its own folder.
 - Where this plan says "copy from monitoring", copy the file and keep its comments (they are forker-facing documentation), then change only what the step says.
 
@@ -1869,7 +1869,7 @@ Expected: `npm install` prints no errors and no `npm warn`; build and tests pass
 
 - [ ] **Step 3: The browser look.** Run `pnpm --filter agent-panel-template dev`, open the printed address and check, fixing what fails in the file it belongs to (each its own commit):
   - Desktop 1440px: three columns; the conversation is the widest; violet appears on card-title rules, nav active rule, focus rings, links, the Avatar glow, badges; **no stray cyan or yellow anywhere**; `Table` header, `Pagination` and `TabNavigation` are violet.
-  - **Open question Q3 (primary magenta beside violet):** judge the Send and Approve buttons. If they clash, record it and try overriding `--color-primary` too, or making Send `secondary`; do not silently decide, write the finding down.
+  - **Q3 (primary magenta beside violet), decided: keep it unless it clashes:** judge the Send and Approve buttons. If they clash, make Send `secondary`; do not override `--color-primary` (the repo varies only the accent hue). Write the finding down either way.
   - **Text colour:** no magenta body text inside any `Card` (the `.panel-surface` reset works).
   - Click the Refund chip, Send: status goes Thinking → Working → Waiting; the approval card appears with focus on Approve; the trace gains entries live; Approve completes; the reply streams.
   - Click an earlier agent message: the trace switches and says so; Back to latest works; sending a new message returns to latest.
@@ -2065,7 +2065,7 @@ git commit -m "ci: build and deploy the agent panel; list it in the README" -m "
 
 ### Task 17: Drift check for the build lists (recommended)
 
-Three hand-kept lists must agree for a template to reach production: `TEMPLATES`, `TEMPLATE_BUILDS` in the sync script, and the steps in `deploy.yml`. Only the README has a check today. This one fails CI when a published template is missing from the others. Drop this task if the owner would rather not add a check; nothing else depends on it.
+Three hand-kept lists must agree for a template to reach production: `TEMPLATES`, `TEMPLATE_BUILDS` in the sync script, and the steps in `deploy.yml`. Only the README has a check today. This one fails CI when a published template is missing from the others. Decided (spec Q6) to keep it; nothing else depends on it, so it can still be dropped cheaply.
 
 **Files:**
 - Create: `scripts/check-template-builds.mjs`, `scripts/check-template-builds.test.mjs`
@@ -2262,7 +2262,7 @@ git commit -m "ci: fail when a published template is not built or copied into th
 - [ ] **Step 1: Run the whole suite and the production builds**
 
 Run: `pnpm -r run build` and `pnpm -r run test` (monitoring, agent-panel and the site; expected all PASS), then from the repo root `npm run test:scripts` and the four checks (`check:process-excerpts`, `check:templates-readme`, `check:code-tab`, `check:template-builds`).
-Expected: all PASS. Note for the PR: CI does not run the package tests (open question Q2); these were run locally.
+Expected: all PASS. Note for the PR: CI does not run the package tests (Q2: tracked as a separate issue); these were run locally.
 
 - [ ] **Step 2: Start the site with both real builds**
 
@@ -2292,7 +2292,7 @@ Reduced motion: dialog appears with no fade; inside the preview, replies appear 
 git add docs/superpowers/specs/2026-10-06-agent-panel-design.md
 git commit -m "docs: record findings from checking the published Agent Control Panel" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 git push -u origin feat/site-agent-panel
-gh pr create --base main --title "feat(site): publish the Agent Control Panel template" --body "<summary; what was and was not checked; Refs #9 (or Closes #9 if the owner agrees)>"
+gh pr create --base main --title "feat(site): publish the Agent Control Panel template" --body "<summary; what was and was not checked; Closes #9>"
 ```
 
 The PR body ends with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. Do not merge.

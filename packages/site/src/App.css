@@ -1135,6 +1135,16 @@ body:has(dialog[open]) {
   gap: var(--space-block);
 }
 
+/* Each template is a long section that ends on a quiet fold and the next one
+   begins with its own heading; with only blank space between them the two read
+   as one page. A rule in the neutral border colour (no accent: the sections
+   are told apart by their own hue, the divider is just a break), with the same
+   space below it as above. */
+.template-section + .template-section {
+  padding-top: var(--space-section);
+  border-top: 1px solid var(--color-border-default);
+}
+
 .template-hero {
   display: flex;
   flex-direction: column;
@@ -1150,6 +1160,8 @@ body:has(dialog[open]) {
 
 .template-section-header h2 {
   margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
 }
 
 .template-section-tagline {

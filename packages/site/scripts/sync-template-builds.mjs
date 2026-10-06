@@ -12,7 +12,10 @@ import path from 'node:path';
 const siteDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const repoRoot = path.resolve(siteDir, '..', '..');
 
-const TEMPLATE_BUILDS = [{ slug: 'monitoring', pnpmFilter: 'monitoring-template' }];
+const TEMPLATE_BUILDS = [
+  { slug: 'monitoring', pnpmFilter: 'monitoring-template' },
+  { slug: 'agent-panel', pnpmFilter: 'agent-panel-template' },
+];
 
 for (const { slug, pnpmFilter } of TEMPLATE_BUILDS) {
   console.log(`[sync-templates] building ${pnpmFilter}...`);

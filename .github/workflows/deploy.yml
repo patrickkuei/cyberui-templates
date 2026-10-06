@@ -39,6 +39,9 @@ jobs:
       - name: Build monitoring template
         run: pnpm --filter monitoring-template run build
 
+      - name: Build agent-panel template
+        run: pnpm --filter agent-panel-template run build
+
       - name: Build site
         run: pnpm --filter cyberui-templates-site run build
 
@@ -47,6 +50,8 @@ jobs:
           set -e
           mkdir -p packages/site/dist/live/monitoring
           cp -r packages/monitoring/dist/. packages/site/dist/live/monitoring/
+          mkdir -p packages/site/dist/live/agent-panel
+          cp -r packages/agent-panel/dist/. packages/site/dist/live/agent-panel/
 
       - uses: actions/upload-pages-artifact@v3
         with:

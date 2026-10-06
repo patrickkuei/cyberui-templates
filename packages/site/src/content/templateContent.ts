@@ -83,9 +83,9 @@ export const TEMPLATE_CONTENT: Record<string, TemplateContent> = {
           "Make sure the screen clearly says somewhere that this is a demo with pretend tickets, so my team doesn't think real customers are getting emails. And write me a short checklist of how to show it to my team.",
         ],
         stuck:
-          "Message 5 is the big wall. Hooking to Zendesk needs API keys, a place to host it, and something that actually writes drafts. I don't know what an API key is or where to find it, and I'm nervous about giving it to an AI. I also don't know whether it costs money per reply. … I don't know how to judge whether the draft replies are any good, since they're pretend text someone wrote.",
+          "Message 5 is the big wall. Hooking to Zendesk needs API keys, a place to host it, and something that actually writes drafts. I don't know what an API key is or where to find it, and I'm nervous about giving it to an AI. I also don't know whether it costs money per reply. … I wouldn't know who should be allowed to log in. My team of six would all need it, and I have no idea about passwords or sharing it.",
         worked:
-          'I can\'t find any way for a draft to go out without my click. I\'d test by just leaving things alone and seeing that nothing moves to Sent on its own. … The AI can tell me honestly in plain words "this part is real, this part is fake", and the answer about Zendesk is clear enough that I can decide whether to ask IT or a freelancer for help. If it just says "sure, done!" about the connection, I wouldn\'t trust it.',
+          "I open the screen and see my words (refund, shipping, Dana's order) instead of tech jargon, and I can read the whole page without asking anyone what something means. … I can walk through one fake ticket start to finish: I see the customer's message and the draft, I click Approve, and it moves to Sent. And when I click Reject it asks me why. …",
       },
       {
         title: 'A solo founder',
@@ -98,9 +98,9 @@ export const TEMPLATE_CONTENT: Record<string, TemplateContent> = {
           'Before I trust this, show me how to try it myself. Tell me exactly what to click to test that an approval is really required, and make sure the app still starts without errors.',
         ],
         stuck:
-          "Message 3 is the scary one. I would not know if the approval is real. The README says there is no real agent behind it, so the \"approve\" button might just be a picture of a button. I'd be afraid I'd ask for approvals and then believe I was protected when I'm not. I'd need the AI to be blunt about this, and I would not catch it if it wasn't. … Message 5: I wouldn't know what to hand over, like API keys, a server, or where my real assistant even lives. I might not know if my ops assistant is something this can connect to at all. That would likely be a dead end for me without more help.",
+          "Message 5: I wouldn't know what to hand over, like API keys, a server, or where my real assistant even lives. I might not know if my ops assistant is something this can connect to at all. That would likely be a dead end for me without more help.",
         worked:
-          'A money task sits in "waiting for approval" with the dollar amount, and it does not move on until I click approve. If I click reject it clearly stops and shows rejected in the logs. … The AI tells me plainly, in a sentence, that this is still a demo with no real agent, so I know the approval is a practice version. I would only really say it "worked" for my business once it\'s hooked to the real assistant and I see a real money action get held until I approve. So honestly, for the demo it works if I can see all that; for real life I\'d say not yet.',
+          "A money task sits in \"waiting for approval\" with the dollar amount, and it does not move on until I click approve. If I click reject it clearly stops and shows rejected in the logs. … The summary box at the top shows the right count and dollar total, and the numbers change when I approve or reject something. …",
       },
     ],
   },

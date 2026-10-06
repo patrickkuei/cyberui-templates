@@ -76,7 +76,7 @@
  Heads-up: …
  Probably not for you if …
 
- Examples: making it yours
+ Examples: how you might use it
  ▸ A small shop owner
  ▸ An LLM API developer
 

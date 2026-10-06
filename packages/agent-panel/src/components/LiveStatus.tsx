@@ -32,7 +32,7 @@ export function LiveStatus({ state }: LiveStatusProps) {
             <span>Context</span>
             <span className="context-meter-pct">{pct}%</span>
           </div>
-          <LinearProgress progress={pct} size="sm" />
+          <LinearProgress progress={pct} size="sm" className="meter-bar" />
           <div className="context-meter-foot">
             <span>
               {formatTokens(state.contextTokens)} / {formatTokens(CONTEXT_WINDOW_TOKENS)} tokens

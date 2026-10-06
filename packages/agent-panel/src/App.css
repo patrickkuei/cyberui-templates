@@ -363,6 +363,21 @@ body {
   font-weight: 600;
 }
 
+/* ---- Progress bars ----
+   LinearProgress's d.ts says it fills its container, but the installed 2.6.0
+   renders a fixed width (w-48) unless `className` is given, and passing one
+   replaces that width class. So both bars pass .meter-bar to fill their row.
+   The track is the library's bg-surface, the same colour as a panel, so it is
+   invisible on one; this darkens it to the page colour. [role=progressbar] is
+   the component's documented ARIA contract, not an internal class name. */
+.meter-bar {
+  width: 100%;
+}
+
+.panel-surface [role='progressbar'] {
+  background-color: var(--color-base);
+}
+
 /* ---- Reasoning trace ---- */
 
 /* Bounded, so a long trace scrolls inside the panel instead of growing the page. */

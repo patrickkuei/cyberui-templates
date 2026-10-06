@@ -1,0 +1,945 @@
+/*
+ * Agent Control Panel: app layout.
+ * Colours come only from cyberui-2045's documented --color-* tokens (the one
+ * accent override lives in theme/violet.css), and no hex literal belongs in
+ * this file (noHexColors.test.ts). Direction: an operator console. Panels side
+ * by side on wide screens, one pane at a time on phones, tabular figures so
+ * live numbers don't jitter.
+ */
+
+.agent-panel {
+  --gap: clamp(0.625rem, 1.1vw, 1rem);
+  --readout-font: Bahnschrift, 'DIN Alternate', 'DIN 2014', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  /* Named so the top nav can bleed to the column edge and still align with the page content. */
+  --pad-top: clamp(0.875rem, 1.6vw, 1.25rem);
+  --pad-inline: clamp(0.75rem, 1.6vw, 1.25rem);
+
+  box-sizing: border-box;
+  min-height: 100vh;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: var(--pad-top) var(--pad-inline) 2.5rem;
+  /* Card sets magenta (text-primary) body text by default; reset it on the layout root, as .panel-surface does per card. */
+  color: var(--color-default);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The page background has to sit on <body> so it fills beyond the max-width column. */
+body {
+  margin: 0;
+  background: var(--color-base);
+}
+
+.panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* ---- Page header (Tasks, Logs) ---- */
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.375rem 1rem;
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--readout-font);
+  font-size: clamp(1.625rem, 1.1rem + 1.6vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--color-default);
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.task-filter {
+  margin-bottom: 0.75rem;
+}
+
+/* ---- Console grid ----
+   The console fits the window instead of growing the page. The page itself does
+   not scroll; each pane scrolls on its own (the messages, the task list, the
+   trace) and the composer stays at the foot of the conversation, so the box you
+   type into is never scrolled out of reach. Below 720px there is room for one
+   pane at a time (chosen with the tabs); from 720px two columns (conversation
+   wide; queue and side stacked), from 1180px three. The panes are always in
+   the DOM; only CSS decides which are visible. If the window is too short for
+   the grid's minimum height, the page scrolls instead of squashing the panes. */
+
+.agent-panel--console {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: var(--pad-top);
+}
+
+.agent-panel--console .panel-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.console-grid {
+  flex: 1;
+  min-height: 26rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: 'pane';
+  gap: var(--gap);
+}
+
+.console-pane {
+  display: none;
+  grid-area: pane;
+  min-width: 0;
+  min-height: 0;
+}
+
+.console-pane--active {
+  display: flex;
+  flex-direction: column;
+}
+
+.console-side {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* A section that stretches to its pane, with its card stretched to it, so the
+   scroll area inside the card can take whatever height the title and the
+   composer leave. */
+.panel-fill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-fill > .panel-surface {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-fill > .panel-surface > h3 {
+  flex: none;
+}
+
+@media (min-width: 720px) {
+  .console-pane {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pane-tabs {
+    display: none;
+  }
+
+  .pane-queue {
+    grid-area: queue;
+  }
+
+  .pane-conversation {
+    grid-area: conversation;
+  }
+
+  .pane-trace {
+    grid-area: trace;
+  }
+
+  .console-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-areas:
+      'conversation queue'
+      'conversation trace';
+  }
+}
+
+/* In the two-column layout the side pane is short: Live status alone takes most
+   of it. So there the whole pane (status, then trace) scrolls as one unit
+   instead of squeezing the trace to nothing. */
+@media (min-width: 720px) and (max-width: 1179px) {
+  .console-side {
+    overflow: auto;
+  }
+
+  .console-side > * {
+    flex: none;
+  }
+
+  .console-side .trace-scroll {
+    flex: none;
+    overflow: visible;
+  }
+}
+
+/* Three columns: what is happening (the queue, with Live status under it), the
+   conversation, and why (the reasoning trace, which gets the whole column: it is
+   what you read to debug the agent, and a run adds a step every few seconds).
+   Live status lives in the trace pane's markup, because below 1180px it travels
+   with the trace; here .pane-trace and .console-side stop being boxes
+   (display: contents) so Live status and the trace become separate grid cells
+   and Live status can sit under the queue. */
+@media (min-width: 1180px) {
+  .console-grid {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'queue conversation trace'
+      'status conversation trace';
+  }
+
+  .console-grid .pane-trace,
+  .console-grid .console-side {
+    display: contents;
+  }
+
+  .console-grid .live-status {
+    grid-area: status;
+  }
+
+  /* Under the queue the card is a status readout, not a panel to title (the
+     badge says what it is, and the region keeps its accessible name), and the
+     title's height is what the queue's list would otherwise have to scroll for. */
+  .console-grid .live-status > .panel-surface > h3 {
+    display: none;
+  }
+
+  .console-grid .console-side > .panel-fill {
+    grid-area: trace;
+  }
+}
+
+/* Phones: the pane tabs already name the pane, so its card title is dropped to
+   give the content the height, and the suggested prompts become one scrolling
+   line instead of wrapping into three. */
+@media (max-width: 719px) {
+  .console-pane .panel-fill > .panel-surface > h3 {
+    display: none;
+  }
+
+  /* .composer in front of the selector so this wins over the base rule further down. */
+  .composer .suggested-prompts {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .composer .suggested-prompts .chip {
+    flex: none;
+  }
+}
+
+/* ---- Top nav ----
+   Chrome, not content: it bleeds to the column edges, stays a single quiet
+   line, and the active item is marked by a rule sitting on the nav's bottom
+   border, echoing the accent rule under the card titles. */
+
+.topnav {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 3rem;
+  margin: calc(-1 * var(--pad-top)) calc(-1 * var(--pad-inline)) clamp(0.875rem, 1.6vw, 1.25rem);
+  padding: 0 var(--pad-inline);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.topnav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--readout-font);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-default);
+}
+
+.topnav-logo {
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--color-secondary);
+}
+
+.topnav-links {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  margin-right: auto;
+  margin-left: 1rem;
+}
+
+.topnav-link {
+  display: flex;
+  align-items: center;
+  padding: 0 0.375rem; /* room for the inset focus ring beside the glyphs */
+  margin-bottom: -1px; /* lets the active rule overlap the nav's border */
+  border-bottom: 2px solid transparent;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 120ms ease-out,
+    border-color 120ms ease-out;
+}
+
+.topnav-link:hover {
+  color: var(--color-default);
+  border-bottom-color: var(--color-muted);
+}
+
+/* Inset, so the ring stays inside the nav bar instead of spilling over its border. */
+.topnav-link:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: -2px;
+  color: var(--color-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topnav-link {
+    transition: none;
+  }
+}
+
+.topnav-link--active,
+.topnav-link--active:hover {
+  border-bottom-color: var(--color-secondary);
+  color: var(--color-default);
+}
+
+.topnav-status {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+/* Phones: the links are the only way between pages, so they wrap to a second row rather than hide or scroll. */
+@media (max-width: 640px) {
+  .topnav {
+    flex-wrap: wrap;
+    row-gap: 0;
+    column-gap: 0.75rem;
+  }
+
+  .topnav-brand,
+  .topnav-status {
+    min-height: 2.75rem;
+  }
+
+  .topnav-status {
+    margin-left: auto;
+  }
+
+  .topnav-links {
+    order: 1;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    margin: 0;
+  }
+
+  .topnav-link {
+    min-height: 2.5rem;
+    margin-bottom: 0;
+  }
+}
+
+/* ---- Tones: the one definition of what each tone looks like ----
+   Components add `tone-<name>` through TONE_CLASS instead of mapping a tone to
+   a colour in TypeScript or an inline style. Anything that should take the
+   tone colour (text, or a dot drawn with `background: currentColor`) inherits it. */
+
+.tone-default {
+  color: var(--color-default);
+}
+
+.tone-success {
+  color: var(--color-success);
+}
+
+.tone-warning {
+  color: var(--color-warning);
+}
+
+.tone-error {
+  color: var(--color-error);
+}
+
+/* ---- Panel surface ----
+   cyberui-2045's Card renders bg-base (the page background) with magenta
+   (text-primary) body text. Overriding background-color on the Card element
+   keeps panels distinct from the page without redefining --color-base, which
+   Table and Button also use for their own chrome. The color reset is the one
+   to remember when you add a Card of your own: without it everything inside is
+   magenta. Both win over the library because its utilities sit in a layer and
+   this rule does not. */
+.panel-surface {
+  background-color: var(--color-surface);
+  color: var(--color-default);
+}
+
+/* ---- Agent header ---- */
+
+.button-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.agent-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.agent-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.agent-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+
+/* ---- Live status ---- */
+
+/* Always two lines tall, whatever the sentence: shorter ones leave the room
+   empty, longer ones are cut with an ellipsis. A card that changed height with
+   the text would shove the panels around it every time the agent's activity changed. */
+.live-activity {
+  margin: 0;
+  max-width: 100%;
+  color: var(--color-default);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  min-height: 2.8em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  margin-bottom: 0.75rem;
+}
+
+/* The bar cannot be tinted (see LiveStatus.tsx), so the tone is carried by this
+   row's text and by the word beside the tokens. */
+.context-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.context-meter-head,
+.context-meter-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.context-meter-pct,
+.context-meter-level {
+  font-weight: 600;
+}
+
+.live-stats {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.25rem 1.5rem;
+  margin: 0.5rem 0 0;
+}
+
+.live-stats > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.live-stats dt {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.live-stats dd {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* ---- Progress bars ----
+   LinearProgress's d.ts says it fills its container, but the installed 2.6.0
+   renders a fixed width (w-48) unless `className` is given, and passing one
+   replaces that width class. So both bars pass .meter-bar to fill their row.
+   The track is the library's bg-surface, the same colour as a panel, so it is
+   invisible on one; this darkens it to the page colour. [role=progressbar] is
+   the component's documented ARIA contract, not an internal class name. */
+.meter-bar {
+  width: 100%;
+}
+
+.panel-surface [role='progressbar'] {
+  background-color: var(--color-base);
+}
+
+/* ---- Reasoning trace ---- */
+
+/* Takes the height the card has left and scrolls inside it (see .panel-fill). */
+.trace-scroll {
+  flex: 1;
+  min-height: 6rem;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.trace-picked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.empty-note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+/* ---- Conversation ----
+   There is no chat component in cyberui-2045, so bubbles, the approval card and
+   the composer are plain markup styled with the same tokens. */
+
+/* Takes the height the card has left, above the composer, and scrolls inside it (see .panel-fill). */
+.conversation-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+  min-height: 8rem;
+  overflow: auto;
+  padding: 0.25rem 0.25rem 0.5rem 0;
+}
+
+.bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 85%;
+}
+
+.bubble-wrap--user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.bubble-wrap--agent {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.bubble-author {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.bubble {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 0.75rem;
+  color: var(--color-default);
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.bubble--user {
+  background: var(--color-base);
+}
+
+.bubble--agent {
+  background: var(--color-surface);
+  border-color: var(--color-secondary);
+}
+
+/* Agent bubbles with a run are buttons: they pick that run's trace. */
+button.bubble {
+  cursor: pointer;
+}
+
+button.bubble:hover {
+  border-color: var(--color-accent);
+}
+
+button.bubble:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.bubble--selected {
+  background: var(--color-base);
+  border-width: 2px;
+  box-shadow: 0 0 0 1px var(--color-secondary);
+}
+
+.approval-card {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-warning);
+  border-radius: 0.75rem;
+  background: var(--color-base);
+}
+
+.approval-label {
+  margin: 0;
+  color: var(--color-warning);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.approval-prompt {
+  margin: 0.25rem 0 0.75rem;
+  color: var(--color-default);
+}
+
+.approval-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.composer-reason {
+  margin: 0;
+  color: var(--color-warning);
+  font-size: 0.8125rem;
+}
+
+.composer-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.composer-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The Input draws its label above; this lines Send up with the box, not the label. */
+.composer-row > button {
+  margin-top: 1.75rem;
+}
+
+.composer-helper {
+  margin: 0;
+  color: var(--color-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+}
+
+.suggested-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.chip {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.chip:hover:not(:disabled) {
+  border-color: var(--color-secondary);
+  color: var(--color-default);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Past sessions (Logs) ---- */
+
+.session-table {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.session-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.session-pagination {
+  align-self: flex-start;
+}
+
+.session-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.export-done {
+  color: var(--color-success);
+  font-size: 0.8125rem;
+}
+
+.export-note {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+/* ---- Task queue and table ---- */
+
+/* Thin scrollbars on the console's inner scrollers, invisible until the pointer
+   is over the pane (or a child has focus), in place of the browser's wide default,
+   which is loud against a dark theme and shows up on a list that only just
+   overflows. Wheel, touch and keyboard scrolling are unchanged. */
+.task-scroll,
+.conversation-scroll,
+.trace-scroll,
+.console-side {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.task-scroll:hover,
+.task-scroll:focus-within,
+.conversation-scroll:hover,
+.conversation-scroll:focus-within,
+.trace-scroll:hover,
+.trace-scroll:focus-within,
+.console-side:hover,
+.console-side:focus-within {
+  scrollbar-color: color-mix(in srgb, var(--color-accent) 55%, transparent) transparent;
+}
+
+/* The queue's scroll area, like the other two: it takes the height the card has left. */
+.task-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* The side padding, cancelled by the margin, leaves room inside the scroll box
+     for the arrival highlight and the buttons' glow. A negative margin on the rows
+     themselves would stick out of the box and add a horizontal scrollbar. */
+  padding-inline: 0.5rem;
+  margin-inline: -0.5rem;
+}
+
+.task-section + .task-section {
+  margin-top: 0.5rem;
+}
+
+.task-section-title {
+  margin: 0 0 0.125rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+  padding: 0.5rem 0.5rem;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+/* A task that just finished lands in the Finished section with a bright green
+   wash that holds for a moment, then fades, so the move from Active reads as
+   "completed", not "gone". A fainter wash was easy to miss. */
+.task-row--arrived {
+  animation: task-arrive 4s ease-out;
+}
+
+@keyframes task-arrive {
+  0%,
+  35% {
+    background: color-mix(in srgb, var(--color-success) 50%, transparent);
+    box-shadow: inset 4px 0 0 var(--color-success);
+  }
+  100% {
+    background: transparent;
+    box-shadow: inset 4px 0 0 transparent;
+  }
+}
+
+.task-row:last-child {
+  border-bottom: none;
+}
+
+.task-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.task-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.task-row-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.task-row-detail {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-row-detail:empty {
+  display: none;
+}
+
+/* Cancel and Retry are small, quiet buttons here: a row is a title and one line
+   of detail, and a full-size glowing button beside that line made the row lopsided
+   (and taller than the rows with nothing to click). */
+.task-row-foot > button {
+  flex: none;
+  margin-left: auto;
+  min-height: 0;
+  padding: 0.1875rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  box-shadow: none;
+}
+
+.task-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* LinearProgress fills its container; this lets the bar take what the percentage leaves. */
+.task-progress > :first-child {
+  flex: 1;
+}
+
+.task-progress-pct {
+  flex: none;
+  min-width: 2.5rem;
+  text-align: right;
+  font-size: 0.8125rem;
+}
+
+.task-error {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.8125rem;
+}
+
+.task-error--inline {
+  display: block;
+}
+
+.task-finished {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.live-dot {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  box-shadow: 0 0 0 0 var(--color-secondary);
+  animation: live-pulse 2s ease-out infinite;
+}
+
+/* The only ambient motion on the page: a heartbeat beside the status badge. */
+@keyframes live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--color-secondary);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 0.45rem transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot,
+  .task-row--arrived {
+    animation: none;
+  }
+}

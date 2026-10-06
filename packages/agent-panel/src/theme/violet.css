@@ -1,0 +1,19 @@
+/* src/theme/violet.css
+ *
+ * This template's accent. cyberui-2045 declares every colour as a custom
+ * property (inside `@layer theme`) and its components read them, so changing
+ * two values re-themes everything, including the opacity variants it builds
+ * with color-mix(). An unlayered :root rule beats the library's layered one,
+ * but keep the import AFTER 'cyberui-2045/styles.css' (see main.tsx) anyway.
+ *
+ * secondary and accent move together: secondary is the active/text colour,
+ * accent is the rule under card titles and focus glows. Overriding only one
+ * leaves a stray cyan or yellow. --color-primary (the magenta used by primary
+ * buttons) is left alone on purpose: only the accent hue varies per template.
+ *
+ * Re-theme this template by changing these two values.
+ */
+:root {
+  --color-secondary: #c084fc;
+  --color-accent: #c084fc;
+}

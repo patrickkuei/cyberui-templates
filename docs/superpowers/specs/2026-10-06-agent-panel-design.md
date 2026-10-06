@@ -19,7 +19,7 @@ Decisions (each is cheap to reverse; the section that carries the reasoning is i
 5. **No chart library.** Everything is lists, a timeline, meters and a table, all from cyberui-2045. The package has no `recharts`, so it is smaller to install and has no `ResponsiveContainer` test workaround. [§7]
 6. **The engine is pure and uses no randomness at all.** Monitoring's simulation takes an `rng`; this one is deterministic (ids come from a counter, durations are fixed ticks), so tests need no seeding and a demo behaves the same every time. The cost is that nothing "organic" happens on its own; the queue still moves, and the human-approval step supplies the drama. [§5.3]
 7. **One run at a time.** The composer is disabled while a run is active, while the agent is paused and when the context window is full, and says why. Tasks run in a pool of three (two seeded background tasks leave a slot free, so a task the agent creates starts at once), and created-by-agent tasks outrank the seeded background work. This keeps the engine small and the screen explainable. [§5.3]
-8. **Real-in-the-simulation vs mock.** Send, approve/reject, pause/resume, stop run, cancel/retry task, reset, search, filter and paging all really change the in-browser simulation. Only **Export transcript** (Logs) is a pure mock; the past sessions on Logs are fixed fixtures and their rows do not open. Both groups are listed in the README and in the site's Heads-up. [§3.4]
+8. **Real-in-the-simulation vs mock.** Send, approve/reject, pause/resume, stop run, cancel/retry task, search, filter and paging all really change the in-browser simulation. Only **Export transcript** (Logs) is a pure mock; the past sessions on Logs are fixed fixtures and their rows do not open. Both groups are listed in the README and in the site's Heads-up. [§3.4]
 9. **Reduced motion turns streaming off.** Replies normally type in; under `prefers-reduced-motion` they appear whole (the engine takes `charsPerTick`, the app passes `Infinity`). [§5.4]
 10. **The site's two example cases are not written here.** The Templates page's examples are verbatim subagent role-plays (spec 2026-10-05 §2, §4). The plan has a task that runs two new interviews and records the replies truncated, never reworded. If that cannot be done at implementation time the task stops and asks; it does not invent them. [§11]
 11. **The plan ships in two pull requests.** PR A is the package (`feat/agent-panel-template`); PR B is the site, CI and README wiring (`feat/site-agent-panel`), because the Code tab's excerpts must exist in the package before CI will accept the site entry. [Plan, Conventions]
@@ -65,26 +65,29 @@ Routing is `window.location.hash` (`#/console`, `#/tasks`, `#/logs`), as in moni
 
 ### 3.2 Console layout
 
-Desktop (1180px and up), three columns:
+Desktop (1180px and up), three columns. What is happening is on the left (the queue, with Live status under it), the conversation is in the middle, and the reasoning trace has the whole right column, because it is what you read to debug the agent:
 
 ```
  ⬡ Vesper   Console  Tasks  Logs                              ● Waiting for approval   (nav)
  ┌─────────────────────────────────────────────────────────────────────────────────────┐
- │ (V)● Vesper  [Simulated]  Waiting for approval        [ Pause ] [ Stop run ] [ Reset ]│  header
+ │ (V)● Vesper  [Simulated]  Waiting for approval        [ Pause ] [ Stop run ]           │  header
  ├──────────────┬────────────────────────────────────────┬─────────────────────────────┤
- │ Task queue   │ Conversation                           │ Live status                 │
- │              │                                        │  ● Waiting for approval     │
- │ ● Index      │  you   Please refund order #4821…      │  Asking you before going on │
- │   refresh    │  ───                                   │  Context  ▓▓▓░░░░ 17%       │
- │   ▓▓░░ 25%   │  Vesper  (selected → its trace shows)  │  Tool calls 5 · Tasks 1+1   │
- │ ○ Weekly     │  ┌ Approval needed ────────────────┐   ├─────────────────────────────┤
- │   digest     │  │ Refund $42.00 for order #4821?  │   │ Reasoning trace (scripted)  │
- │ ✕ Sync CRM   │  │ [ Approve ]   [ Reject ]        │   │ ◆ Plan the refund           │
- │   [ Retry ]  │  └─────────────────────────────────┘   │ ◆ orders.lookup(order #4821)│
- │              │ [ Message Vesper…            ] [ Send ]│ ◆ Order #4821, $42.00 …     │
- │              │  Scripted demo: replies are pre-written│ ◇ Waiting for your approval │
+ │ Task queue   │ Conversation                           │ Reasoning trace             │
+ │ ACTIVE (1)   │                                        │                             │
+ │ ● Index      │  you   Please refund order #4821…      │ ◆ Plan the refund           │
+ │   refresh    │  ───                                   │ ◆ orders.lookup(order #4821)│
+ │   ▓▓░░ [Cancel]  Vesper  (selected → its trace shows) │ ◆ Order #4821, $42.00 …     │
+ │ FAILED (1)   │  ┌ Approval needed ────────────────┐   │ ◇ Waiting for your approval │
+ │ ✕ Sync CRM   │  │ Refund $42.00 for order #4821?  │   │                             │
+ │   error [Retry] │ [ Approve ]   [ Reject ]        │   │                             │
+ ├──────────────┤  └─────────────────────────────────┘   │                             │
+ │ ● Waiting …  │ [ Message Vesper…            ] [ Send ]│                             │
+ │ Context ▓ 17%│  Scripted demo: no model, nothing sent. │                             │
+ │ Tool calls 5 │                                        │                             │
  └──────────────┴────────────────────────────────────────┴─────────────────────────────┘
 ```
+
+The console fits the window: the page does not scroll, and the queue, the messages and the trace scroll on their own. In the markup Live status stays inside the trace pane (below 1180px it travels with the trace); at 1180px and up CSS (`display: contents` on the pane) lets it sit under the queue.
 
 Below 1180px the grid becomes two columns (conversation wide; queue and the right column stacked). Below 720px only one pane shows at a time, chosen with a `TabNavigation` ("Conversation", "Tasks", "Trace"); the status header stays. The tab bar is hidden at desktop widths by CSS, and all panes are always in the DOM (tests do not evaluate media queries).
 
@@ -95,17 +98,17 @@ Each panel is a `<section aria-label="…">` ("Task queue", "Conversation", "Liv
 1. **Send a message** (Enter or the Send button). Three suggested-prompt chips above the composer fill it with a message that is guaranteed to match a scenario; typing anything else usually hits the fallback reply, which says so honestly ("This is a scripted demo, so I only know three things…").
 2. **Watch the run.** The agent works through the scenario: a *thought*, a *tool call* and its *observation* appear in the reasoning trace as they happen, a task may appear in the queue and fill, and the reply streams into the conversation a few characters at a time. The Live status badge moves between Thinking, Working, Waiting and Idle.
 3. **Approve or reject** (refund and release-notes scenarios). The run parks on an inline "Approval needed" card; the status says Waiting; the trace gets a waiting entry. Approve and Reject both continue the run along different scripted branches, each recorded in the trace as "Approved by you" / "Rejected by you".
-4. **Inspect a past answer.** Clicking an agent message (it is a real button, keyboard reachable) selects its run; the reasoning trace then shows that run's steps and says so ("Showing the run for this message", with a "Back to latest" control). Sending a new message returns to following the latest run.
-5. **Steer the agent.** Pause freezes everything (the engine's `tick` does nothing while paused; the status says Paused). Stop run ends the active run, cutting a half-streamed reply off where it is. Reset restarts the whole simulation from its first state (also the only way out of a full context window). Cancel on a queued or running task; Retry on a failed or cancelled one (the seeded failed "Sync CRM contacts" is there to show it).
-6. **Context window.** The Live status meter fills as the conversation grows (made-up token counts). It turns warning-coloured at 70% and error-coloured at 90%, at which point the composer is disabled with "Context full. Reset to start again." Because the thresholds live in `src/data/limits.ts`, the engine, the meter and the composer cannot disagree.
+4. **Inspect a past answer.** Clicking an agent message (it is a real button, keyboard reachable) selects its run; the reasoning trace then shows that run's steps and says so ("Showing the run for this message", with a "Back to latest" control; clicking the same message again does the same, since it is a toggle). Sending a new message returns to following the latest run.
+5. **Steer the agent.** Pause freezes everything (the engine's `tick` does nothing while paused; the status says Paused). Stop run ends the active run, cutting a half-streamed reply off where it is. There is deliberately no Reset or New conversation: a real one needs saved conversation history, which a template this size does not carry, so a visitor reloads the page to start over. Cancel on a queued or running task; Retry on a failed or cancelled one (the seeded failed "Sync CRM contacts" is there to show it).
+6. **Context window.** The Live status meter fills as the conversation grows (made-up token counts). It turns warning-coloured at 70% and error-coloured at 90%, at which point the composer is disabled with "Context full. Reload the page to start again." Because the thresholds live in `src/data/limits.ts`, the engine, the meter and the composer cannot disagree.
 
 ### 3.4 What is simulated, and how the app says so
 
 Per `CLAUDE.md` and `packages/monitoring/README.md`, anything not real says so where a forker would otherwise think it is live.
 
 - **Everything the agent does is a script.** No model, no network, no persistence. The reasoning trace is pre-written illustration of the *shape* of an agent's trace, not a model's real chain of thought; its panel is titled "Reasoning trace (scripted)".
-- **In the app:** a "Simulated" `Badge` beside the agent's name (always visible, including in the Code tab's preview), and a helper line under the message box: "Scripted demo: replies are pre-written. Nothing is sent to a model or leaves your browser." The Tasks and Logs pages carry a one-line note in the page header ("Simulated tasks" / "Sample sessions").
-- **Real inside the simulation** (they change the in-browser state, nothing else): Send, Approve, Reject, Pause/Resume, Stop run, Reset, Cancel task, Retry task, selecting a message, the Logs search/filter/paging, the Tasks filter.
+- **In the app:** a "Simulated" `Badge` beside the agent's name (always visible, including in the Code tab's preview), and a helper line under the message box: "Scripted demo: no model, nothing sent." The Tasks and Logs pages carry a one-line note in the page header ("Simulated tasks" / "Sample sessions").
+- **Real inside the simulation** (they change the in-browser state, nothing else): Send, Approve, Reject, Pause/Resume, Stop run, Cancel task, Retry task, selecting a message, the Logs search/filter/paging, the Tasks filter.
 - **Pure mock** (they change a label and nothing else): **Export transcript** on the Logs page ("Exported" appears; nothing is saved or sent). The sessions on Logs are fixed fixtures; their rows do not open.
 - **README** carries the same two lists in the first paragraph, like monitoring's.
 - **The site's Heads-up** (§11) states the same, in plain words.
@@ -180,7 +183,7 @@ The engine's first version was type-checked under strict TypeScript and run in a
 
 ### 5.4 The hook
 
-`src/data/useSimulatedAgent.ts` is the only place with a timer and the only place that calls `Date.now()`. It returns `{ state, actions }`, where `actions` (`send`, `resolveApproval`, `stopRun`, `cancelTask`, `retryTask`, `setPaused`, `reset`) are stable functions that call the pure commands through `setState(prev => …)`. It takes `{ tickMs = TICK_MS, charsPerTick = CHARS_PER_TICK }`; the app passes `Infinity` when `prefers-reduced-motion` is set.
+`src/data/useSimulatedAgent.ts` is the only place with a timer and the only place that calls `Date.now()`. It returns `{ state, actions }`, where `actions` (`send`, `resolveApproval`, `stopRun`, `cancelTask`, `retryTask`, `setPaused`) are stable functions that call the pure commands through `setState(prev => …)`. It takes `{ tickMs = TICK_MS, charsPerTick = CHARS_PER_TICK }`; the app passes `Infinity` when `prefers-reduced-motion` is set.
 
 ### 5.5 Logs fixtures
 
@@ -262,7 +265,7 @@ Checked against the installed v2.6.0 (`node_modules/cyberui-2045/dist/components
 | Task and session tables | `Table` | Typed columns with `render`, `getRowId`, `variant="striped"`, `caption`/`ariaLabel`, `emptyMessage`. |
 | Paging | `Pagination` | Controlled `currentPage`/`totalPages` (as monitoring's audit log does). |
 | Composer and search | `Input` | `label`, `helperText` (the "Scripted demo" line), `variant`, `error`. |
-| Buttons | `Button` | `primary` (Send, Approve), `secondary`/`ghost` (Pause, Reset, Cancel), `danger` (Reject, Stop run). Sized `sm` for toolbars. |
+| Buttons | `Button` | `primary` (Send, Approve), `secondary`/`ghost` (Pause, Cancel), `danger` (Reject, Stop run). Sized `sm` for toolbars. |
 | Pane switch (phones) and Tasks filter, Logs filter | `TabNavigation` | `tabs: readonly string[]`, `activeTab`, `onTabChange`, `mode`. Tabs are labels (strings), so the active tab is stored as a label from a `as const` tuple. |
 | Hints | `Tooltip` | Optional, on the context meter and the "Simulated" badge, `delay`, trigger must be focusable. |
 | Loading polish | `Skeleton` | Not needed (no loading state). |
@@ -344,3 +347,50 @@ Wording is fixed here (as for monitoring, spec 2026-10-05 §4); the data shape i
 ## 13. Out of scope
 
 Anything listed under "Not in scope" in §1; the CI test job (Q2; tracked in #35); the license sweep across packages (done by #28 / PR #31); a library chat component; changing issue #9's stale wording (PR B closes the issue with `Closes #9`).
+
+## Findings from the first browser check
+
+Plan Task 14, run on 2026-10-06 against the package's dev server (`vite`), driven with `puppeteer-core` and Microsoft Edge 154 (headless). The driving scripts were throwaway and are not in the repository; screenshots were looked at but are not committed. This is one browser on Windows, so read "checked" as "checked there".
+
+**What needed a fix (each its own commit):**
+
+- **`LinearProgress` did not fill its row, and its track was invisible.** The d.ts says the bar fills its container; the installed 2.6.0 renders a fixed `w-48` unless `className` is given (and passing one replaces that width class). Its track is `bg-surface`, the same colour as a panel. Both bars now pass `.meter-bar` and `.panel-surface [role='progressbar']` darkens the track (commit "make progress bars fill their row and show their track"). Worth telling the library owner; not filed from here.
+- **The nav status badge repeated the header badge at full size.** It is `size="sm"` now.
+
+**What was checked and held:**
+
+- **Violet coverage (1440px).** A scan of every element's computed colour, border, background, outline, shadow, fill and stroke for the library's own cyan (`#00fff9`) and yellow (`#fffb00`), within 12 per channel, found none on the Console (idle and waiting for approval), Tasks and Logs. It reads computed styles of the states visited, so hover and focus states were not scanned. Card title rules, tab underlines, table headers, and pagination rendered violet; the Avatar ring is violet with a magenta glow (its `shadow-primary`).
+- **No magenta body text in any card.** The same kind of scan found no text in a `section` coloured the primary magenta; the `.panel-surface` reset works.
+- **Q3, magenta primary beside violet (decided: keep).** The primary buttons (Send, Approve) render *violet*, not magenta, because the library builds their gradient from `--color-accent` and `--color-secondary` (`--gradient-accent`), which the override moved together. Magenta survives only as the button glow and the far end of the progress bars (their gradient runs from the accent to the primary). To my eye the two read as one palette, with no clash, so Send stays a primary button and the `secondary` fallback was not needed. That is a judgment from screenshots; the owner may want to look.
+- **The run.** Status went Thinking, Working, Waiting for approval; focus landed on Approve when the card appeared; trace entries appeared live; Approve finished the refund and the whole reply showed. Picking the earlier agent message switched the trace and said so; Back to latest worked. (Sending a message and Reset both returning to the latest run is covered by `App.test.tsx`, not by the browser.)
+- **Steering.** Pause (composer disabled with its reason, status Paused) and Resume; Stop run mid-reply (a 161-character reply was cut at 30, the trace gained "Decision: Run stopped by you", status Idle); Reset (back to the two seeded messages); Cancel and Retry on a task.
+- **Composer reasons** seen in the browser: paused, working, waiting for approval, context full.
+- **Context window.** With reduced motion on (to speed it up), 33 scripted fallback messages filled it: the meter went default, warning, error, the word "Full" appeared, the composer disabled with "Context full. Reset to start again.", and Reset recovered. The plan's "about 15 messages" was too few: each fallback exchange adds 730 made-up tokens to a start of 4,800.
+- **Auto-scroll.** Pinned to the bottom while a reply streamed; after scrolling the list to the top, a new streaming reply left it at the top.
+- **390px phone.** No sideways page scroll on any of the Console's three panes, Tasks or Logs (`scrollWidth` equal to the viewport). Each pane tab shows exactly one pane. The nav links wrap to a second row rather than clip.
+- **1000px** shows the two-column layout (conversation wide, queue and status stacked) and **1440px** the three columns, as designed.
+- **Reduced motion** (emulated media feature): a reply appeared whole within about a second and the status dot's pulse was off.
+- **Keyboard.** Tab order is Console, Tasks, Logs, Pause, Reset (the disabled Stop run is skipped), the task buttons, the agent message, the three prompt chips, the message box, Send. Every stop reported a focus indicator in its computed style (an outline on links, messages and chips; a box-shadow ring on the library's buttons and input). I did not judge those rings visually. Enter in the box sends.
+
+**What was not checked:**
+
+- **A screen reader.** Whether the streaming reply is announced once, character by character or not at all (spec §3.5) is still a guess. There is a reason for doubt: the list uses `aria-relevant="additions"`, and a reply that grows after its bubble was added is a text change, not an addition, so it may not be announced at all. Needs a real screen reader.
+- **Firefox and Safari**, a real touch device, and browsers without `color-mix`.
+- **On Tasks and Logs, the filter, search, paging and Export transcript were exercised by unit tests only,** not clicked in the browser (the pages were rendered and looked at).
+- **Pane switching with a long conversation on a phone.** Inactive panes are `display: none`, which has no scroll geometry, so the conversation's scroll position after switching away and back was not looked at with enough messages to scroll.
+- **Dev console:** one 404 for `/favicon.ico` (the page has no favicon link); no other errors or warnings.
+
+**Test-tooling note:** under vitest's fake timers `userEvent` hangs (Testing Library's async wrapper waits on a real `setTimeout`), so the two end-to-end flows in `App.test.tsx` use `fireEvent` and say why.
+
+### Changes after the owner's first look (2026-10-06)
+
+The owner ran the console and reported three UX problems; each was fixed and then checked in headless Edge at 1440x900, 800x760 and 390x800.
+
+- **Un-picking a message.** A picked agent message could only be un-picked with "Back to latest" in the trace pane, on the other side of the screen (and on another tab on a phone). The message button is now a real toggle, as its `aria-pressed` already claimed.
+- **Two scrollbars.** The page scrolled, and the conversation and trace scrolled inside it on caps unrelated to the window, so the composer drifted out of view. The Console now fits the window: the page does not scroll, each pane (messages, task list, trace) scrolls on its own, and the composer stays at the foot of the conversation. Checked: with six exchanges the page height equalled the viewport at all three sizes and the composer did not move. Below the grid's minimum height (26rem) the page scrolls instead. In the two-column layout (720-1179px) the side pane scrolls as one unit because Live status alone takes most of it. On phones the card title is dropped (the tab names the pane) and the suggested prompts are one scrolling line.
+- **A finished task looked like it vanished.** The task jumped from the top of the list to the bottom with no sign it had completed, and a done row said nothing beyond its badge. The queue now has Active / Failed / Finished sections with counts, finished work sorts by `finishedAt`, a done or cancelled row says when it finished, and a task that finishes while you watch gets a green wash that fades (not under reduced motion). Done tasks still have no Retry: retry is for failed and cancelled work. A "Run again" for done tasks would be a new feature, not a fix.
+- **Trace title and size.** The "(scripted)" suffix is gone from the Reasoning trace title (the Simulated badge, the composer line and the README carry the honesty message). Live status was made more compact (see the next entry for where it ended up).
+- **Trace column and queue scrolling.** At 1180px and up Live status sits under the Task queue (its card title is hidden there) so the trace gets the whole right column: 645px of visible trace at 1440x900, against 276px when Live status sat above it. Cancel and Retry sit beside the row's progress, error or finish time instead of under it, which keeps the default queue from needing a scrollbar at 900px tall. At shorter windows (about 800px) the list scrolls by a few rows; the inner scrollbars are thin and appear only on hover. A horizontal scrollbar that had appeared on the queue came from the rows' negative side margin sticking out of the scroll box; the scroll box now carries the padding instead, and no scroller on the Console overflows sideways at the sizes checked (1440x900, 1440x800, 1000x800, 390x800).
+- **Live status copy and stability.** The "(token counts are simulated)" note is gone from the Context line (the README says the counts are made up, and the Simulated badge is always on screen), and so is the status badge inside Live status, which only repeated the header and the nav. The activity sentence now sits in a fixed two-line slot (clamped, with the whole sentence as a tooltip): it runs from "Writing a reply." to a full approval question, and when it set the card's height the panels around it jumped on every change. Sampled every 250ms through a full release-notes run (ten different sentences), the card stayed at one height.
+- **No Reset button.** Reset rebuilt the first state, which also un-paused the agent (Pause, then Reset, put the header back to Pause and restarted the tasks), and it mixed two jobs: replaying the demo, and escaping a full context window. A real app has neither as a wipe: it has a New conversation control, which needs saved conversation history, too heavy for this template. So the button, the `reset` action and `resetState` are removed; a full context window now says "Context full. Reload the page to start again.", and a visitor reloads to replay. The earlier findings above that mention Reset describe the first browser check, before this change. Approving or rejecting while paused is still allowed: the decision is recorded and the run carries on at Resume (the status and the Live status sentence say Paused meanwhile).
+- **Composer helper line.** "Scripted demo: no model, nothing sent." sits under the whole composer row, not in the Input's helper slot, so it is one line at every width checked (1440 down to 390px). It is tied to the box with `aria-describedby`.

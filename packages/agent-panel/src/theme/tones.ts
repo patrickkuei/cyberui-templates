@@ -1,6 +1,6 @@
 import type { AvatarStatus, BadgeProps, TimelineEvent } from 'cyberui-2045';
 import type { ContextLevel } from '../data/limits';
-import type { AgentStatus, TraceKind, TraceOutcome } from '../data/types';
+import type { AgentStatus, TaskStatus, TraceKind, TraceOutcome } from '../data/types';
 
 export type Tone = 'default' | 'success' | 'warning' | 'error';
 type BadgeVariant = NonNullable<BadgeProps['variant']>;
@@ -49,6 +49,15 @@ export const TRACE_KIND_LABEL: Record<TraceKind, string> = {
   observation: 'Result',
   approval: 'Approval',
   decision: 'Decision',
+};
+
+/** Task status -> badge variant. The badge also says the status in words. */
+export const TASK_BADGE: Record<TaskStatus, BadgeVariant> = {
+  queued: 'secondary',
+  running: 'accent',
+  done: 'success',
+  failed: 'error',
+  cancelled: 'warning',
 };
 
 /** The tone of the context meter; the thresholds that pick the level live in data/limits.ts. */

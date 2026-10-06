@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { CONTEXT_TONE, STATUS_VIEW, TONE_CLASS, TRACE_KIND_LABEL, TRACE_STATUS } from './tones';
+import { CONTEXT_TONE, STATUS_VIEW, TASK_BADGE, TONE_CLASS, TRACE_KIND_LABEL, TRACE_STATUS } from './tones';
 import type { AgentStatus } from '../data/types';
 
 const AGENT_STATUSES: AgentStatus[] = ['idle', 'thinking', 'working', 'waiting', 'paused'];
@@ -31,6 +31,18 @@ describe('trace maps', () => {
   it('covers every trace outcome and kind', () => {
     expect(TRACE_STATUS).toEqual({ ok: 'success', error: 'error', waiting: 'warning', pending: 'info' });
     expect(Object.keys(TRACE_KIND_LABEL).sort()).toEqual(['approval', 'decision', 'observation', 'thought', 'tool']);
+  });
+});
+
+describe('TASK_BADGE', () => {
+  it('has a variant for every task status', () => {
+    expect(TASK_BADGE).toEqual({
+      queued: 'secondary',
+      running: 'accent',
+      done: 'success',
+      failed: 'error',
+      cancelled: 'warning',
+    });
   });
 });
 

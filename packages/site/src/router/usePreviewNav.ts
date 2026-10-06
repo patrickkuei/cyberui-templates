@@ -49,6 +49,9 @@ export function usePreviewNav(openSlug: string | undefined) {
   useEffect(() => () => window.clearTimeout(settleTimer.current), []);
 
   const open = useCallback((slug: string) => {
+    // A close from a moment ago may still have its settle timer running; it must
+    // not fire into this new open and mark it as not opened by the page.
+    window.clearTimeout(settleTimer.current);
     openedHere.current = true;
     closing.current = false;
     window.location.hash = `#/templates/${slug}`;

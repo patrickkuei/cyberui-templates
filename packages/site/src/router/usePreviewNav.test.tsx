@@ -67,6 +67,29 @@ describe('usePreviewNav', () => {
     }
   });
 
+  it('does not let a finished close mark a preview opened right after it as not opened by the page', () => {
+    vi.useFakeTimers();
+    try {
+      window.location.hash = '#/templates';
+      const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const { result, rerender } = renderHook(({ slug }) => usePreviewNav(slug), {
+        initialProps: { slug: undefined as string | undefined },
+      });
+      result.current.open('monitoring');
+      rerender({ slug: 'monitoring' });
+      result.current.close();
+      rerender({ slug: undefined }); // the dialog closed
+      vi.advanceTimersByTime(100); // still inside the first close's settle window
+      result.current.open('monitoring'); // opened again straight away
+      rerender({ slug: 'monitoring' });
+      vi.advanceTimersByTime(500); // the first close's timer would fire here
+      result.current.close();
+      expect(back).toHaveBeenCalledTimes(2); // went Back again, did not take the replace branch
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('can close again after the route has changed', () => {
     window.location.hash = '#/templates';
     const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});

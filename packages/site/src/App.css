@@ -135,6 +135,35 @@ body {
   line-height: 1.6;
 }
 
+/* Signposts to the process page ("How we design"): muted text with a plain
+   underlined link and no accent, so they never compete with the page's one neon spot. */
+.signpost {
+  color: var(--color-muted);
+}
+
+.signpost a,
+.home-features a {
+  color: var(--color-default);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.signpost a:hover,
+.home-features a:hover {
+  color: var(--color-accent);
+}
+
+.templates-page-end {
+  margin: 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.code-tab-section > .signpost {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+}
+
 .home-features {
   margin: 0;
   padding-left: 1.25rem;

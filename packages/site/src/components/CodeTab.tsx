@@ -26,6 +26,9 @@ export function CodeTab({ content }: CodeTabProps) {
     <div className="code-tab">
       <section className="code-tab-section">
         <h3>Principles it follows</h3>
+        <p className="signpost">
+          The reasoning behind them: <a href="#/process">How we design</a>
+        </p>
         <div className="code-tab-principles">
           {content.principles.map((principle) => (
             <figure className="code-tab-principle" key={principle.name}>

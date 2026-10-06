@@ -31,6 +31,13 @@ describe('TemplatesPage', () => {
     expect(document.querySelectorAll('section.template-section')).toHaveLength(TEMPLATE_ENTRIES.length);
   });
 
+  it('ends with one quiet link to How we design, after the last template', () => {
+    render(<TemplatesPage />, { wrapper: CyberNotificationProvider });
+    const link = screen.getByRole('link', { name: 'How we design' });
+    expect(link).toHaveAttribute('href', '#/process');
+    expect(link.closest('.templates-page-end')).not.toBeNull();
+  });
+
   it('opens a template preview by pushing its hash', async () => {
     window.location.hash = '#/templates';
     render(<TemplatesPage />, { wrapper: CyberNotificationProvider });

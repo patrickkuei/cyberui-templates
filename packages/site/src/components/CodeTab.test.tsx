@@ -26,6 +26,11 @@ describe('CodeTab', () => {
     expect(figures[0]!.querySelector('pre')!.textContent).toBe(code.principles[0]!.excerpt.join('\n'));
   });
 
+  it('points to How we design for the reasoning behind the principles', () => {
+    render(<CodeTab content={code} />);
+    expect(screen.getByRole('link', { name: 'How we design' })).toHaveAttribute('href', '#/process');
+  });
+
   it('keeps each explanation to a single short sentence', () => {
     for (const principle of code.principles) {
       expect(principle.detail.length).toBeLessThanOrEqual(60);
@@ -33,9 +38,10 @@ describe('CodeTab', () => {
     }
   });
 
-  it('has no links: the code is shown, not linked to', () => {
+  it('links to nothing but How we design: the code is shown, not linked to', () => {
     render(<CodeTab content={code} />);
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'));
+    expect(hrefs).toEqual(['#/process']);
   });
 
   it('draws the folder map as a tree with every folder and its purpose', () => {

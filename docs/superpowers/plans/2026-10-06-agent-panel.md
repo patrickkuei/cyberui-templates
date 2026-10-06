@@ -2253,7 +2253,7 @@ git commit -m "ci: fail when a published template is not built or copied into th
 - [ ] **Step 1: Run the whole suite and the production builds**
 
 Run: `pnpm -r run build` and `pnpm -r run test` (monitoring, agent-panel and the site; expected all PASS), then from the repo root `npm run test:scripts` and the five checks (`check:process-excerpts`, `check:templates-readme`, `check:code-tab`, `check:license`, `check:template-builds`).
-Expected: all PASS. Note for the PR: CI does not run the package tests (decided out of scope, spec Q2; tracked in #35); these were run locally.
+Expected: all PASS. Note for the PR: when this plan was written CI did not run the package tests (spec Q2; fixed afterwards in #35 by the `package-tests` job); say which it was and report the local run.
 
 - [ ] **Step 2: Start the site with both real builds**
 

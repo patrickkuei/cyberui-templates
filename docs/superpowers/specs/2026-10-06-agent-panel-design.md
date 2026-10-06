@@ -28,7 +28,7 @@ Decisions (each is cheap to reverse; the section that carries the reasoning is i
 Open questions, answered by the owner on 2026-10-06 (the Q numbers are referenced elsewhere in this spec and in the plan):
 
 - **Q1. License (issue #28) and ordering.** Decided: #28 (PR #31) merges first, and has. Task 1 copies its pattern (a `LICENSE` file identical to the root one, and `"license": "MIT"` in `package.json`), and still adds both itself if #28 somehow has not landed. `scripts/check-license.mjs` (`npm run check:license`) finds template packages through `TEMPLATES` in the site, so it checks `packages/agent-panel` automatically once PR B registers it.
-- **Q2. Template tests do not run in CI.** Decided: out of scope for this template. `checks.yml` runs only the root scripts and `deploy.yml` only builds, so no package's tests run in CI. This is tracked in its own issue, #35 (a `pnpm -r test` job). This package's tests run locally, and the PR says so.
+- **Q2. Template tests do not run in CI.** Decided: out of scope for this template, and tracked in its own issue, #35 (`checks.yml` ran only the root scripts and `deploy.yml` only builds). Done afterwards in that issue: a `package-tests` job runs `pnpm -r --workspace-concurrency=1 run test` (monitoring, agent-panel and the site, about 35 seconds), one package at a time because the three suites run together competed for CPU and timed out locally.
 - **Q3. Magenta primary beside violet.** Decided: keep it, and do not override `--color-primary`; the repo varies only the accent hue. If the browser check (plan Task 14) shows a clash, make the Send button `secondary`.
 - **Q4. Name.** Decided: keep "Vesper" and "Agent Control Panel".
 - **Q5. Export transcript.** Decided: stays a mock, matching monitoring's mock Export CSV. A real download is a possible follow-up.
@@ -287,7 +287,7 @@ React Testing Library + Vitest + happy-dom, as in monitoring (its `vitest`/`happ
 - **Page and App tests.** `App`: renders `console` by default; navigates between the three routes via real links; an unknown hash falls back; the document title follows the route; and one **end-to-end flow** with fake timers: click the refund chip, send, advance until the approval card appears, check the status says Waiting and the trace has a waiting entry, Approve, advance, and see the full reply and an Idle status. A second flow rejects.
 - **`noInlineStyles.test.ts`** copied from monitoring, plus **a hex-literal check**: no `src/**/*.css` except `theme/violet.css` contains `#rrggbb` (so components keep reading tokens).
 - **Not tested, by design:** CSS layout and breakpoints (happy-dom has no layout engine), the Avatar's glitch effect, library internals.
-- **Not run by CI today** (Q2: tracked in #35, not this template's job); run locally with `pnpm --filter agent-panel-template test`.
+- **Run by CI** (the `package-tests` job in `checks.yml`, added for #35 after this spec was written; originally Q2: not this template's job). Run locally with `pnpm --filter agent-panel-template test`.
 
 ## 9. Self-containment and forkability
 

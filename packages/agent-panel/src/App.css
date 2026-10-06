@@ -230,6 +230,15 @@ body {
    give the content the height, and the suggested prompts become one scrolling
    line instead of wrapping into three. */
 @media (max-width: 719px) {
+  /* The library's tab buttons are 18px with 24px side padding, which needs about
+     367px for these three labels: wider than a phone (and than the preview
+     dialog's narrower frame), so the last tab was clipped. Smaller type and
+     padding fit them down to a 320px screen. */
+  .pane-tabs [role='tablist'] button {
+    padding-inline: 0.75rem;
+    font-size: 1rem;
+  }
+
   .console-pane .panel-fill > .panel-surface > h3 {
     display: none;
   }

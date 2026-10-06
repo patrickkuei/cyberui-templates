@@ -1,6 +1,7 @@
 import { Button, GradientText } from 'cyberui-2045';
 import { HeroScene } from '../components/HeroScene';
 import { LibraryStats } from '../components/LibraryStats';
+import { TOTAL_STAGES } from '../content/processStages';
 import { TEMPLATES } from '../data/templates';
 
 function goToTemplates() {
@@ -44,6 +45,12 @@ export function HomePage() {
           </li>
           <li>
             <strong>Yours to keep.</strong> Open source, so copy it, edit it, ship it. The steps are on GitHub.
+          </li>
+          {/* A signpost, not a second call to action: Home's one button stays "Pick a starting point".
+              The stage count comes from the process data, like the template count below. */}
+          <li>
+            <strong>See how it was made.</strong> {TOTAL_STAGES} stages from discovery to handoff, each with what we
+            actually produced, and where we produced less. <a href="#/process">How we design</a>
           </li>
         </ul>
         <p className="home-template-count">{templateCountText}</p>

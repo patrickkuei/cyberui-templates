@@ -1,3 +1,5 @@
+import { isErrorRateHigh, isLatencyHigh } from '../data/thresholds';
+
 export type Tone = 'default' | 'success' | 'warning' | 'error';
 
 export interface Trend {
@@ -22,13 +24,13 @@ export function describeRequestRate(current: number, recentValues: number[]): Tr
 }
 
 export function describeLatency(p95LatencyMs: number): Trend {
-  return p95LatencyMs >= 500
+  return isLatencyHigh(p95LatencyMs)
     ? { text: 'elevated', tone: 'warning' }
     : { text: 'within target', tone: 'success' };
 }
 
 export function describeErrorRate(errorRatePct: number): Trend {
-  return errorRatePct > 2
+  return isErrorRateHigh(errorRatePct)
     ? { text: 'above threshold', tone: 'error' }
     : { text: 'healthy', tone: 'success' };
 }

@@ -9,6 +9,7 @@ import { ReportsPage } from './pages/ReportsPage';
 import type { ChartRange } from './components/ChartRangeToggle';
 import { BellIcon } from './icons';
 import './App.css';
+import { isErrorRateHigh } from './data/thresholds';
 
 const REFRESH_MS = 2000;
 
@@ -26,8 +27,8 @@ export default function App() {
   // Lives here, not in DashboardPage, so the chosen range survives leaving and returning to the Dashboard.
   const [chartRange, setChartRange] = useState<ChartRange>('60s');
   const route = useHashRoute();
-  // Same 2% threshold the Error rate tile uses, so badge and tile never disagree.
-  const isHealthy = state.errorRatePct <= 2;
+  // Same threshold the Error rate tile uses (data/thresholds.ts), so badge and tile never disagree.
+  const isHealthy = !isErrorRateHigh(state.errorRatePct);
   const latestUsage = state.usage[state.usage.length - 1];
 
   useEffect(() => {

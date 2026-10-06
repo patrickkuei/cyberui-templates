@@ -20,7 +20,7 @@ export function RequestVolumeChart({ data, range, onRangeChange }: RequestVolume
         <h3 className="panel-title">Request volume</h3>
         <ChartRangeToggle value={range} onChange={onRangeChange} />
       </div>
-      <div style={{ height: 220 }}>
+      <div className="chart-body">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <CartesianGrid stroke={colors.border} strokeDasharray="3 3" />

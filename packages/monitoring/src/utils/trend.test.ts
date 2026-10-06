@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { describeRequestRate, describeLatency, describeErrorRate } from './trend';
+import { ERROR_RATE_THRESHOLD_PCT, P95_LATENCY_THRESHOLD_MS } from '../data/thresholds';
 
 describe('describeRequestRate', () => {
   // Baseline of these recent samples is 414.
@@ -29,16 +30,20 @@ describe('describeLatency', () => {
   it('reports within target under 500ms', () => {
     expect(describeLatency(220)).toEqual({ text: 'within target', tone: 'success' });
   });
-  it('reports elevated at or above 500ms', () => {
-    expect(describeLatency(520)).toEqual({ text: 'elevated', tone: 'warning' });
+  it('reports elevated above the latency threshold', () => {
+    expect(describeLatency(P95_LATENCY_THRESHOLD_MS + 20)).toEqual({ text: 'elevated', tone: 'warning' });
+  });
+  it('treats a value exactly on the threshold as within target, like the tiles and alarms do', () => {
+    expect(describeLatency(P95_LATENCY_THRESHOLD_MS)).toEqual({ text: 'within target', tone: 'success' });
   });
 });
 
 describe('describeErrorRate', () => {
-  it('reports healthy at or under 2%', () => {
+  it('reports healthy at or under the threshold', () => {
     expect(describeErrorRate(0.5)).toEqual({ text: 'healthy', tone: 'success' });
+    expect(describeErrorRate(ERROR_RATE_THRESHOLD_PCT)).toEqual({ text: 'healthy', tone: 'success' });
   });
-  it('reports above threshold over 2%', () => {
-    expect(describeErrorRate(3.1)).toEqual({ text: 'above threshold', tone: 'error' });
+  it('reports above threshold over it', () => {
+    expect(describeErrorRate(ERROR_RATE_THRESHOLD_PCT + 1.1)).toEqual({ text: 'above threshold', tone: 'error' });
   });
 });

@@ -14,7 +14,7 @@ export function LatencyChart({ data }: LatencyChartProps) {
   return (
     <Card variant="default" className="panel-surface">
       <h3 className="panel-title">Latency percentiles</h3>
-      <div style={{ height: 220 }}>
+      <div className="chart-body">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid stroke={colors.border} strokeDasharray="3 3" />

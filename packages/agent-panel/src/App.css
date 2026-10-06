@@ -737,20 +737,22 @@ button.bubble:focus-visible {
   border-bottom: 1px solid var(--color-border-default);
 }
 
-/* A task that just finished lands in the Finished section with a green wash
-   that fades, so the move from Active reads as "completed", not "gone". */
+/* A task that just finished lands in the Finished section with a bright green
+   wash that holds for a moment, then fades, so the move from Active reads as
+   "completed", not "gone". A fainter wash was easy to miss. */
 .task-row--arrived {
-  animation: task-arrive 2.6s ease-out;
+  animation: task-arrive 4s ease-out;
 }
 
 @keyframes task-arrive {
-  0% {
-    background: color-mix(in srgb, var(--color-success) 24%, transparent);
-    box-shadow: inset 3px 0 0 var(--color-success);
+  0%,
+  35% {
+    background: color-mix(in srgb, var(--color-success) 50%, transparent);
+    box-shadow: inset 4px 0 0 var(--color-success);
   }
   100% {
     background: transparent;
-    box-shadow: inset 3px 0 0 transparent;
+    box-shadow: inset 4px 0 0 transparent;
   }
 }
 

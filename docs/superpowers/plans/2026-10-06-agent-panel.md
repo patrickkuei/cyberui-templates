@@ -19,7 +19,7 @@
 - **Two pull requests.** PR A: Tasks 1-14 on branch `feat/agent-panel-template` (the package, nothing outside `packages/agent-panel` except `pnpm-lock.yaml`). PR B: Tasks 15-18 on branch `feat/site-agent-panel`, started after PR A is merged (the Code tab's excerpts must exist in the package before `check-code-tab` accepts them). Neither PR merges itself; the owner merges.
 - Work in `packages/agent-panel` unless a step says otherwise (Tasks 15-17 work from the repo root or `packages/site`, as each says). Run package tests as `npx vitest run <path>` from the package, or `pnpm --filter agent-panel-template test` from the root.
 - Commit with two `-m` flags, the second being exactly: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`. Conventional commit prefixes as in the log (`feat(agent-panel):`, `test(agent-panel):`, `docs:`, `ci:`, `feat(site):`).
-- Pull request bodies reference issue #9 (`Refs #9`) and end with the line `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. PR B may say `Closes #9` only if the owner agrees the published section satisfies the issue's scope (see spec decision list).
+- Pull request bodies reference issue #9 (`Refs #9`) and end with the line `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. PR A says `Refs #9`; PR B says `Closes #9` (the owner decided this, spec Q6).
 - `pnpm` is the package manager. No `workspace:` ranges, and nothing in `packages/agent-panel` imports outside its own folder.
 - Where this plan says "copy from monitoring", copy the file and keep its comments (they are forker-facing documentation), then change only what the step says.
 
@@ -66,7 +66,7 @@ A package that installs, type-checks, builds and runs one empty test. Nothing of
 - [ ] **Step 1: Check where issue #28 stands**
 
 Run: `gh issue view 28 --json state,title` and `git log --oneline -5 -- packages/monitoring/LICENSE packages/monitoring/package.json`
-Expected: if #28 has been fixed, `packages/monitoring` has a `LICENSE` file and `"license": "MIT"`; do exactly what it does here. If it is still open (the case when this plan was written), do both for this package (Steps 2 and 3) and add a line to the PR body: "#28 is still open; this package already carries a LICENSE and a license field, and #28's sweep should include it."
+Expected: #28 is fixed (PR #31 merged first, as the owner decided, spec Q1): `packages/monitoring` has a `LICENSE` file identical to the root one and `"license": "MIT"`; do exactly that here (Steps 2 and 3). If #28 somehow has not landed, still do both for this package and add a line to the PR body: "#28 is still open; this package already carries a LICENSE and a license field, and #28's sweep should include it."
 
 - [ ] **Step 2: Write `package.json`**
 
@@ -111,7 +111,7 @@ Expected: if #28 has been fixed, `packages/monitoring` has a `LICENSE` file and 
 - [ ] **Step 3: Copy the license**
 
 Run (from the repo root): `cp LICENSE packages/agent-panel/LICENSE`
-Expected: identical text to the root MIT license. A later check in the spirit of #28's proposal can keep copies identical; do not build one here.
+Expected: identical text to the root MIT license. Do not build a check here: `npm run check:license` (from #28) already keeps copies identical, and finds this package through `templates.ts`, so it starts covering it when PR B registers the template (Task 15).
 
 - [ ] **Step 4: Copy the build config from monitoring**
 
@@ -1869,7 +1869,7 @@ Expected: `npm install` prints no errors and no `npm warn`; build and tests pass
 
 - [ ] **Step 3: The browser look.** Run `pnpm --filter agent-panel-template dev`, open the printed address and check, fixing what fails in the file it belongs to (each its own commit):
   - Desktop 1440px: three columns; the conversation is the widest; violet appears on card-title rules, nav active rule, focus rings, links, the Avatar glow, badges; **no stray cyan or yellow anywhere**; `Table` header, `Pagination` and `TabNavigation` are violet.
-  - **Open question Q3 (primary magenta beside violet):** judge the Send and Approve buttons. If they clash, record it and try overriding `--color-primary` too, or making Send `secondary`; do not silently decide, write the finding down.
+  - **Q3 (primary magenta beside violet), decided by the owner: keep it.** Do not override `--color-primary`. Judge the Send and Approve buttons; only if they clearly clash, make Send a `secondary` button, and write the finding down either way.
   - **Text colour:** no magenta body text inside any `Card` (the `.panel-surface` reset works).
   - Click the Refund chip, Send: status goes Thinking → Working → Waiting; the approval card appears with focus on Approve; the trace gains entries live; Approve completes; the reply streams.
   - Click an earlier agent message: the trace switches and says so; Back to latest works; sending a new message returns to latest.
@@ -1889,7 +1889,7 @@ Expected: `npm install` prints no errors and no `npm warn`; build and tests pass
 git add packages/agent-panel docs/superpowers/specs/2026-10-06-agent-panel-design.md
 git commit -m "docs(agent-panel): README and findings from the first browser check" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 git push -u origin feat/agent-panel-template
-gh pr create --base main --title "feat(agent-panel): the second template, an AI assistant control panel" --body "<summary; test plan; the #28 note if it applies; Refs #9>" 
+gh pr create --base main --title "feat(agent-panel): the second template, an AI assistant control panel" --body "<summary; test plan; the #28 note only if #28 had not landed; Refs #9>" 
 ```
 
 The PR body ends with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. Do not merge.
@@ -2054,7 +2054,7 @@ and extend the combine step:
 
 - [ ] **Step 4: Verify everything the integration touches**
 
-Run from the repo root: `pnpm install --frozen-lockfile` (expected: succeeds; the lockfile already has the importer from PR A), `npm run test:scripts`, `npm run check:templates-readme`, `npm run check:code-tab`, `npm run check:process-excerpts` (all expected to pass); then `pnpm --filter cyberui-templates-site run sync-templates` (expected: builds both templates and copies them to `packages/site/public/live/<slug>/`) and `pnpm --filter cyberui-templates-site run dev`; open `#/templates`: both sections render; the agent-panel screenshot and the "Run the live demo" dialog work and the preview runs inside the iframe; the Code tab shows the principles and folder tree; Copy start prompt copies a prompt that names `packages/agent-panel`. Home says "2 templates ready."
+Run from the repo root: `pnpm install --frozen-lockfile` (expected: succeeds; the lockfile already has the importer from PR A), `npm run test:scripts`, `npm run check:templates-readme`, `npm run check:code-tab`, `npm run check:license`, `npm run check:process-excerpts` (all expected to pass); then `pnpm --filter cyberui-templates-site run sync-templates` (expected: builds both templates and copies them to `packages/site/public/live/<slug>/`) and `pnpm --filter cyberui-templates-site run dev`; open `#/templates`: both sections render; the agent-panel screenshot and the "Run the live demo" dialog work and the preview runs inside the iframe; the Code tab shows the principles and folder tree; Copy start prompt copies a prompt that names `packages/agent-panel`. Home says "2 templates ready."
 
 - [ ] **Step 5: Commit**
 
@@ -2063,9 +2063,9 @@ git add packages/site/scripts .github/workflows/deploy.yml README.md
 git commit -m "ci: build and deploy the agent panel; list it in the README" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 ```
 
-### Task 17: Drift check for the build lists (recommended)
+### Task 17: Drift check for the build lists
 
-Three hand-kept lists must agree for a template to reach production: `TEMPLATES`, `TEMPLATE_BUILDS` in the sync script, and the steps in `deploy.yml`. Only the README has a check today. This one fails CI when a published template is missing from the others. Drop this task if the owner would rather not add a check; nothing else depends on it.
+Three hand-kept lists must agree for a template to reach production: `TEMPLATES`, `TEMPLATE_BUILDS` in the sync script, and the steps in `deploy.yml`. Only the README has a check today. This one fails CI when a published template is missing from the others. The owner confirmed this task stays (spec Q6).
 
 **Files:**
 - Create: `scripts/check-template-builds.mjs`, `scripts/check-template-builds.test.mjs`
@@ -2227,7 +2227,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
 - [ ] **Step 4: Wire it into the root scripts and CI**
 
-In the root `package.json` add `"check:template-builds": "node scripts/check-template-builds.mjs"` and append `scripts/check-template-builds.test.mjs` to the `test:scripts` command. In `.github/workflows/checks.yml` extend the header comment ("…and the deploy build lists must cover every published template") and add a fourth job modelled exactly on the `code-tab` job:
+In the root `package.json` add `"check:template-builds": "node scripts/check-template-builds.mjs"` and append `scripts/check-template-builds.test.mjs` to the `test:scripts` command. In `.github/workflows/checks.yml` extend the header comment ("…and the deploy build lists must cover every published template"; #28 already added the `license` sentence, so this is the next one) and add a job after `license` (the fifth), modelled exactly on the `code-tab` and `license` jobs:
 
 ```yaml
   template-builds:
@@ -2261,8 +2261,8 @@ git commit -m "ci: fail when a published template is not built or copied into th
 
 - [ ] **Step 1: Run the whole suite and the production builds**
 
-Run: `pnpm -r run build` and `pnpm -r run test` (monitoring, agent-panel and the site; expected all PASS), then from the repo root `npm run test:scripts` and the four checks (`check:process-excerpts`, `check:templates-readme`, `check:code-tab`, `check:template-builds`).
-Expected: all PASS. Note for the PR: CI does not run the package tests (open question Q2); these were run locally.
+Run: `pnpm -r run build` and `pnpm -r run test` (monitoring, agent-panel and the site; expected all PASS), then from the repo root `npm run test:scripts` and the five checks (`check:process-excerpts`, `check:templates-readme`, `check:code-tab`, `check:license`, `check:template-builds`).
+Expected: all PASS. Note for the PR: CI does not run the package tests (decided out of scope, spec Q2: its own issue); these were run locally.
 
 - [ ] **Step 2: Start the site with both real builds**
 
@@ -2292,7 +2292,7 @@ Reduced motion: dialog appears with no fade; inside the preview, replies appear 
 git add docs/superpowers/specs/2026-10-06-agent-panel-design.md
 git commit -m "docs: record findings from checking the published Agent Control Panel" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 git push -u origin feat/site-agent-panel
-gh pr create --base main --title "feat(site): publish the Agent Control Panel template" --body "<summary; what was and was not checked; Refs #9 (or Closes #9 if the owner agrees)>"
+gh pr create --base main --title "feat(site): publish the Agent Control Panel template" --body "<summary; what was and was not checked; Closes #9>"
 ```
 
 The PR body ends with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. Do not merge.
@@ -2302,6 +2302,6 @@ The PR body ends with `🤖 Generated with [Claude Code](https://claude.com/clau
 ## Self-review notes
 
 - **Spec coverage:** §1 goal (all tasks). §3 experience: routes (3, 13), console layout and panes (13), interactions 1-6 (5, 6, 11, 13), honesty (8 header badge, 11 helper line, 12 mock export, 14 README, 15 Heads-up; asserted in tests), accessibility and reduced motion (7, 11, 13, 14). §4 theming (2, checked in 14). §5 data: model and scenarios (4), engine (5, 6), hook (7), Logs fixtures (12), README "where your data goes" (14). §6 structure and patterns (1-13; `ROUTES`/`Record<Route,…>` in 3 and 13, limits in 4, tones in 2 and 8-12, state in hooks in 7, no inline styles in 13). §7 components: `Avatar` (8), `Badge` (8, 10, 12), `Timeline` (9), `LinearProgress` (8, 10), `Table` (10, 12), `Pagination` (12), `Input` (11, 12), `Button` (8, 11, 12), `TabNavigation` (12, 13), `Card` (8, 9, 10, 13). §8 testing (every task; `within` in 8, 10, 13). §9 self-containment and license (1, 14). §10 integration points (15, 16, 17). §11 copy (15). §12 verification (14, 18).
-- **Not covered, by design:** the CI test job for packages (Q2, separate issue); the license sweep and its drift check (issue #28); a real Export transcript (Q5); a library chat component; editing issue #9's wording.
+- **Not covered, by design:** the CI test job for packages (Q2, separate issue); the license sweep and its drift check (done by #28 / PR #31, which `check:license` now enforces); a real Export transcript (Q5); a library chat component; editing issue #9's wording.
 - **Types and names used consistently across tasks:** `AgentState`, `AgentStatus`, `Run`, `Step`, `Scenario`, `AgentActions`, `AgentController`, `STATUS_VIEW`, `CONTEXT_TONE`, `TRACE_STATUS`, `TRACE_KIND_LABEL`, `TASK_BADGE`, `OUTCOME_BADGE`, `TONE_CLASS`, `ROUTES`/`Route`; engine function names as in Tasks 5 and 6; panel names ("Task queue", "Conversation", "Live status", "Reasoning trace") are the `aria-label`s the tests scope with.
 - **Known soft spots a reviewer should look at first:** the context-meter tint (the library's `LinearProgress` takes no colour prop; Task 8 says what to do if the bar cannot be tinted), the screen-reader behavior of the streaming reply (Task 14), and the primary-magenta-beside-violet judgment (Q3).

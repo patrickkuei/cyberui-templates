@@ -1,0 +1,22 @@
+/* src/App.css (grows in later tasks). Colours come only from tokens. */
+
+/* ---- Tones: the one definition of what each tone looks like ----
+   Components add `tone-<name>` through TONE_CLASS instead of mapping a tone to
+   a colour in TypeScript or an inline style. Anything that should take the
+   tone colour (text, or a dot drawn with `background: currentColor`) inherits it. */
+
+.tone-default {
+  color: var(--color-default);
+}
+
+.tone-success {
+  color: var(--color-success);
+}
+
+.tone-warning {
+  color: var(--color-warning);
+}
+
+.tone-error {
+  color: var(--color-error);
+}

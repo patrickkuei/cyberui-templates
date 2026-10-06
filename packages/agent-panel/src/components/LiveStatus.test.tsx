@@ -15,9 +15,8 @@ function renderPanel(state: AgentState) {
 }
 
 describe('LiveStatus', () => {
-  it('is a named panel with the status badge and the activity sentence', () => {
+  it('is a named panel with the activity sentence', () => {
     const panel = renderPanel(createInitialState(NOW));
-    expect(panel.getByText('Idle')).toBeInTheDocument();
     expect(panel.getByText('Idle. 1 task running, 1 queued.')).toBeInTheDocument();
   });
 
@@ -28,9 +27,10 @@ describe('LiveStatus', () => {
     expect(panel.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '17');
   });
 
-  it('labels the meter as simulated, since the token counts are made up', () => {
+  it('gives the whole activity sentence as a tooltip, since the line is clamped', () => {
     const panel = renderPanel(withTokens(5400));
-    expect(panel.getByText(/simulated/i)).toBeInTheDocument();
+    const sentence = panel.getByText('Idle. 1 task running, 1 queued.');
+    expect(sentence).toHaveAttribute('title', 'Idle. 1 task running, 1 queued.');
   });
 
   it('carries the default tone below 70%, warning from 70% and error from 90%', () => {

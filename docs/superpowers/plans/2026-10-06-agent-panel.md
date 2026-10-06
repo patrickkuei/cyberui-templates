@@ -1642,7 +1642,7 @@ export const CONTEXT_TONE: Record<ContextLevel, Tone> = { ok: 'default', high: '
   - `tones.test.ts`: add a test that `STATUS_VIEW` has an entry for every `AgentStatus` value and that every `tone`/`CONTEXT_TONE` value is a key of `TONE_CLASS` (the type guarantees this; the test guards a future `any`).
   - `StatusBadge.test.tsx`: renders the label for each status; gives the `Waiting for approval` badge the warning variant (assert on its text, not the library's classes).
   - `AgentHeader.test.tsx`: shows the agent name "Vesper" and a "Simulated" badge **always** (Review Focus #8); the Avatar's accessible name is "Vesper"; Pause when running, Resume when paused (swap), Stop run enabled only while `running`, Reset always enabled; each button calls its callback once.
-  - `LiveStatus.test.tsx`: shows the status badge and the activity sentence; the context meter's label shows the percentage and tokens (`17%`, `5,400 / 32,000`); the meter's wrapper carries `tone-warning` at 70% and `tone-error` at 90%, and `tone-default` below (scoped `within(region 'Live status')`); counts for tool calls and for tasks running/queued.
+  - `LiveStatus.test.tsx`: shows the activity sentence (no badge: the header and nav carry it; the owner dropped the duplicate), with the whole sentence as its tooltip; the context meter's label shows the percentage and tokens (`17%`, `5,400 / 32,000`); the meter's wrapper carries `tone-warning` at 70% and `tone-error` at 90%, and `tone-default` below (scoped `within(region 'Live status')`); counts for tool calls and for tasks running/queued.
   - `format.test.ts`: `formatClock` is `HH:MM:SS` (24-hour, local time, zero padded); `formatTokens(5400)` is `5,400`.
 
 - [ ] **Step 2: Run them to verify they fail**, then

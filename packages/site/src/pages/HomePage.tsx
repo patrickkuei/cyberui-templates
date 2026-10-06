@@ -9,9 +9,7 @@ function goToTemplates() {
 
 // Derived from TEMPLATES (not hardcoded) so this sentence doesn't go
 // stale the moment a second template ships.
-const liveCount = TEMPLATES.filter((item) => item.status === 'live').length;
-const comingSoonCount = TEMPLATES.length - liveCount;
-const templateCountText = `${liveCount} template${liveCount === 1 ? '' : 's'} ready. ${comingSoonCount} more coming soon.`;
+const templateCountText = `${TEMPLATES.length} template${TEMPLATES.length === 1 ? '' : 's'} ready.`;
 
 export function HomePage() {
   return (

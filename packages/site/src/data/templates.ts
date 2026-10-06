@@ -1,34 +1,35 @@
-export type TemplateStatus = 'live' | 'coming-soon';
-
+// A template is published by adding it here, and nothing else is "coming
+// soon": the site lists only templates that are finished and previewable.
+// To add one, you need all four of:
+//   1. its package at packages/<slug>/ (self-contained; see the root README),
+//   2. an entry below,
+//   3. its section copy in src/content/templateContent.ts (a test fails
+//      without it),
+//   4. a screenshot at public/screenshots/<slug>.png, plus its build copied
+//      to live/<slug>/ (packages/site/scripts/sync-template-builds.mjs for
+//      local dev, the deploy workflow for production).
+// The repo-root README's template table must list it too; the repo-root script
+// scripts/check-templates-readme.mjs fails CI if the two disagree.
 export interface Template {
   slug: string;
   name: string;
   tagline: string;
-  /** Human label for the template's accent hue (spec: Theming) — display only. */
+  /** Human label for the template's accent hue — display only. */
   accentLabel: string;
   /**
-   * The template's accent hex value. Used to scope cyberui's --color-accent /
-   * --color-secondary custom properties to just this template's own tile
-   * tile (its hover glow) — never applied to hub chrome, which stays on
-   * cyberui's raw defaults. See design spec, Motion & Interaction.
+   * The template's accent hex value. Scoped to just this template's own hero
+   * (name badge, screenshot frame, "Run the live demo" button) as
+   * --color-accent / --color-secondary — never applied to hub chrome, which
+   * stays neutral. See the design spec, Visual direction.
    */
   accentHex: string;
-  status: TemplateStatus;
-  /**
-   * Path to a static screenshot, relative to the site's own index.html.
-   * For a 'coming-soon' template this intentionally points at a file that
-   * doesn't exist yet — Image's `fallback` prop covers the resulting
-   * load error, and the real screenshot starts resolving automatically
-   * once that file is committed. No code change needed to "promote" a
-   * template from placeholder to real.
-   */
+  /** Path to a static screenshot, relative to the site's own index.html. */
   screenshotSrc: string;
   /**
    * Path to the template's built index.html, relative to the site's own
-   * index.html. In production this is populated by the CI workflow copying
-   * each template's dist into site/dist/live/<slug>/ (see #8); for local
-   * dev, run `npm run sync-templates` first to populate public/live/<slug>/.
-   * Only meaningful when status is 'live'.
+   * index.html. In production the CI workflow copies each template's dist
+   * into site/dist/live/<slug>/ (see #8); for local dev, run
+   * `npm run sync-templates` first to populate public/live/<slug>/.
    */
   livePreviewPath: string;
 }
@@ -40,56 +41,11 @@ export const TEMPLATES: Template[] = [
     tagline: 'Request volume, latency percentiles, error rate, and a live alerts feed for a production AI API.',
     accentLabel: 'Cyan',
     accentHex: '#00fff9',
-    status: 'live',
     screenshotSrc: './screenshots/monitoring.png',
     livePreviewPath: './live/monitoring/index.html',
-  },
-  {
-    slug: 'agent-panel',
-    name: 'Agent Control Panel',
-    tagline: 'Conversation logs, task queue, live status, and the reasoning trail behind an AI assistant.',
-    accentLabel: 'Violet',
-    accentHex: '#8b5cf6',
-    status: 'coming-soon',
-    screenshotSrc: './screenshots/agent-panel.png',
-    livePreviewPath: '',
-  },
-  {
-    slug: 'landing',
-    name: 'Landing Page',
-    tagline: 'A marketing site built entirely from cyberui-2045 — proof the library holds up outside a dashboard.',
-    accentLabel: 'Amber',
-    accentHex: '#ffb800',
-    status: 'coming-soon',
-    screenshotSrc: './screenshots/landing.png',
-    livePreviewPath: '',
-  },
-  {
-    slug: 'mobile',
-    name: 'Mobile App',
-    tagline: 'A mobile-first interface — the same dark/neon system at phone width.',
-    accentLabel: 'Green',
-    accentHex: '#00e676',
-    status: 'coming-soon',
-    screenshotSrc: './screenshots/mobile.png',
-    livePreviewPath: '',
-  },
-  {
-    slug: 'social',
-    name: 'Community / Social',
-    tagline: 'Profiles, feeds, and reactions — a social interface in the same visual language.',
-    accentLabel: 'Magenta',
-    accentHex: '#ff00e5',
-    status: 'coming-soon',
-    screenshotSrc: './screenshots/social.png',
-    livePreviewPath: '',
   },
 ];
 
 export function getTemplate(slug: string): Template | undefined {
   return TEMPLATES.find((item) => item.slug === slug);
-}
-
-export function isLive(item: Template): boolean {
-  return item.status === 'live';
 }

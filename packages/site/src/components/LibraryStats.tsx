@@ -10,7 +10,7 @@ import { TEMPLATES } from '../data/templates';
  */
 export function LibraryStats() {
   const { components, palette } = __LIBRARY_STATS__;
-  const readyTemplates = TEMPLATES.filter((item) => item.status === 'live').length;
+  const readyTemplates = TEMPLATES.length;
 
   return (
     <figure className="library-stats">

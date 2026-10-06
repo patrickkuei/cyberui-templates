@@ -1,7 +1,8 @@
+import { CyberNotificationProvider } from 'cyberui-2045';
 import { useHashRoute, type Route } from './router/useHashRoute';
+import { useScrollToTopOnChange } from './hooks/useScrollToTopOnChange';
 import { HomePage } from './pages/HomePage';
-import { TemplatesIndexPage } from './pages/TemplatesIndexPage';
-import { TemplatePage } from './pages/TemplatePage';
+import { TemplatesPage } from './pages/TemplatesPage';
 import { ProcessPage } from './pages/ProcessPage';
 import { Nav } from './components/Nav';
 import './App.css';
@@ -13,10 +14,8 @@ import './App.css';
 // monitoring template's case study hold up as best practice.
 function renderRoute(route: Route) {
   switch (route.name) {
-    case 'template':
-      return <TemplatePage slug={route.slug} />;
-    case 'templates-index':
-      return <TemplatesIndexPage />;
+    case 'templates':
+      return <TemplatesPage openSlug={route.openSlug} />;
     case 'process':
       return <ProcessPage />;
     case 'home':
@@ -35,11 +34,16 @@ function renderRoute(route: Route) {
 
 export default function App() {
   const route = useHashRoute();
+  // Keyed on the page, not the whole route: opening a preview on /templates is a hash change too.
+  useScrollToTopOnChange(route.name);
 
   return (
-    <>
+    // The provider is for the toasts (the Templates page's "Copied"). top-right, not
+    // bottom-*: the library lays toasts out with absolutely positioned children, so
+    // at a bottom edge they start on the edge and fall off-screen (cyberui-2045 v2.6.0).
+    <CyberNotificationProvider position="top-right">
       <Nav transparentUntilScroll={route.name === 'home'} />
       <main className="shell">{renderRoute(route)}</main>
-    </>
+    </CyberNotificationProvider>
   );
 }

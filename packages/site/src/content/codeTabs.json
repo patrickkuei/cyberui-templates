@@ -1,0 +1,110 @@
+{
+  "monitoring": {
+    "principles": [
+      {
+        "name": "Single source of truth",
+        "detail": "Alarm limits live in one file.",
+        "file": "src/data/thresholds.ts",
+        "excerpt": [
+          "export const ERROR_RATE_THRESHOLD_PCT = 2;",
+          "export const P95_LATENCY_THRESHOLD_MS = 500;",
+          "",
+          "export function isErrorRateHigh(errorRatePct: number): boolean {",
+          "  return errorRatePct > ERROR_RATE_THRESHOLD_PCT;",
+          "}"
+        ]
+      },
+      {
+        "name": "DRY",
+        "detail": "Each tone's color is defined once.",
+        "file": "src/App.css",
+        "excerpt": [
+          ".tone-success {",
+          "  color: var(--color-success);",
+          "}",
+          "",
+          ".tone-warning {",
+          "  color: var(--color-warning);",
+          "}"
+        ]
+      },
+      {
+        "name": "State in hooks",
+        "detail": "The only timer lives in one hook.",
+        "file": "src/data/useSimulatedMetrics.ts",
+        "excerpt": [
+          "  useEffect(() => {",
+          "    const id = setInterval(() => {",
+          "      setState((prev) => tick(prev, Date.now()));",
+          "    }, intervalMs);",
+          "    return () => clearInterval(id);",
+          "  }, [intervalMs]);"
+        ]
+      },
+      {
+        "name": "No inline styles",
+        "detail": "Styling is in CSS, and a test enforces it.",
+        "file": "src/noInlineStyles.test.ts",
+        "excerpt": [
+          "  const visit = (node: ts.Node) => {",
+          "    if (ts.isJsxAttribute(node) && node.name.getText(sourceFile) === 'style') found = true;",
+          "    ts.forEachChild(node, visit);"
+        ]
+      },
+      {
+        "name": "Typed and exhaustive",
+        "detail": "A page without a label fails to compile.",
+        "file": "src/App.tsx",
+        "excerpt": [
+          "const ROUTE_LABELS: Record<Route, string> = {",
+          "  dashboard: 'Dashboard',",
+          "  endpoints: 'Endpoints',",
+          "  alerts: 'Alerts',",
+          "  reports: 'Reports',",
+          "};"
+        ]
+      },
+      {
+        "name": "Tested",
+        "detail": "Tests sit next to the code they cover.",
+        "file": "src/utils/trend.test.ts",
+        "excerpt": [
+          "describe('describeLatency', () => {",
+          "  it('reports within target under 500ms', () => {",
+          "    expect(describeLatency(220)).toEqual({ text: 'within target', tone: 'success' });",
+          "  });"
+        ]
+      }
+    ],
+    "folders": [
+      {
+        "path": "src/pages",
+        "purpose": "One component per page."
+      },
+      {
+        "path": "src/components",
+        "purpose": "Charts, tables and panels."
+      },
+      {
+        "path": "src/data",
+        "purpose": "Simulation, limits, the data hook. Your data goes here."
+      },
+      {
+        "path": "src/router",
+        "purpose": "Hash routing."
+      },
+      {
+        "path": "src/theme",
+        "purpose": "Chart colors from theme variables."
+      },
+      {
+        "path": "src/utils",
+        "purpose": "Formatting and trend helpers."
+      },
+      {
+        "path": "src/icons",
+        "purpose": "Inline SVG icons."
+      }
+    ]
+  }
+}

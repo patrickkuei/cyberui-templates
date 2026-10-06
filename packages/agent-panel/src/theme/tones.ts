@@ -1,6 +1,6 @@
-import type { AvatarStatus, BadgeProps } from 'cyberui-2045';
+import type { AvatarStatus, BadgeProps, TimelineEvent } from 'cyberui-2045';
 import type { ContextLevel } from '../data/limits';
-import type { AgentStatus } from '../data/types';
+import type { AgentStatus, TraceKind, TraceOutcome } from '../data/types';
 
 export type Tone = 'default' | 'success' | 'warning' | 'error';
 type BadgeVariant = NonNullable<BadgeProps['variant']>;
@@ -29,6 +29,26 @@ export const STATUS_VIEW: Record<AgentStatus, { label: string; tone: Tone; badge
   working: { label: 'Working', tone: 'success', badge: 'success', avatar: 'online' },
   waiting: { label: 'Waiting for approval', tone: 'warning', badge: 'warning', avatar: 'away' },
   paused: { label: 'Paused', tone: 'warning', badge: 'warning', avatar: 'offline' },
+};
+
+/**
+ * Trace outcome -> the Timeline's marker status. Timeline has a fixed set of
+ * four, and no "pending" of its own, so a step still in flight is `info`.
+ */
+export const TRACE_STATUS: Record<TraceOutcome, NonNullable<TimelineEvent['status']>> = {
+  ok: 'success',
+  error: 'error',
+  waiting: 'warning',
+  pending: 'info',
+};
+
+/** The word that starts each trace title ("Thought: ..."), so the kind is readable without relying on colour. */
+export const TRACE_KIND_LABEL: Record<TraceKind, string> = {
+  thought: 'Thought',
+  tool: 'Tool',
+  observation: 'Result',
+  approval: 'Approval',
+  decision: 'Decision',
 };
 
 /** The tone of the context meter; the thresholds that pick the level live in data/limits.ts. */

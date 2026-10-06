@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { CONTEXT_TONE, STATUS_VIEW, TONE_CLASS } from './tones';
+import { CONTEXT_TONE, STATUS_VIEW, TONE_CLASS, TRACE_KIND_LABEL, TRACE_STATUS } from './tones';
 import type { AgentStatus } from '../data/types';
 
 const AGENT_STATUSES: AgentStatus[] = ['idle', 'thinking', 'working', 'waiting', 'paused'];
@@ -24,6 +24,13 @@ describe('STATUS_VIEW', () => {
   it('only uses tones that have a class (the type guarantees it; this guards a future `any`)', () => {
     for (const view of Object.values(STATUS_VIEW)) expect(TONE_CLASS).toHaveProperty(view.tone);
     for (const tone of Object.values(CONTEXT_TONE)) expect(TONE_CLASS).toHaveProperty(tone);
+  });
+});
+
+describe('trace maps', () => {
+  it('covers every trace outcome and kind', () => {
+    expect(TRACE_STATUS).toEqual({ ok: 'success', error: 'error', waiting: 'warning', pending: 'info' });
+    expect(Object.keys(TRACE_KIND_LABEL).sort()).toEqual(['approval', 'decision', 'observation', 'thought', 'tool']);
   });
 });
 

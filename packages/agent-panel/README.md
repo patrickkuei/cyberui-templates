@@ -4,7 +4,7 @@ A control panel for an AI assistant (a conversation, a task queue, live status, 
 
 **Everything is simulated in the browser: no model is called, nothing is sent over the network and nothing is saved.** The agent is a script (three scripted requests and a fallback reply), and its reasoning trace is pre-written, not a model's real chain of thought. The app says so itself: a "Simulated" badge beside the agent's name, the title "Reasoning trace (scripted)", and a line under the message box.
 
-- **Controls that change the simulation** (they change what the screen shows, in your browser, and nothing else): Send and the suggested prompts, Approve and Reject, Pause and Resume, Stop run, Reset, selecting an agent message to see its trace, Cancel and Retry on tasks, and the search, filter and paging on the Tasks and Logs pages.
+- **Controls that change the simulation** (they change what the screen shows, in your browser, and nothing else): Send and the suggested prompts, Approve and Reject, Pause and Resume, Stop run, selecting an agent message to see its trace, Cancel and Retry on tasks, and the search, filter and paging on the Tasks and Logs pages.
 - **One pure mock:** **Export transcript** on the Logs page. It shows "Exported" and nothing is generated, saved or sent. The sessions listed on Logs are fixed samples, and the token counts in the context meter are made up.
 
 ```bash

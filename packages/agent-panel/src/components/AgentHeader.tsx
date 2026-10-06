@@ -12,10 +12,9 @@ export interface AgentHeaderProps {
   onPause: () => void;
   onResume: () => void;
   onStop: () => void;
-  onReset: () => void;
 }
 
-export function AgentHeader({ status, paused, running, onPause, onResume, onStop, onReset }: AgentHeaderProps) {
+export function AgentHeader({ status, paused, running, onPause, onResume, onStop }: AgentHeaderProps) {
   return (
     <header className="agent-header">
       <div className="agent-identity">
@@ -48,9 +47,6 @@ export function AgentHeader({ status, paused, running, onPause, onResume, onStop
             <StopIcon size={14} />
             Stop run
           </span>
-        </Button>
-        <Button variant="ghost" size="sm" onClick={onReset}>
-          Reset
         </Button>
       </div>
     </header>

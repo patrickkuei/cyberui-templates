@@ -50,7 +50,6 @@ export function ConsolePage({ agent, selectedRunId, onSelectRun }: ConsolePagePr
         onPause={() => actions.setPaused(true)}
         onResume={() => actions.setPaused(false)}
         onStop={actions.stopRun}
-        onReset={actions.reset}
       />
 
       <div className="pane-tabs">

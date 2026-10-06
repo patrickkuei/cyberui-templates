@@ -29,7 +29,7 @@ function composerDisabledReason(state: AgentState): string | null {
   const run = activeRun(state);
   if (run?.approval) return 'Approve or reject above to continue.';
   if (run) return 'Vesper is working…';
-  if (contextLevel(state.contextTokens) === 'full') return 'Context full. Reset to start again.';
+  if (contextLevel(state.contextTokens) === 'full') return 'Context full. Reload the page to start again.';
   return null;
 }
 

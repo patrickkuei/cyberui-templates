@@ -81,13 +81,6 @@ describe('App', () => {
       await userEvent.type(region('Conversation').getByRole('textbox', { name: 'Message Vesper' }), 'hello{enter}');
       expect(region('Reasoning trace').queryByText(BANNER)).not.toBeInTheDocument();
     });
-
-    it('goes back to following the latest run on Reset, whose old runs no longer exist', async () => {
-      render(<App />);
-      await userEvent.click(region('Conversation').getByRole('button', { name: /^Four items/ }));
-      await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
-      expect(region('Reasoning trace').queryByText(BANNER)).not.toBeInTheDocument();
-    });
   });
 
   describe('end to end, with a fake clock', () => {

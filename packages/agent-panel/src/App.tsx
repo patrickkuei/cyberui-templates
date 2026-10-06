@@ -29,8 +29,7 @@ export default function App() {
   const route = useHashRoute();
   const status = deriveStatus(state);
 
-  // Sending a message goes back to following the latest run, and a reset throws
-  // the old runs away, so a picked run could point at nothing.
+  // Sending a message goes back to following the latest run.
   const send = useCallback(
     (text: string) => {
       setSelectedRunId(null);
@@ -38,10 +37,6 @@ export default function App() {
     },
     [actions],
   );
-  const reset = useCallback(() => {
-    setSelectedRunId(null);
-    actions.reset();
-  }, [actions]);
 
   useEffect(() => {
     document.title = `${ROUTE_LABELS[route]} — Vesper Control`;
@@ -50,7 +45,7 @@ export default function App() {
   const pages: Record<Route, () => ReactNode> = {
     console: () => (
       <ConsolePage
-        agent={{ state, actions: { ...actions, send, reset } }}
+        agent={{ state, actions: { ...actions, send } }}
         selectedRunId={selectedRunId}
         onSelectRun={setSelectedRunId}
       />

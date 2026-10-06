@@ -5,7 +5,6 @@ import {
   cancelTask,
   createInitialState,
   deriveStatus,
-  resetState,
   resolveApproval,
   retryTask,
   sendMessage,
@@ -242,16 +241,6 @@ describe('steering', () => {
     const gone = cancelled.tasks.find((t) => t.status === 'cancelled')!;
     expect(gone.finishedAt).toBe(NOW + 100);
     expect(retryTask(cancelled, gone.id).tasks.find((t) => t.id === gone.id)!.finishedAt).toBeUndefined();
-  });
-});
-
-describe('resetState', () => {
-  it('goes back to the first state, keeping only whether the agent is paused', () => {
-    const busy = settle(sendMessage(fresh(), 'summarise tickets', NOW));
-    expect(busy.messages.length).toBeGreaterThan(2);
-    const again = resetState(busy, NOW + 5);
-    expect(again).toEqual(createInitialState(NOW + 5));
-    expect(resetState(setPaused(busy, true), NOW + 5)).toEqual({ ...createInitialState(NOW + 5), paused: true });
   });
 });
 

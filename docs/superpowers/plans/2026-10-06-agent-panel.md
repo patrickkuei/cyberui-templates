@@ -1466,13 +1466,6 @@ describe('useSimulatedAgent', () => {
     expect(result.current.actions).toBe(first);
     expect(result.current.state.paused).toBe(true);
   });
-
-  it('reset returns to the first state', () => {
-    const { result } = renderHook(() => useSimulatedAgent());
-    act(() => result.current.actions.send('hello'));
-    act(() => result.current.actions.reset());
-    expect(result.current.state.messages).toHaveLength(2);
-  });
 });
 ```
 
@@ -1532,7 +1525,6 @@ export interface AgentActions {
   retryTask: (taskId: string) => void;
   setPaused: (paused: boolean) => void;
   /** Back to the first state. The only way out of a full context window. */
-  reset: () => void;
 }
 
 export interface AgentController {
@@ -1573,7 +1565,6 @@ export function useSimulatedAgent({ tickMs = TICK_MS, charsPerTick = CHARS_PER_T
       cancelTask: (taskId) => setState((prev) => cancelTask(prev, taskId)),
       retryTask: (taskId) => setState((prev) => retryTask(prev, taskId)),
       setPaused: (paused) => setState((prev) => setPaused(prev, paused)),
-      reset: () => setState(createInitialState(Date.now())),
     }),
     [],
   );
@@ -1641,13 +1632,13 @@ export const CONTEXT_TONE: Record<ContextLevel, Tone> = { ok: 'default', high: '
   - `describeActivity.test.ts`: one assertion per `AgentStatus` path using engine states built with `sendMessage`/`tick`/`setPaused` (idle with and without running tasks; thinking shows the step title; working on a tool shows `Calling orders.lookup(order #4821).`; waiting says it is asking the person; paused says nothing will move).
   - `tones.test.ts`: add a test that `STATUS_VIEW` has an entry for every `AgentStatus` value and that every `tone`/`CONTEXT_TONE` value is a key of `TONE_CLASS` (the type guarantees this; the test guards a future `any`).
   - `StatusBadge.test.tsx`: renders the label for each status; gives the `Waiting for approval` badge the warning variant (assert on its text, not the library's classes).
-  - `AgentHeader.test.tsx`: shows the agent name "Vesper" and a "Simulated" badge **always** (Review Focus #8); the Avatar's accessible name is "Vesper"; Pause when running, Resume when paused (swap), Stop run enabled only while `running`, Reset always enabled; each button calls its callback once.
+  - `AgentHeader.test.tsx`: shows the agent name "Vesper" and a "Simulated" badge **always** (Review Focus #8); the Avatar's accessible name is "Vesper"; Pause when running, Resume when paused (swap), Stop run enabled only while `running`; each button calls its callback once.
   - `LiveStatus.test.tsx`: shows the activity sentence (no badge: the header and nav carry it; the owner dropped the duplicate), with the whole sentence as its tooltip; the context meter's label shows the percentage and tokens (`17%`, `5,400 / 32,000`); the meter's wrapper carries `tone-warning` at 70% and `tone-error` at 90%, and `tone-default` below (scoped `within(region 'Live status')`); counts for tool calls and for tasks running/queued.
   - `format.test.ts`: `formatClock` is `HH:MM:SS` (24-hour, local time, zero padded); `formatTokens(5400)` is `5,400`.
 
 - [ ] **Step 2: Run them to verify they fail**, then
 - [ ] **Step 3: Implement.** Markup shape:
-  - `AgentHeader`: `<header className="agent-header">` with `<Avatar alt="Vesper" initials="V" status={STATUS_VIEW[status].avatar} />`, the name in an `<h1 className="page-title">`, `<Badge variant="accent" size="sm">Simulated</Badge>`, `<StatusBadge />`, then the toolbar of `Button size="sm"` (`variant="secondary"` Pause/Resume, `danger` Stop run, `ghost` Reset). The `<h1>` is the page's title on the Console route only (Tasks and Logs have their own `page-title`).
+  - `AgentHeader`: `<header className="agent-header">` with `<Avatar alt="Vesper" initials="V" status={STATUS_VIEW[status].avatar} />`, the name in an `<h1 className="page-title">`, `<Badge variant="accent" size="sm">Simulated</Badge>`, `<StatusBadge />`, then the toolbar of `Button size="sm"` (`variant="secondary"` Pause/Resume, `danger` Stop run). The `<h1>` is the page's title on the Console route only (Tasks and Logs have their own `page-title`).
   - `LiveStatus`: `<section aria-label="Live status">` → `Card title="Live status"` containing the badge, `<p className="live-activity">{describeActivity(state)}</p>`, a `LinearProgress progress={contextPct(...)}` wrapped in `<div className={`context-meter ${TONE_CLASS[CONTEXT_TONE[level]]}`}>`, its label, and a small definition list (tool calls; tasks "1 running · 1 queued").
   - CSS (add to `App.css`, a header comment per block, tokens only): `.agent-header`, `.live-activity`, `.context-meter` (the library's bar takes no colour prop: tint it by setting `color` and letting the wrapper's descendants use `currentColor` only where the bar allows; if the bar cannot be tinted, show the tone on the label and a coloured `●` instead, and say so in a comment), `.live-dot` (pulse, off under `prefers-reduced-motion`; copy monitoring's).
 - [ ] **Step 4: Run tests and `npx tsc --noEmit`; Step 5: commit** (`feat(agent-panel): agent header, status badge and live status`).
@@ -1698,7 +1689,7 @@ The most behavior-heavy UI. Do not skip the tests.
 - `MessageBubble({ message, selected, onSelect })`: shows `message.text.slice(0, message.revealed)`; agent bubbles with a `runId` are a `<button>` that calls `onSelect(runId)`; user bubbles are plain. `selected` sets `aria-pressed`.
 - `ApprovalCard({ prompt, onApprove, onReject })`: `role="group"` labelled by the prompt; "Approve" (`primary`) and "Reject" (`danger`).
 - `Composer({ onSend, disabledReason, suggested })`: `Input` with `label` "Message Vesper" (visually shown), the `helperText` "Scripted demo: no model, nothing sent." (always), a Send `Button`, and chips for `SUGGESTED_PROMPTS`. `disabledReason: string | null`; when set, the input and Send are disabled and the reason replaces nothing but is shown above the input.
-- `ConversationPanel({ state, selectedRunId, onSelectRun, onSend, onResolveApproval })`: `<section aria-label="Conversation">`, the message list (`aria-live="polite"`, `aria-relevant="additions"`), the `ApprovalCard` when the active run has an `approval`, the `Composer`. The composer's `disabledReason` is computed here from one place: `paused → "The agent is paused. Resume it to send a message."`, `active run with approval → "Approve or reject above to continue."`, `active run → "Vesper is working…"`, `contextLevel === 'full' → "Context full. Reset to start again."`, else `null`.
+- `ConversationPanel({ state, selectedRunId, onSelectRun, onSend, onResolveApproval })`: `<section aria-label="Conversation">`, the message list (`aria-live="polite"`, `aria-relevant="additions"`), the `ApprovalCard` when the active run has an `approval`, the `Composer`. The composer's `disabledReason` is computed here from one place: `paused → "The agent is paused. Resume it to send a message."`, `active run with approval → "Approve or reject above to continue."`, `active run → "Vesper is working…"`, `contextLevel === 'full' → "Context full. Reload the page to start again."`, else `null`.
 - `useStickToBottom<T>(dep): RefObject<T>`: keeps a scroll container pinned to the bottom when `dep` changes **only if it was already at (or within 24px of) the bottom before the change**.
 
 - [ ] **Step 1: Write the failing tests**
@@ -1849,7 +1840,7 @@ git commit -m "feat(agent-panel): console, tasks and logs pages wired into the a
 - Modify: `docs/superpowers/specs/2026-10-06-agent-panel-design.md` (append "Findings from the first browser check")
 
 - [ ] **Step 1: Write the README** in monitoring's shape and honesty. Sections, in order:
-  1. Title and one paragraph: what it is (a control panel for an AI assistant: conversation, task queue, live status, reasoning trace, human approval), built with cyberui-2045. **Everything is simulated in the browser: no model is called, nothing is sent, nothing is saved.** Then the two lists: *controls that change the simulation* (send, approve/reject, pause/resume, stop run, reset, cancel/retry task, search/filter) and the one *pure mock* (Export transcript on Logs: it shows "Exported" and saves nothing), and that the sessions on Logs are fixed samples.
+  1. Title and one paragraph: what it is (a control panel for an AI assistant: conversation, task queue, live status, reasoning trace, human approval), built with cyberui-2045. **Everything is simulated in the browser: no model is called, nothing is sent, nothing is saved.** Then the two lists: *controls that change the simulation* (send, approve/reject, pause/resume, stop run, cancel/retry task, search/filter) and the one *pure mock* (Export transcript on Logs: it shows "Exported" and saves nothing), and that the sessions on Logs are fixed samples.
   2. Commands: `npm install && npm run dev`, `npm run build`, `npm test`; "Requires Node 20.19 or newer."
   3. **Re-theming**: the accent is two tokens in `src/theme/violet.css`; change them.
   4. **Where your data goes**: spec §5.6, with links to `src/App.tsx`, `src/data/useSimulatedAgent.ts`, `src/data/types.ts`, and a sentence on scenarios (`src/data/scenarios.ts`: add a behavior by adding data).
@@ -1873,8 +1864,8 @@ Expected: `npm install` prints no errors and no `npm warn`; build and tests pass
   - **Text colour:** no magenta body text inside any `Card` (the `.panel-surface` reset works).
   - Click the Refund chip, Send: status goes Thinking → Working → Waiting; the approval card appears with focus on Approve; the trace gains entries live; Approve completes; the reply streams.
   - Click an earlier agent message: the trace switches and says so; Back to latest works; sending a new message returns to latest.
-  - Pause, Stop run (mid-reply), Reset, Cancel and Retry on tasks all behave; the composer disabled states each show their reason.
-  - Fill the context (send about 15 messages): meter goes warning then error; composer disables; Reset recovers.
+  - Pause, Stop run (mid-reply), Cancel and Retry on tasks all behave; the composer disabled states each show their reason.
+  - Fill the context (send about 15 messages): meter goes warning then error; composer disables with the reload message (there is no Reset).
   - Tasks and Logs pages: filter, search, paging, Export transcript shows "Exported" only.
   - 390px wide: no sideways page scroll; the pane tabs appear and each pane works; the nav links wrap rather than clip.
   - `prefers-reduced-motion` (devtools emulation): replies appear whole; no pulse.

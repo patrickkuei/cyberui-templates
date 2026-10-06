@@ -11,7 +11,6 @@ function renderHeader(overrides: Partial<AgentHeaderProps> = {}) {
     onPause: vi.fn(),
     onResume: vi.fn(),
     onStop: vi.fn(),
-    onReset: vi.fn(),
     ...overrides,
   };
   render(<AgentHeader {...props} />);
@@ -64,13 +63,5 @@ describe('AgentHeader', () => {
     const props = renderHeader({ running: true });
     await userEvent.click(screen.getByRole('button', { name: 'Stop run' }));
     expect(props.onStop).toHaveBeenCalledTimes(1);
-  });
-
-  it('always enables Reset and calls back once', async () => {
-    const props = renderHeader();
-    const reset = screen.getByRole('button', { name: 'Reset' });
-    expect(reset).toBeEnabled();
-    await userEvent.click(reset);
-    expect(props.onReset).toHaveBeenCalledTimes(1);
   });
 });

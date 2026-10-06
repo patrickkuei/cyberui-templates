@@ -17,7 +17,6 @@ function makeActions(): AgentActions {
     cancelTask: vi.fn(),
     retryTask: vi.fn(),
     setPaused: vi.fn(),
-    reset: vi.fn(),
   };
 }
 
@@ -87,13 +86,11 @@ describe('ConsolePage', () => {
     expect(region('Reasoning trace').getByText('Thought: Look for something I can do')).toBeInTheDocument();
   });
 
-  it('wires the header: Pause, Reset, and Stop run only while a run is active', async () => {
+  it('wires the header: Pause, and Stop run only while a run is active', async () => {
     const idle = renderConsole(createInitialState(NOW));
     expect(screen.getByRole('button', { name: 'Stop run' })).toBeDisabled();
     await userEvent.click(screen.getByRole('button', { name: 'Pause' }));
     expect(idle.actions.setPaused).toHaveBeenCalledWith(true);
-    await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
-    expect(idle.actions.reset).toHaveBeenCalledTimes(1);
   });
 
   it('enables Stop run mid-run and calls stopRun', async () => {

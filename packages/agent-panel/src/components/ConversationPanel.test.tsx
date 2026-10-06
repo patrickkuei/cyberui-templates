@@ -98,7 +98,7 @@ describe('ConversationPanel', () => {
     it('context full', () => {
       const { panel } = renderPanel({ ...fresh(), contextTokens: CONTEXT_WINDOW_TOKENS });
       expect(panel.getByRole('textbox', { name: 'Message Vesper' })).toBeDisabled();
-      expect(panel.getByText('Context full. Reset to start again.')).toBeInTheDocument();
+      expect(panel.getByText('Context full. Reload the page to start again.')).toBeInTheDocument();
     });
   });
 

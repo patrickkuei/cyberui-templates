@@ -425,11 +425,6 @@ body {
   gap: 0.5rem;
 }
 
-/* Reset throws the whole conversation away, so it sits a little apart from the
-   pause and stop controls it is easy to mis-click beside. */
-.agent-controls > :last-child {
-  margin-left: 0.5rem;
-}
 
 /* ---- Live status ---- */
 

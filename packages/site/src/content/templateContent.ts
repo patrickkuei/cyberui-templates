@@ -69,7 +69,7 @@ export const TEMPLATE_CONTENT: Record<string, TemplateContent> = {
       'an internal tool for a support, ops or content team that works alongside an agent',
     ],
     headsUp:
-      'The agent is a script: every reply and step is pre-written, and no AI model is called. Send, Approve and Pause only change what the screen shows, and Export transcript saves nothing. You get the screens, not the agent. Your AI can help you connect yours.',
+      'This is a demo: the agent is just a script, so no AI model is running behind it. You get the screens, not the agent. Your AI can help you connect yours.',
     notFor: "if you're after a native mobile app or a landing page. (A chat window for your customers is fine.)",
     examples: [
       {

@@ -106,5 +106,154 @@
         "purpose": "Inline SVG icons."
       }
     ]
+  },
+  "agent-panel": {
+    "principles": [
+      {
+        "name": "Single source of truth",
+        "detail": "Every limit lives in one file.",
+        "file": "src/data/limits.ts",
+        "excerpt": [
+          "export const CONTEXT_WINDOW_TOKENS = 32000;",
+          "export const CONTEXT_HIGH_PCT = 70;",
+          "export const CONTEXT_FULL_PCT = 90;",
+          "",
+          "/** Tokens the simulation adds to the context for each kind of thing. Made-up numbers. */",
+          "export const TOKENS = { user: 90, think: 380, tool: 520, reply: 260 } as const;",
+          "",
+          "export type ContextLevel = 'ok' | 'high' | 'full';",
+          "",
+          "export function contextPct(tokens: number): number {",
+          "  return Math.min(100, Math.round((tokens / CONTEXT_WINDOW_TOKENS) * 100));",
+          "}",
+          "",
+          "export function contextLevel(tokens: number): ContextLevel {",
+          "  const pct = contextPct(tokens);",
+          "  if (pct >= CONTEXT_FULL_PCT) return 'full';",
+          "  if (pct >= CONTEXT_HIGH_PCT) return 'high';",
+          "  return 'ok';",
+          "}"
+        ]
+      },
+      {
+        "name": "DRY",
+        "detail": "Each tone's color is defined once.",
+        "file": "src/App.css",
+        "excerpt": [
+          ".tone-success {",
+          "  color: var(--color-success);",
+          "}",
+          "",
+          ".tone-warning {",
+          "  color: var(--color-warning);",
+          "}"
+        ]
+      },
+      {
+        "name": "State in hooks",
+        "detail": "The only timer lives in one hook.",
+        "file": "src/data/useSimulatedAgent.ts",
+        "excerpt": [
+          "  useEffect(() => {",
+          "    const id = setInterval(() => {",
+          "      // An idle tick returns the same state object, so React skips the render.",
+          "      setState((prev) => tick(prev, Date.now(), charsPerTick));",
+          "    }, tickMs);",
+          "    return () => clearInterval(id);",
+          "  }, [tickMs, charsPerTick]);"
+        ]
+      },
+      {
+        "name": "No inline styles",
+        "detail": "Styling is in CSS, and a test enforces it.",
+        "file": "src/noInlineStyles.test.ts",
+        "excerpt": [
+          "  const visit = (node: ts.Node) => {",
+          "    if (ts.isJsxAttribute(node) && node.name.getText(sourceFile) === 'style') found = true;",
+          "    ts.forEachChild(node, visit);",
+          "  };"
+        ]
+      },
+      {
+        "name": "Typed and exhaustive",
+        "detail": "A status without a look fails to compile.",
+        "file": "src/theme/tones.ts",
+        "excerpt": [
+          "export const STATUS_VIEW: Record<AgentStatus, { label: string; tone: Tone; badge: BadgeVariant; avatar: AvatarStatus }> = {",
+          "  idle: { label: 'Idle', tone: 'default', badge: 'secondary', avatar: 'online' },",
+          "  thinking: { label: 'Thinking', tone: 'default', badge: 'secondary', avatar: 'online' },",
+          "  working: { label: 'Working', tone: 'success', badge: 'success', avatar: 'online' },",
+          "  waiting: { label: 'Waiting for approval', tone: 'warning', badge: 'warning', avatar: 'away' },",
+          "  paused: { label: 'Paused', tone: 'warning', badge: 'warning', avatar: 'offline' },",
+          "};"
+        ]
+      },
+      {
+        "name": "Scripts as data",
+        "detail": "Add a behavior by adding a scenario.",
+        "file": "src/data/scenarios.ts",
+        "excerpt": [
+          "export const SUMMARY: Scenario = {",
+          "  id: 'summary',",
+          "  keywords: ['summarise', 'summarize', 'summary', 'ticket', 'support'],",
+          "  steps: [",
+          "    { type: 'think', title: 'Scope the summary', detail: 'Last 7 days of support tickets, grouped by theme.', ticks: 3 },",
+          "    { type: 'tool', tool: 'helpdesk.search', input: 'created:7d', output: '38 tickets found.', ticks: 4 },",
+          "    { type: 'task', title: 'Summarise 38 tickets', ticks: 12, priority: 'high' },",
+          "    {",
+          "      type: 'reply',",
+          "      text: 'Of 38 tickets this week, 15 were about login problems, 11 about billing questions and 7 about a slow export. The other 5 were one-offs. Login problems are up on last week.',",
+          "    },",
+          "  ],",
+          "};"
+        ]
+      },
+      {
+        "name": "Tested",
+        "detail": "Tests sit next to the code they cover.",
+        "file": "src/data/simulation.test.ts",
+        "excerpt": [
+          "  it('takes the reject branch: nothing is processed', () => {",
+          "    const done = settle(reject(untilApproval(sendMessage(fresh(), 'refund order #4821', NOW))));",
+          "    expect(done.messages.at(-1)!.text).toMatch(/left order #4821 untouched/i);",
+          "    expect(done.tasks.some((t) => t.title === 'Process refund #4821')).toBe(false);",
+          "  });"
+        ]
+      }
+    ],
+    "folders": [
+      {
+        "path": "src/pages",
+        "purpose": "One component per page."
+      },
+      {
+        "path": "src/components",
+        "purpose": "Panels, lists and the composer."
+      },
+      {
+        "path": "src/data",
+        "purpose": "The engine, the scripts, the data hook. Your agent goes here."
+      },
+      {
+        "path": "src/router",
+        "purpose": "Hash routing."
+      },
+      {
+        "path": "src/theme",
+        "purpose": "The accent override and tones."
+      },
+      {
+        "path": "src/hooks",
+        "purpose": "Reduced-motion preference and chat auto-scroll."
+      },
+      {
+        "path": "src/utils",
+        "purpose": "Formatting helpers."
+      },
+      {
+        "path": "src/icons",
+        "purpose": "Inline SVG icons."
+      }
+    ]
   }
 }

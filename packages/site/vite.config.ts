@@ -2,8 +2,21 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { llmsTxt } from './src/content/llms';
+
+// Writes dist/llms.txt from the site's own template data (see src/content/llms.ts).
+// deploy.yml fails if it is missing from the build.
+function llmsTxtPlugin(): Plugin {
+  return {
+    name: 'llms-txt',
+    apply: 'build',
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'llms.txt', source: llmsTxt() });
+    },
+  };
+}
 
 // Real numbers about the installed cyberui-2045, read from its own files at
 // build time (its package.json `exports` doesn't expose them to imports, so
@@ -30,7 +43,7 @@ export default defineConfig({
   // subpath (e.g. a GitHub Pages project site, or nested under a combined
   // site deploy) — same convention as packages/monitoring.
   base: './',
-  plugins: [react()],
+  plugins: [react(), llmsTxtPlugin()],
   define: {
     __LIBRARY_STATS__: JSON.stringify(readLibraryStats()),
   },

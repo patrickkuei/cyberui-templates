@@ -12,7 +12,8 @@
     "isolatedModules": true,
     "noUncheckedIndexedAccess": true,
     "jsx": "react-jsx",
-    "types": ["vite/client"],
+    // "node": the tests read files with node:fs / node:path (vitest runs them in Node).
+    "types": ["vite/client", "node"],
     "noEmit": true
   },
   "include": ["src"]

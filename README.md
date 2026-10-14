@@ -18,7 +18,7 @@ More are planned; follow [the open issues](https://github.com/patrickkuei/cyberu
 Each template package is self-contained — you don't need to clone this whole repo:
 
 ```bash
-npx tiged patrickkuei/cyberui-templates/packages/<template-name> my-app
+npx --yes tiged patrickkuei/cyberui-templates/packages/<template-name> my-app
 cd my-app && npm install && npm run dev
 ```
 

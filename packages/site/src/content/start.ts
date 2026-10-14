@@ -11,8 +11,11 @@ export const SITE_URL = 'https://patrickkuei.github.io/cyberui-templates/';
 // Matches `engines.node` in the template packages and this site.
 export const NODE_MIN = '20.19';
 
+// --yes: without it, npx asks "Ok to proceed?" before its first download of
+// tiged, and an AI assistant's non-interactive shell can't answer, so the
+// very first step of the start prompt stalls (seen in the #44 dogfood run).
 export function forkCommand(slug: string): string {
-  return `npx tiged ${REPO}/packages/${slug} my-app`;
+  return `npx --yes tiged ${REPO}/packages/${slug} my-app`;
 }
 
 export function terminalSteps(slug: string): string[] {

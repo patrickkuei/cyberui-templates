@@ -111,9 +111,11 @@ The dialog:
 
 *The prompt* (shown in the fold):
 
-> Start a new project from the AI Product Monitoring template. Run `npx tiged patrickkuei/cyberui-templates/packages/monitoring my-app`, then `cd my-app`, `npm install`, and `npm run dev`. It needs Node 20.19 or newer, so tell me if I need to install it. Tell me when it's running and what address to open. Then run `npx cyberui-2045 init` so you know how to use the component library from now on.
+> Start a new project from the AI Product Monitoring template. Run `npx --yes tiged patrickkuei/cyberui-templates/packages/monitoring my-app`, then `cd my-app`, `npm install`, and `npm run dev`. It needs Node 20.19 or newer, so tell me if I need to install it. Tell me when it's running and what address to open. Then run `npx cyberui-2045 init` so you know how to use the component library from now on.
 
 *Terminal route* (same fold): the same three commands, plus "Needs Node 20.19 or newer."
+
+*Changed 2026-10-14:* `npx tiged` became `npx --yes tiged` (owner decision, #57). In the #44 dogfood run, npx stopped to ask "Ok to proceed?" before downloading tiged, which an AI assistant's non-interactive shell can't answer. The prompt, the terminal route, the root README and llms.txt all take the command from `forkCommand` in `packages/site/src/content/start.ts`.
 
 **Examples.** Introduced once above both folds: "An AI played each of these, in a simulated interview. They are not real people." The text inside each fold is the subagent's own wording, truncated with ellipses and not reworded.
 

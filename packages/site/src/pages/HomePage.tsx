@@ -35,6 +35,12 @@ export function HomePage() {
           cyberui-2045 is named for the year the Singularity is predicted. The library and every template here were
           made by AI. Copy one, tell your AI what to change, and the look stays consistent as you build.
         </p>
+        {/* Quiet links (.signpost), so the hero button stays the one call to action. */}
+        <p className="signpost">
+          The library: <a href="https://www.npmjs.com/package/cyberui-2045">npm</a> ·{' '}
+          <a href="https://github.com/patrickkuei/CyberUI">GitHub</a> ·{' '}
+          <a href="https://patrickkuei.github.io/CyberUI/storybook/">Storybook</a>
+        </p>
         <LibraryStats />
         <ul className="home-features">
           <li>

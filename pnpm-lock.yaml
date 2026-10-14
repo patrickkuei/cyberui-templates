@@ -11,8 +11,8 @@ importers:
   packages/agent-panel:
     dependencies:
       cyberui-2045:
-        specifier: ^2.6.0
-        version: 2.6.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: ^2.7.0
+        version: 2.7.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: ^19.0.0
         version: 19.3.0
@@ -54,8 +54,8 @@ importers:
   packages/monitoring:
     dependencies:
       cyberui-2045:
-        specifier: ^2.6.0
-        version: 2.6.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: ^2.7.0
+        version: 2.7.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: ^19.0.0
         version: 19.3.0
@@ -100,8 +100,8 @@ importers:
   packages/site:
     dependencies:
       cyberui-2045:
-        specifier: ^2.6.0
-        version: 2.6.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: ^2.7.0
+        version: 2.7.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: ^19.0.0
         version: 19.3.0
@@ -765,8 +765,8 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
-  cyberui-2045@2.6.0:
-    resolution: {integrity: sha512-y0BeffqjvHLGgUiYDFn9Z2NXajpF4FyKsFie4OkdUmYPeKpO3gUkMQGtvalm9G6U32kjRwvd1NHwKRHcVSoOkA==}
+  cyberui-2045@2.7.0:
+    resolution: {integrity: sha512-sPwll2/J/iukeGJl/D13ruc4hVUTYAK5DulB7izDzFH1kpeZAzz7uBaDDd/Y9kGWr76gOgkxKn65Zb3JQ7J+YQ==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
@@ -1731,7 +1731,7 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  cyberui-2045@2.6.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  cyberui-2045@2.7.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       clsx: 2.1.1
       react: 19.3.0

@@ -67,7 +67,7 @@ export function TaskList({ tasks, onCancel, onRetry }: TaskListProps) {
                         <div className="task-row-detail">
                           {task.status === 'running' && (
                             <div className="task-progress">
-                              <LinearProgress progress={taskProgress(task)} size="sm" className="meter-bar" />
+                              <LinearProgress progress={taskProgress(task)} size="sm" fullWidth />
                               <span className="task-progress-pct">{taskProgress(task)}%</span>
                             </div>
                           )}

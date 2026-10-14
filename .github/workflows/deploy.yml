@@ -53,6 +53,15 @@ jobs:
           mkdir -p packages/site/dist/live/agent-panel
           cp -r packages/agent-panel/dist/. packages/site/dist/live/agent-panel/
 
+      # The site needs JavaScript to render, so llms.txt is the only text a
+      # crawler or AI assistant can read. The site build writes it
+      # (packages/site/src/content/llms.ts); don't deploy without it.
+      - name: Check llms.txt is in the build
+        run: |
+          set -e
+          test -s packages/site/dist/llms.txt
+          grep -q '^# CyberUI templates' packages/site/dist/llms.txt
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: packages/site/dist

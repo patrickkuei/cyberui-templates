@@ -4,6 +4,10 @@
 // slug is also the folder name under packages/, which is what tiged needs.
 export const REPO = 'patrickkuei/cyberui-templates';
 
+// Where deploy.yml publishes this site. Only llms.txt needs it: the page
+// itself uses relative URLs so it works under any path.
+export const SITE_URL = 'https://patrickkuei.github.io/cyberui-templates/';
+
 // Matches `engines.node` in the template packages and this site.
 export const NODE_MIN = '20.19';
 

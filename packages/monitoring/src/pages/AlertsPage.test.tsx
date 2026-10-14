@@ -21,7 +21,7 @@ describe('AlertsPage', () => {
     expect(screen.getAllByRole('heading', { name: 'Alerts' })).toHaveLength(1);
   });
 
-  it('shows a summary stat row with real severity counts (Review Focus #3)', () => {
+  it('shows a summary stat row with real severity counts', () => {
     const alerts = [
       { id: '1', severity: 'critical' as const, message: 'a', timestamp: Date.now() },
       { id: '2', severity: 'critical' as const, message: 'b', timestamp: Date.now() },

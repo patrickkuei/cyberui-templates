@@ -8,8 +8,11 @@
  *
  * secondary and accent move together: secondary is the active/text colour,
  * accent is the rule under card titles and focus glows. Overriding only one
- * leaves a stray cyan or yellow. --color-primary (the magenta used by primary
- * buttons) is left alone on purpose: only the accent hue varies per template.
+ * leaves a stray cyan or yellow. --color-primary (magenta) is left alone on
+ * purpose: only the accent hue varies per template. It still shows as the
+ * primary button's glow, the far end of every LinearProgress bar, and the fill
+ * of <Badge variant="primary">. That badge reads close to `error` red here, so
+ * the status badges (TASK_BADGE in tones.ts) don't use it.
  *
  * Re-theme this template by changing these two values.
  */

@@ -22,7 +22,7 @@ describe('useSimulatedMetrics', () => {
     expect(result.current.requestVolume).toHaveLength(initial.requestVolume.length);
   });
 
-  it('clears its interval on unmount (Review Focus #3)', () => {
+  it('clears its interval on unmount', () => {
     const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');
     const { unmount } = renderHook(() => useSimulatedMetrics(2000));
 

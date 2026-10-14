@@ -18,7 +18,7 @@ describe('useHashRoute', () => {
     expect(result.current).toBe('endpoints');
   });
 
-  it('falls back to dashboard for an unknown hash (Review Focus #1)', () => {
+  it('falls back to dashboard for an unknown hash', () => {
     window.location.hash = '#/nope';
     const { result } = renderHook(() => useHashRoute());
     expect(result.current).toBe('dashboard');

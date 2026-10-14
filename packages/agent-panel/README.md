@@ -25,6 +25,8 @@ Everything the screens show comes from one hook call, `useSimulatedAgent` in [sr
 
 To change what the demo agent can do without touching the engine, add a scenario to [src/data/scenarios.ts](src/data/scenarios.ts). A scenario is plain data (steps to think, call a tool, start a task, ask for approval, or reply), and a test checks that every path through it ends in a reply.
 
+An approval asks one question (`prompt`) about the run that is waiting, shown on one card. If people should review an item, for example a customer's message next to the agent's draft, the approval belongs on that item rather than on the run. Expect to add the fields to `Task` and a decision action next to `cancelTask`/`retryTask`, not just to restyle `ApprovalCard`.
+
 ## Principles this code follows
 
 | Principle | Where to see it |
@@ -33,6 +35,6 @@ To change what the demo agent can do without touching the engine, add a scenario
 | **DRY** | What each tone looks like is defined once, as the `.tone-*` classes in [src/App.css](src/App.css), and [src/theme/tones.ts](src/theme/tones.ts) maps every `Tone`, agent status, task status, trace outcome, context level and session outcome to its look. Those are `Record`s over the data model's unions, so adding a status forces you to decide how it looks. |
 | **State in hooks, components presentational** | The only timer, and the only call to `Date.now()`, is in [src/data/useSimulatedAgent.ts](src/data/useSimulatedAgent.ts). The engine in [src/data/simulation.ts](src/data/simulation.ts) is pure (no clock, no randomness), and components and pages take props and render. |
 | **No inline styles, no stray colors** | All styling is in CSS classes. [src/noInlineStyles.test.ts](src/noInlineStyles.test.ts) fails if a `style={...}` prop appears, and [src/noHexColors.test.ts](src/noHexColors.test.ts) fails if any stylesheet other than `violet.css` contains a hex color. |
-| **Typed and exhaustive** | `Record<Route, …>` maps in [src/App.tsx](src/App.tsx) turn "added a page but forgot its label or component" into a compile error, and the `Record` maps in [src/theme/tones.ts](src/theme/tones.ts) do the same for statuses. |
+| **Typed and exhaustive** | `Record<Route, …>` maps in [src/App.tsx](src/App.tsx) turn "added a page but forgot its label or component" into a compile error, and the `Record` maps in [src/theme/tones.ts](src/theme/tones.ts) do the same for statuses. What a task status allows (cancel, retry, counted as finished) is one `Record` in [src/data/tasks.ts](src/data/tasks.ts), so a new status is a compile error until you place it there. Code that names one specific status (the Done and Failed filters, the running/queued counts) still needs a look by hand. |
 | **Scripts as data** | The demo agent's behavior is the scenarios in [src/data/scenarios.ts](src/data/scenarios.ts); the engine knows nothing about refunds. |
 | **Tested** | A test file sits next to each component, page and helper, including the engine's approve and reject paths, the caps and the one end-to-end flow in [src/App.test.tsx](src/App.test.tsx). The exceptions are `src/data/types.ts` (types only), `src/theme/violet.css` and the entry point (`main.tsx`). |

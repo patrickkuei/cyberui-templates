@@ -25,7 +25,7 @@ describe('App', () => {
     expect(screen.getByText(/All systems operational|Degraded performance/)).toBeInTheDocument();
   });
 
-  it('navigates to the Endpoints page and back via real links (Review Focus #5)', async () => {
+  it('navigates to the Endpoints page and back via real links', async () => {
     await renderApp();
     const nav = screen.getByRole('navigation', { name: /primary/i });
 
@@ -38,7 +38,7 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'Dashboard', level: 1 })).toBeInTheDocument();
   });
 
-  it('navigates to Alerts and Reports (Review Focus #5)', async () => {
+  it('navigates to Alerts and Reports', async () => {
     await renderApp();
     const nav = screen.getByRole('navigation', { name: /primary/i });
 
@@ -50,7 +50,7 @@ describe('App', () => {
     expect(screen.getByText('Usage report')).toBeInTheDocument();
   });
 
-  it('nav links are keyboard-focusable real links, and Enter navigates (Review Focus #3)', async () => {
+  it('nav links are keyboard-focusable real links, and Enter navigates', async () => {
     await renderApp();
     const nav = screen.getByRole('navigation', { name: /primary/i });
     const endpointsLink = within(nav).getByRole('link', { name: 'Endpoints' });

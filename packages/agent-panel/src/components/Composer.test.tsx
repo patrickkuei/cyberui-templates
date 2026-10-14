@@ -49,12 +49,12 @@ describe('Composer', () => {
     expect(screen.getByText('The agent is paused. Resume it to send a message.')).toBeInTheDocument();
   });
 
-  it('always carries the "Scripted demo" helper line (Review Focus #8)', () => {
+  it('always carries the "Scripted demo" helper line', () => {
     renderComposer();
     expect(screen.getByText(HELPER)).toBeInTheDocument();
   });
 
-  it('carries the helper line in the disabled state too (Review Focus #8)', () => {
+  it('carries the helper line in the disabled state too', () => {
     renderComposer({ disabledReason: 'Vesper is working…' });
     expect(screen.getByText(HELPER)).toBeInTheDocument();
   });

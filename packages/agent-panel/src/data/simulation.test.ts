@@ -21,7 +21,7 @@ const fresh = () => createInitialState(NOW);
 /**
  * Ticks (revealing replies at once) until the active run ends. `decide` answers
  * an approval when one is pending. Throws if the run never ends, which is how a
- * hung scenario shows up (Review Focus #1).
+ * hung scenario shows up.
  */
 function settle(state: AgentState, decide?: (s: AgentState) => AgentState, limit = 400): AgentState {
   let s = state;
@@ -209,7 +209,7 @@ describe('steering', () => {
     expect(cancelRun(stopped, NOW)).toBe(stopped);
   });
 
-  it('cancelling the task a run is waiting for ends the run politely instead of hanging it (Review Focus #1)', () => {
+  it('cancelling the task a run is waiting for ends the run politely instead of hanging it', () => {
     let s = approve(untilApproval(sendMessage(fresh(), 'refund order', NOW)));
     for (let i = 0; i < 50 && !s.tasks.some((t) => t.title === 'Process refund #4821'); i++) s = tick(s, NOW + i);
     const task = s.tasks.find((t) => t.title === 'Process refund #4821')!;
@@ -244,7 +244,7 @@ describe('steering', () => {
   });
 });
 
-describe('caps (Review Focus #2)', () => {
+describe('caps', () => {
   it('keeps every list bounded however long the tab stays open', () => {
     let s = fresh();
     // 110 runs of a scenario that adds a task and four trace steps each: enough to pass every cap.

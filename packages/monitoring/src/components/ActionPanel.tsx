@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Card } from 'cyberui-2045';
+import type { StatusNote } from '../data/simulation';
 import { TONE_CLASS } from '../theme/tones';
 
 export interface ActionPanelProps {
@@ -11,9 +12,11 @@ export interface ActionPanelProps {
   headline: string;
   headlineTone: 'success' | 'error';
   primaryActionLabel?: string;
+  /** Informational lines listed under the action item, each with a success dot and no button. */
+  notes?: readonly StatusNote[];
 }
 
-export function ActionPanel({ incidentKey, headline, headlineTone, primaryActionLabel }: ActionPanelProps) {
+export function ActionPanel({ incidentKey, headline, headlineTone, primaryActionLabel, notes = [] }: ActionPanelProps) {
   const [acknowledged, setAcknowledged] = useState(false);
   // Reset during render (not in an effect) when a genuinely new incident starts.
   const [prevIncidentKey, setPrevIncidentKey] = useState(incidentKey);
@@ -39,13 +42,15 @@ export function ActionPanel({ incidentKey, headline, headlineTone, primaryAction
           </div>
         </div>
       )}
-      <div className="action-item action-item--static">
-        <span className={`action-dot ${TONE_CLASS.success}`} aria-hidden="true" />
-        <div className="action-item-body">
-          <p className="action-item-title">Model rollout: model-router v2.3.1</p>
-          <p className="action-item-subtitle">Deployed to all regions, 0 rollbacks.</p>
+      {notes.map((note) => (
+        <div key={note.title} className="action-item action-item--static">
+          <span className={`action-dot ${TONE_CLASS.success}`} aria-hidden="true" />
+          <div className="action-item-body">
+            <p className="action-item-title">{note.title}</p>
+            {note.subtitle && <p className="action-item-subtitle">{note.subtitle}</p>}
+          </div>
         </div>
-      </div>
+      ))}
     </Card>
   );
 }

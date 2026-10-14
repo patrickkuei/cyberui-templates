@@ -1,4 +1,5 @@
 import { Button } from 'cyberui-2045';
+import { isActive, isRetryable } from '../data/tasks';
 import type { Task } from '../data/types';
 
 export interface TaskActionsProps {
@@ -12,14 +13,14 @@ export interface TaskActionsProps {
 // task title because a page of identical "Cancel" buttons is unusable by ear.
 // Both only change the in-browser simulation (see data/simulation.ts).
 export function TaskActions({ task, onCancel, onRetry }: TaskActionsProps) {
-  if (task.status === 'queued' || task.status === 'running') {
+  if (isActive(task.status)) {
     return (
       <Button variant="ghost" size="sm" aria-label={`Cancel ${task.title}`} onClick={() => onCancel(task.id)}>
         Cancel
       </Button>
     );
   }
-  if (task.status === 'failed' || task.status === 'cancelled') {
+  if (isRetryable(task.status)) {
     return (
       <Button variant="secondary" size="sm" aria-label={`Retry ${task.title}`} onClick={() => onRetry(task.id)}>
         Retry

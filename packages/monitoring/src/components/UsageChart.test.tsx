@@ -8,7 +8,7 @@ const DATA = [
 ];
 
 describe('UsageChart', () => {
-  it('renders a non-empty chart and the latest hourly cost (Review Focus #4)', () => {
+  it('renders a non-empty chart and the latest hourly cost', () => {
     const { container } = render(<UsageChart data={DATA} />);
     const svg = container.querySelector('svg.recharts-surface');
     expect(svg).not.toBeNull();

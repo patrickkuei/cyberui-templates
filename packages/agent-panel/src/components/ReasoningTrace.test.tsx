@@ -21,7 +21,7 @@ function renderTrace(props: Partial<React.ComponentProps<typeof ReasoningTrace>>
 }
 
 describe('ReasoningTrace', () => {
-  it('is titled as scripted, so nobody takes it for a real chain of thought (Review Focus #8)', () => {
+  it('is titled as scripted, so nobody takes it for a real chain of thought', () => {
     const { panel } = renderTrace();
     expect(panel.getByText('Reasoning trace')).toBeInTheDocument();
   });

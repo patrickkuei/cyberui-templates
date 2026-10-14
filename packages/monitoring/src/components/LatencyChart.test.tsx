@@ -8,7 +8,7 @@ const DATA = [
 ];
 
 describe('LatencyChart', () => {
-  it('renders a non-empty chart with p50/p95/p99 series (Review Focus #4)', () => {
+  it('renders a non-empty chart with p50/p95/p99 series', () => {
     const { container } = render(<LatencyChart data={DATA} />);
     const svg = container.querySelector('svg.recharts-surface');
     expect(svg).not.toBeNull();

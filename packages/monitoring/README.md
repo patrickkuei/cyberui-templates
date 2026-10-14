@@ -16,6 +16,8 @@ Requires Node 20.19 or newer.
 
 Everything the screens show comes from one hook call, `useSimulatedMetrics` in [src/App.tsx](src/App.tsx), and flows down to the pages and components as props. To use real data, replace what [src/data/useSimulatedMetrics.ts](src/data/useSimulatedMetrics.ts) returns with a fetch (keep the `DashboardState` shape from [src/data/simulation.ts](src/data/simulation.ts), or change the type and let the compiler point out every place that needs updating).
 
+**Making it about something other than an AI API** (orders, support tickets, a fleet…) is more than changing text. The data model is AI-platform metrics: requests/sec, p95 latency, tokens, endpoints. So you reshape `DashboardState` and the simulation that fills it, rename the pages (see `ROUTES` in [src/router/useHashRoute.ts](src/router/useHashRoute.ts)), and update the tests that check the old wording. The compiler finds most of the places once the type changes. The fixed notes in the "What needs attention" panel are `statusNotes` in the same state. Currency and number locale are set once, at the top of [src/utils/format.ts](src/utils/format.ts).
+
 ## Principles this code follows
 
 | Principle | Where to see it |

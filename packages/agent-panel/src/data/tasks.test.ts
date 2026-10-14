@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { groupTasks, sortTasks } from './tasks';
+import { groupTasks, isActive, isFinished, isRetryable, sortTasks } from './tasks';
 import type { Task, TaskStatus } from './types';
 
 const task = (id: string, status: TaskStatus, createdAt: number): Task => ({
@@ -49,5 +49,21 @@ describe('groupTasks', () => {
       ['finished', ['c', 'd']],
     ]);
     expect(groupTasks([])).toEqual([]);
+  });
+});
+
+describe('task lifecycle', () => {
+  const ALL: TaskStatus[] = ['queued', 'running', 'done', 'failed', 'cancelled'];
+
+  it('treats queued and running as active, and nothing else', () => {
+    expect(ALL.filter(isActive)).toEqual(['queued', 'running']);
+  });
+
+  it('lets failed and cancelled tasks be retried, and nothing else', () => {
+    expect(ALL.filter(isRetryable)).toEqual(['failed', 'cancelled']);
+  });
+
+  it('files done and cancelled under Finished; failed keeps its own heading', () => {
+    expect(ALL.filter(isFinished)).toEqual(['done', 'cancelled']);
   });
 });

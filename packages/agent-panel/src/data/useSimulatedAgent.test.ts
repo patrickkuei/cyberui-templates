@@ -33,7 +33,7 @@ describe('useSimulatedAgent', () => {
     expect(activeRun(result.current.state)).toBeUndefined();
   });
 
-  it('does not re-render on a tick when nothing is moving (Review Focus #3)', () => {
+  it('does not re-render on a tick when nothing is moving', () => {
     let renders = 0;
     const { result } = renderHook(() => {
       renders += 1;
@@ -52,7 +52,7 @@ describe('useSimulatedAgent', () => {
     expect(result.current.state.tasks.some((t) => t.status === 'running')).toBe(false);
   });
 
-  it('clears its interval on unmount (Review Focus #3)', () => {
+  it('clears its interval on unmount', () => {
     const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');
     const { unmount } = renderHook(() => useSimulatedAgent());
     unmount();

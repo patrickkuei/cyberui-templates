@@ -19,6 +19,24 @@ const SECTION_OF: Record<TaskStatus, TaskSection> = {
 const SECTION_ORDER: readonly TaskSection[] = ['active', 'failed', 'finished'];
 export const SECTION_LABEL: Record<TaskSection, string> = { active: 'Active', failed: 'Failed', finished: 'Finished' };
 
+// What each status allows. Cancel and retry (the buttons and the engine), the
+// cap on finished tasks and the Tasks page's Active filter all read these, so
+// a new status is a compile error here until you decide both, instead of
+// silently matching none of those checks.
+const LIFECYCLE: Record<TaskStatus, { active: boolean; retryable: boolean }> = {
+  queued: { active: true, retryable: false },
+  running: { active: true, retryable: false },
+  done: { active: false, retryable: false },
+  failed: { active: false, retryable: true },
+  cancelled: { active: false, retryable: true },
+};
+/** Still moving (can be cancelled; not yet counted as finished work). */
+export const isActive = (status: TaskStatus) => LIFECYCLE[status].active;
+/** Ended in a way a person can retry. */
+export const isRetryable = (status: TaskStatus) => LIFECYCLE[status].retryable;
+/** Sits under the queue's Finished heading. */
+export const isFinished = (status: TaskStatus) => SECTION_OF[status] === 'finished';
+
 /** Newest first: by when it finished for finished work (a fixture with no finish time falls back to creation), else by creation. */
 const recency = (task: Task) => (SECTION_OF[task.status] === 'finished' ? (task.finishedAt ?? task.createdAt) : task.createdAt);
 

@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Card, LinearProgress } from 'cyberui-2045';
-import { SECTION_LABEL, groupTasks } from '../data/tasks';
+import { SECTION_LABEL, groupTasks, isFinished } from '../data/tasks';
 import { taskProgress } from '../data/simulation';
 import { TaskActions } from './TaskActions';
 import { TaskFinished } from './TaskFinished';
@@ -13,7 +13,6 @@ export interface TaskListProps {
   onRetry: (taskId: string) => void;
 }
 
-const isFinished = (task: Task) => task.status === 'done' || task.status === 'cancelled';
 
 /**
  * The Console's compact queue. The full table with a filter is TaskTable on the
@@ -32,13 +31,13 @@ export function TaskList({ tasks, onCancel, onRetry }: TaskListProps) {
   // a repeated render changes nothing. A task that leaves Finished (a retry) is
   // dropped from the set, so finishing again highlights it again.
   const settled = useRef<Set<string> | null>(null);
-  const finishedIds = new Set(tasks.filter(isFinished).map((task) => task.id));
+  const finishedIds = new Set(tasks.filter((task) => isFinished(task.status)).map((task) => task.id));
   if (settled.current === null) {
     settled.current = finishedIds;
   } else {
     for (const id of settled.current) if (!finishedIds.has(id)) settled.current.delete(id);
   }
-  const arrived = (task: Task) => isFinished(task) && !settled.current?.has(task.id);
+  const arrived = (task: Task) => isFinished(task.status) && !settled.current?.has(task.id);
 
   const groups = groupTasks(tasks);
   return (

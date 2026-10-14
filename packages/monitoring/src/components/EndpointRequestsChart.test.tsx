@@ -8,7 +8,7 @@ const ENDPOINTS = [
 ];
 
 describe('EndpointRequestsChart', () => {
-  it('renders a non-empty chart for the given endpoints (Review Focus #4)', () => {
+  it('renders a non-empty chart for the given endpoints', () => {
     const { container } = render(<EndpointRequestsChart endpoints={ENDPOINTS} />);
     const svg = container.querySelector('svg.recharts-surface');
     expect(svg).not.toBeNull();
@@ -16,7 +16,7 @@ describe('EndpointRequestsChart', () => {
     expect(Number(svg?.getAttribute('height'))).toBeGreaterThan(0);
   });
 
-  it('renders every endpoint name as an x-axis tick, even with 4 endpoints on a narrow chart (Review Focus #4)', () => {
+  it('renders every endpoint name as an x-axis tick, even with 4 endpoints on a narrow chart', () => {
     // Regression for the whole-branch review finding: Recharts' automatic tick interval
     // was dropping 2 of 4 endpoint-name labels at mobile widths. interval={0} forces all
     // of them to render regardless of the measured/available width.

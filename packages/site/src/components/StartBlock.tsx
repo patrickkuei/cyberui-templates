@@ -19,15 +19,13 @@ export interface StartBlockProps {
 // a command.
 export function StartBlock({ name, slug, accentHex }: StartBlockProps) {
   const prefix = useId();
-  // The primary button paints with --gradient-accent, which the library
-  // declares on :root as `135deg, var(--color-accent) 10%, var(--color-secondary) 90%`.
-  // A custom property is substituted where it is declared, so overriding the two
-  // colours here does not reach it: without this line the button keeps the
-  // library's yellow-to-cyan fill whatever the template's hue is.
+  // The primary button fills with a gradient from --color-accent to
+  // --color-secondary, so setting both to the hue gives a solid fill. Scoped
+  // overrides like this reach the gradient from cyberui-2045 2.7.0; in 2.6.0
+  // it was resolved on :root and kept the library's yellow-to-cyan.
   const accentStyle = {
     '--color-accent': accentHex,
     '--color-secondary': accentHex,
-    '--gradient-accent': `135deg, ${accentHex} 10%, ${accentHex} 90%`,
   } as CSSProperties;
 
   return (

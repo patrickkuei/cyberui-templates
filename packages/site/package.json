@@ -14,7 +14,7 @@
     "sync-templates": "node scripts/sync-template-builds.mjs"
   },
   "dependencies": {
-    "cyberui-2045": "^2.6.0",
+    "cyberui-2045": "^2.7.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

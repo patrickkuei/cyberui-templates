@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest';
+import nodeConsole from 'node:console';
 
 class ResizeObserverStub {
   observe() {}
@@ -33,9 +34,15 @@ document.documentElement.style.setProperty('--color-primary', '#ff005d');
 // vite.config.ts turns off iframe page loading (the preview's build does not
 // exist under the test server). happy-dom then reports each iframe it declines
 // to load through console.error. That report is expected here, so drop that one
-// message and let every other console.error through.
-const reportError = console.error.bind(console);
-console.error = (...args: unknown[]) => {
-  if (args.some((arg) => String(arg).includes('Iframe page loading is disabled'))) return;
-  reportError(...args);
-};
+// message and let every other console.error through. Since vitest 4, happy-dom
+// holds Node's own console (the one vitest handed it before swapping in its
+// per-test console), so both have to be filtered.
+function dropIframeReports(target: Console) {
+  const reportError = target.error.bind(target);
+  target.error = (...args: unknown[]) => {
+    if (args.some((arg) => String(arg).includes('Iframe page loading is disabled'))) return;
+    reportError(...args);
+  };
+}
+dropIframeReports(console);
+if (nodeConsole !== console) dropIframeReports(nodeConsole);

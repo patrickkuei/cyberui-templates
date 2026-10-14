@@ -24,6 +24,13 @@ describe('HomePage', () => {
     expect(screen.getByText(new RegExp(`${TOTAL_STAGES} stages from discovery to handoff`))).toBeInTheDocument();
   });
 
+  it('links the library on npm, GitHub and Storybook', () => {
+    render(<HomePage />);
+    expect(screen.getByRole('link', { name: 'npm' })).toHaveAttribute('href', 'https://www.npmjs.com/package/cyberui-2045');
+    expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/patrickkuei/CyberUI');
+    expect(screen.getByRole('link', { name: 'Storybook' })).toHaveAttribute('href', 'https://patrickkuei.github.io/CyberUI/storybook/');
+  });
+
   it("does not list individual templates on Home — that's Templates' job", () => {
     render(<HomePage />);
     expect(screen.queryByText('AI Product Monitoring')).not.toBeInTheDocument();

@@ -1,6 +1,8 @@
 # cyberui-templates
 
-Ready-made starting points for building with AI: complete example apps built with [cyberui-2045](https://github.com/patrickkuei/CyberUI) — showing what you can actually build, not just a component inventory.
+React starter templates for building with AI: complete apps built with [cyberui-2045](https://github.com/patrickkuei/CyberUI) — showing what you can actually build, not just a component inventory.
+
+The library: [npm](https://www.npmjs.com/package/cyberui-2045) · [GitHub](https://github.com/patrickkuei/CyberUI) · [Storybook](https://patrickkuei.github.io/CyberUI/storybook/)
 
 ## Templates
 

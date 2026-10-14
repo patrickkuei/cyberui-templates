@@ -43,6 +43,7 @@ export function llmsTxt(): string {
     '- [cyberui-2045 on npm](https://www.npmjs.com/package/cyberui-2045)',
     '- [CyberUI on GitHub](https://github.com/patrickkuei/CyberUI)',
     '- [CyberUI docs](https://patrickkuei.github.io/CyberUI/)',
+    '- [CyberUI Storybook](https://patrickkuei.github.io/CyberUI/storybook/)',
     '- After forking, `npx cyberui-2045 init` writes how to use the library into your assistant\'s rules file (CLAUDE.md, .cursorrules or AGENTS.md).',
     '',
   ].join('\n');

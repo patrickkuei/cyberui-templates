@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, TabNavigation } from 'cyberui-2045';
 import { TaskTable } from '../components/TaskTable';
+import { isActive } from '../data/tasks';
 import type { Task } from '../data/types';
 
 export interface TasksPageProps {
@@ -16,7 +17,7 @@ const FILTER_TABS = ['All', 'Active', 'Done', 'Failed'] as const;
 type FilterTab = (typeof FILTER_TABS)[number];
 const FILTERS: Record<FilterTab, (task: Task) => boolean> = {
   All: () => true,
-  Active: (task) => task.status === 'queued' || task.status === 'running',
+  Active: (task) => isActive(task.status),
   Done: (task) => task.status === 'done',
   Failed: (task) => task.status === 'failed',
 };

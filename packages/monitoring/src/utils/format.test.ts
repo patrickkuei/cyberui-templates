@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatCompactNumber, formatMs, formatPercent, formatCurrencyPerHour, formatRelativeTime } from './format';
+import { formatCompactNumber, formatMs, formatPercent, formatCurrency, formatCurrencyPerHour, formatRelativeTime } from './format';
 
 describe('format utils', () => {
   it('formats large numbers compactly', () => {
@@ -14,7 +14,8 @@ describe('format utils', () => {
     expect(formatPercent(0.4)).toBe('0.4%');
   });
 
-  it('formats hourly cost', () => {
+  it('formats amounts and hourly cost in one currency', () => {
+    expect(formatCurrency(1234.5)).toBe('$1,234.50');
     expect(formatCurrencyPerHour(6.4)).toBe('$6.40/hr');
   });
 

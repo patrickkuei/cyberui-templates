@@ -36,6 +36,12 @@ export interface Alert {
   timestamp: number;
 }
 
+/** A fixed, informational line in the Dashboard's "What needs attention" panel (e.g. a recent deploy). */
+export interface StatusNote {
+  title: string;
+  subtitle?: string;
+}
+
 export type IncidentKind = 'errors' | 'latency';
 
 /** A short, rare excursion away from healthy targets that decays back once it ends. */
@@ -54,6 +60,8 @@ export interface DashboardState {
   usage: UsagePoint[];
   endpoints: EndpointStats[];
   alerts: Alert[];
+  /** Made up and never changes in the simulation. Replace with your own (latest deploy, open tickets…). */
+  statusNotes: StatusNote[];
   /** The incident currently pushing metrics away from healthy targets, if any. */
   incident: Incident | null;
   /** Which threshold alarms are currently raised (alerts fire on raise and on resolve). */
@@ -149,6 +157,7 @@ function baseState(t: number): DashboardState {
     })),
     endpoints: ENDPOINT_BASELINES.map((baseline) => ({ ...baseline })),
     alerts: [],
+    statusNotes: [{ title: 'Model rollout: model-router v2.3.1', subtitle: 'Deployed to all regions, 0 rollbacks.' }],
     incident: null,
     alarms: { errorRate: false, latency: false },
   };
@@ -339,6 +348,7 @@ function step(state: DashboardState, now: number, rng: () => number, allowIncide
     usage,
     endpoints,
     alerts,
+    statusNotes: state.statusNotes,
     incident,
     alarms,
   };

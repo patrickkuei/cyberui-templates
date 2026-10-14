@@ -32,7 +32,7 @@ describe('useStickToBottom', () => {
     expect(el.scrollTop).toBe(1000);
   });
 
-  it('does not move a reader who scrolled up to re-read (Review Focus #4)', () => {
+  it('does not move a reader who scrolled up to re-read', () => {
     const { getByTestId, rerender } = render(<Scroller dep={1} />);
     const el = getByTestId('scroller');
     giveGeometry(el, { scrollHeight: 1000, clientHeight: 200 });

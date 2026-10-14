@@ -17,6 +17,12 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Request volume')).toBeInTheDocument();
   });
 
+  it("lists the state's status notes in the action panel", () => {
+    const state = { ...createInitialState(1_700_000_000_000, () => 0.5), statusNotes: [{ title: 'Backups verified' }] };
+    render(<DashboardPage state={state} chartRange="60s" onChartRangeChange={() => {}} refreshMs={2000} />);
+    expect(within(screen.getByLabelText('Recommended actions')).getByText('Backups verified')).toBeInTheDocument();
+  });
+
   it('derives the refresh wording from the refresh interval it is given', () => {
     const state = createInitialState(1_700_000_000_000, () => 0.5);
     render(<DashboardPage state={state} chartRange="60s" onChartRangeChange={() => {}} refreshMs={5000} />);
@@ -34,7 +40,7 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('link', { name: 'View all alerts →' })).toHaveAttribute('href', '#/alerts');
   });
 
-  it('shows the top 3 endpoints by request volume, not array order (Review Focus #2)', () => {
+  it('shows the top 3 endpoints by request volume, not array order', () => {
     const state = createInitialState(1_700_000_000_000, () => 0.5);
     const scrambled = {
       ...state,

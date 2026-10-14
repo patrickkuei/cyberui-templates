@@ -54,7 +54,7 @@ describe('tick', () => {
     expect(state.usage).toHaveLength(HISTORY_LENGTH);
   });
 
-  it('keeps metrics within realistic bounds over many ticks (Review Focus #1)', () => {
+  it('keeps metrics within realistic bounds over many ticks', () => {
     let state = createInitialState(0);
     let seed = 0;
     const rng = () => {
@@ -106,7 +106,7 @@ describe('tick', () => {
     expect(fired).toBeGreaterThan(0);
   });
 
-  it('caps the alerts feed length no matter how long the tab stays open (Review Focus #2)', () => {
+  it('caps the alerts feed length no matter how long the tab stays open', () => {
     let state = createInitialState(0);
     const rng = () => 0; // always satisfies every alert-append probability check
     for (let i = 1; i <= 500; i++) {

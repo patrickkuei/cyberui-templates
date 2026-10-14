@@ -71,7 +71,7 @@ describe('ConversationPanel', () => {
     expect(onResolveApproval).toHaveBeenLastCalledWith(approvalId, false);
   });
 
-  describe('the composer says why it is disabled (Review Focus #5)', () => {
+  describe('the composer says why it is disabled', () => {
     it('is enabled and silent when the agent is idle', () => {
       const { panel } = renderPanel(fresh());
       expect(panel.getByRole('textbox', { name: 'Message Vesper' })).toBeEnabled();
@@ -108,7 +108,7 @@ describe('ConversationPanel', () => {
     expect(onSend).toHaveBeenCalledWith('hello');
   });
 
-  it('keeps the "Scripted demo" helper line in view (Review Focus #8)', () => {
+  it('keeps the "Scripted demo" helper line in view', () => {
     const { panel } = renderPanel(fresh());
     expect(
       panel.getByText('Scripted demo: no model, nothing sent.'),

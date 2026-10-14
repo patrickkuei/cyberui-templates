@@ -18,7 +18,7 @@ describe('EndpointsPage', () => {
     expect(screen.getAllByRole('heading', { name: 'Endpoints' })).toHaveLength(1);
   });
 
-  it('shows a summary stat row with real weighted aggregates (Review Focus #3)', () => {
+  it('shows a summary stat row with real weighted aggregates', () => {
     const endpoints = [
       { name: '/a', requests: 100, avgLatencyMs: 100, errorRatePct: 1 },
       { name: '/b', requests: 300, avgLatencyMs: 300, errorRatePct: 5 },
@@ -32,7 +32,7 @@ describe('EndpointsPage', () => {
     expect(screen.getByText('4.0%')).toBeInTheDocument();
   });
 
-  it('labels its requests tile plainly and its error-rate tile as a traffic-weighted aggregate, so neither is mistaken for the Dashboard headline metrics (Review Focus #1/#2)', () => {
+  it('labels its requests tile plainly and its error-rate tile as a traffic-weighted aggregate, so neither is mistaken for the Dashboard headline metrics', () => {
     render(<EndpointsPage endpoints={ENDPOINTS} />);
     // Scoped to the stat row: the endpoint table below also has a "Requests" column header
     // for this same value, which an unscoped query would also match.

@@ -9,6 +9,7 @@ import {
   contextLevel,
 } from './limits';
 import { matchScenario } from './scenarios';
+import { isActive, isRetryable } from './tasks';
 import type {
   AgentState,
   AgentStatus,
@@ -140,13 +141,13 @@ export function cancelRun(state: AgentState, now: number): AgentState {
 
 export function cancelTask(state: AgentState, taskId: string, now: number): AgentState {
   const task = state.tasks.find((t) => t.id === taskId);
-  if (!task || (task.status !== 'queued' && task.status !== 'running')) return state;
+  if (!task || !isActive(task.status)) return state;
   return { ...state, tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, status: 'cancelled', finishedAt: now } : t)) };
 }
 
 export function retryTask(state: AgentState, taskId: string): AgentState {
   const task = state.tasks.find((t) => t.id === taskId);
-  if (!task || (task.status !== 'failed' && task.status !== 'cancelled')) return state;
+  if (!task || !isRetryable(task.status)) return state;
   const retried: Task = { ...task, status: 'queued', ticksDone: 0 };
   delete retried.error;
   delete retried.finishedAt;
@@ -269,7 +270,7 @@ function advanceCurrent(s: AgentState, run: Run, now: number, charsPerTick: numb
     }
     case 'task': {
       const task = s.tasks.find((t) => t.id === cur.taskId);
-      if (task?.status === 'queued' || task?.status === 'running') return run;
+      if (task && isActive(task.status)) return run;
       if (task?.status === 'done') {
         setOutcome(s, cur.traceId, 'ok');
         return finish();
@@ -321,7 +322,7 @@ function replaceRun(s: AgentState, run: Run): void {
 
 /** Keeps every list bounded, so a tab left open does not grow forever. */
 function trim(s: AgentState): AgentState {
-  const finished = s.tasks.filter((t) => t.status === 'done' || t.status === 'failed' || t.status === 'cancelled');
+  const finished = s.tasks.filter((t) => !isActive(t.status));
   const drop = new Set(finished.slice(0, Math.max(0, finished.length - MAX_FINISHED_TASKS)).map((t) => t.id));
   return {
     ...s,

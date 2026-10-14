@@ -71,7 +71,7 @@ describe('SessionTable', () => {
     expect(OUTCOME_BADGE).toEqual({ resolved: 'success', escalated: 'warning', abandoned: 'error' });
   });
 
-  it('Export transcript is a mock: it shows "Exported" and starts no download (Review Focus #8)', async () => {
+  it('Export transcript is a mock: it shows "Exported" and starts no download', async () => {
     // happy-dom may not define createObjectURL; define it so there is something to spy on.
     const createObjectURL = vi.fn();
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, writable: true, value: createObjectURL });

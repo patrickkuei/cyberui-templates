@@ -4,19 +4,22 @@ import userEvent from '@testing-library/user-event';
 import { ActionPanel } from './ActionPanel';
 
 describe('ActionPanel', () => {
-  it('shows only the static item when there is no incident (Review Focus #2)', () => {
+  it('shows only the notes when there is no incident', () => {
     render(
       <ActionPanel
         incidentKey="healthy"
         headline="All systems operational — no action needed"
         headlineTone="success"
+        notes={[{ title: 'Deployed v2', subtitle: 'All regions.' }, { title: 'Backups verified' }]}
       />,
     );
     expect(screen.queryByText('All systems operational — no action needed')).not.toBeInTheDocument();
-    expect(screen.getByText('Model rollout: model-router v2.3.1')).toBeInTheDocument();
+    expect(screen.getByText('Deployed v2')).toBeInTheDocument();
+    expect(screen.getByText('All regions.')).toBeInTheDocument();
+    expect(screen.getByText('Backups verified')).toBeInTheDocument();
   });
 
-  it('shows an action button that becomes an acknowledged state when clicked (Review Focus #5)', async () => {
+  it('shows an action button that becomes an acknowledged state when clicked', async () => {
     render(
       <ActionPanel
         incidentKey="errors"
@@ -57,7 +60,7 @@ describe('ActionPanel', () => {
     expect(screen.queryByRole('button', { name: 'Acknowledge' })).not.toBeInTheDocument();
   });
 
-  it('resets the acknowledged state when a genuinely new incident starts (Review Focus #5)', async () => {
+  it('resets the acknowledged state when a genuinely new incident starts', async () => {
     const { rerender } = render(
       <ActionPanel
         incidentKey="errors"

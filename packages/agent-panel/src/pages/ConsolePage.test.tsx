@@ -58,7 +58,7 @@ describe('ConsolePage', () => {
     expect(screen.getByRole('region', { name: 'Task queue' })).toBeInTheDocument();
   });
 
-  it('keeps the "Simulated" badge and the "Scripted demo" line on the page (Review Focus #8)', () => {
+  it('keeps the "Simulated" badge and the "Scripted demo" line on the page', () => {
     const { region } = renderConsole(createInitialState(NOW));
     expect(screen.getByText('Simulated')).toBeInTheDocument();
     expect(

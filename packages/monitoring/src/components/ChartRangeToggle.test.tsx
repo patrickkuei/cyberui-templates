@@ -15,7 +15,7 @@ describe('ChartRangeToggle', () => {
     expect(onChange).toHaveBeenCalledWith('15m');
   });
 
-  it('labels the control as display-only for assistive tech (Review Focus #3)', () => {
+  it('labels the control as display-only for assistive tech', () => {
     render(<ChartRangeToggle value="60s" onChange={() => {}} />);
     expect(screen.getByRole('group', { name: /display only/i })).toBeInTheDocument();
   });

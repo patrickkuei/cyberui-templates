@@ -89,6 +89,7 @@ export function DashboardPage({ state, chartRange, onChartRangeChange, refreshMs
           headline={actionHeadline}
           headlineTone={actionTone}
           primaryActionLabel={actionIncidentKey === 'healthy' ? undefined : 'Acknowledge'}
+          notes={state.statusNotes}
         />
       </section>
 

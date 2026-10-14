@@ -22,7 +22,7 @@ describe('ReportsPage', () => {
     expect(screen.getByText('CRITICAL')).toBeInTheDocument();
   });
 
-  it('gives visible feedback when the mock export buttons are clicked (Review Focus #4)', async () => {
+  it('gives visible feedback when the mock export buttons are clicked', async () => {
     render(<ReportsPage requestsPerSec={420} latestCostPerHr={6.3} alerts={ALERTS} endpoints={ENDPOINTS} />);
     const exportButton = screen.getByRole('button', { name: 'Export CSV' });
     await userEvent.click(exportButton);
@@ -35,7 +35,7 @@ describe('ReportsPage', () => {
     expect(screen.getByText('Downloaded')).toBeInTheDocument();
   });
 
-  it('shows a compliance card with a mock download button that gives real feedback (Review Focus #5)', async () => {
+  it('shows a compliance card with a mock download button that gives real feedback', async () => {
     render(
       <ReportsPage requestsPerSec={420} latestCostPerHr={6.3} alerts={ALERTS} endpoints={ENDPOINTS} />,
     );

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, Button, Table, Pagination } from 'cyberui-2045';
 import type { TableColumn } from 'cyberui-2045';
 import { MAX_ALERTS, type Alert, type EndpointStats } from '../data/simulation';
-import { formatCompactNumber, formatRelativeTime } from '../utils/format';
+import { formatCompactNumber, formatCurrency, formatRelativeTime } from '../utils/format';
 
 export interface ReportsPageProps {
   requestsPerSec: number;
@@ -25,7 +25,7 @@ const AUDIT_COLUMNS: TableColumn<Alert>[] = [
 const COST_COLUMNS: TableColumn<EndpointStats & { estCost: number }>[] = [
   { key: 'name', header: 'Endpoint' },
   { key: 'requests', header: 'Requests', align: 'right', render: (row) => formatCompactNumber(row.requests) },
-  { key: 'estCost', header: 'Est. cost (24h)', align: 'right', render: (row) => `$${row.estCost.toFixed(2)}` },
+  { key: 'estCost', header: 'Est. cost (24h)', align: 'right', render: (row) => formatCurrency(row.estCost) },
 ];
 
 export function ReportsPage({ requestsPerSec, latestCostPerHr, alerts, endpoints }: ReportsPageProps) {
@@ -73,7 +73,7 @@ export function ReportsPage({ requestsPerSec, latestCostPerHr, alerts, endpoints
               </div>
               <div className="report-stat">
                 <span className="report-stat-label">Cost (est., 24h)</span>
-                <span className="report-stat-value">${estimatedDailyCost.toFixed(2)}</span>
+                <span className="report-stat-value">{formatCurrency(estimatedDailyCost)}</span>
               </div>
             </div>
             <div className="report-card-footer">

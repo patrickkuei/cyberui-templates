@@ -18,7 +18,7 @@ function renderHeader(overrides: Partial<AgentHeaderProps> = {}) {
 }
 
 describe('AgentHeader', () => {
-  it('names the agent and always carries the "Simulated" badge (Review Focus #8)', () => {
+  it('names the agent and always carries the "Simulated" badge', () => {
     renderHeader();
     expect(screen.getByRole('heading', { level: 1, name: 'Vesper' })).toBeInTheDocument();
     expect(screen.getByText('Simulated')).toBeInTheDocument();

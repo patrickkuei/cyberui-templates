@@ -111,13 +111,13 @@ The dialog:
 
 *The prompt* (shown in the fold):
 
-> Start a new project from the AI Product Monitoring template. Run `npx --yes tiged patrickkuei/cyberui-templates/packages/monitoring my-app`, then `cd my-app`, `npm install`, and `npm run dev`. It needs Node 20.19 or newer, so tell me if I need to install it. Tell me when it's running and what address to open. Then run `npx cyberui-2045 init` with the flag for your tool (`--claude`, `--cursor`, `--gemini`, `--copilot` or `--agents`) so you know how to use the component library from now on.
+> Start a new project from the AI Product Monitoring template. Run `npx --yes tiged patrickkuei/cyberui-templates/packages/monitoring my-app`, then `cd my-app`, `npm install`, and `npm run dev`. It needs Node 20.19 or newer, so tell me if I need to install it. Tell me when it's running and what address to open. Then run `npx cyberui-2045 init` with the flag for your tool (`--claude`, `--cursor`, `--gemini` or `--copilot`, or `--agents` for any other tool) so you know how to use the component library from now on.
 
 *Terminal route* (same fold): the same three commands, plus "Needs Node 20.19 or newer."
 
 *Changed 2026-10-14:* `npx tiged` became `npx --yes tiged` (owner decision, #57). In the #44 dogfood run, npx stopped to ask "Ok to proceed?" before downloading tiged, which an AI assistant's non-interactive shell can't answer. The prompt, the terminal route, the root README and llms.txt all take the command from `forkCommand` in `packages/site/src/content/start.ts`.
 
-*Changed 2026-10-16:* the last sentence now asks for `npx cyberui-2045 init` with the assistant's own tool flag. Bare `init` opens a menu, which an assistant's shell can't answer: in cyberui-2045 2.7.0 it then exited 0 having written nothing, and from 2.7.1 it exits 2 (patrickkuei/CyberUI#98). The prompt and llms.txt take the wording from `INIT_COMMAND` in `start.ts`. This answers the open question below about running `init` without a prompt.
+*Changed 2026-10-16:* the last sentence now asks for `npx cyberui-2045 init` with the assistant's own tool flag. Bare `init` would open a menu that an assistant's shell can't answer, so it writes nothing: cyberui-2045 2.7.0 exits 0, and from 2.7.1 it exits 2 (patrickkuei/CyberUI#98). `--agents` covers assistants without a flag of their own, since most read `AGENTS.md`. The prompt and llms.txt take the wording from `INIT_COMMAND` in `start.ts`. This answers the item under "Decisions not made" about running `init` without a prompt; each flag was checked with `--dry-run` and no terminal against 2.7.0 (exit 0, nothing written).
 
 **Examples.** Introduced once above both folds: "An AI played each of these, in a simulated interview. They are not real people." The text inside each fold is the subagent's own wording, truncated with ellipses and not reworded.
 
@@ -223,7 +223,7 @@ Decided after the first build: excerpts are shown (short, one per principle), no
 
 - Whether to add a short stack, license and GitHub-repo line under the description. Two of the four simulated reviewers asked for it. The `monitoring` package has no license file of its own (see below).
 - Whether to add a one-line "this is the only template right now" note, so a visitor who is not a fit does not wonder whether others exist.
-- Whether `npx cyberui-2045 init` can be run by an AI without answering an interactive prompt (it reads from readline; flags such as `--claude` exist). Check when the prompt is written into code, and adjust its wording if needed.
+- Whether `npx cyberui-2045 init` can be run by an AI without answering an interactive prompt (it reads from readline; flags such as `--claude` exist). Check when the prompt is written into code, and adjust its wording if needed. *(Answered 2026-10-16: it can, with a tool flag; see the dated note under the prompt.)*
 - Whether `npx tiged …/packages/monitoring` and `npm run dev` work exactly as written, and whether the dev server prints an address. Not tested.
 
 ## Stages 7-10: for the implementation plan
@@ -253,5 +253,5 @@ Decided after the first build: excerpts are shown (short, one per principle), no
 - The dialog's focus ring (yellow) and active tab (cyan) are the library's raw accent, because the dialog sits outside any accent scope. Known, not fixed; the fix is to scope the dialog to the neutral accent.
 - The dialog at 390px and under `prefers-reduced-motion`; the focus trap and focus return in a real browser; the dialog in the accessibility tree.
 - Android Back after clicking around inside the preview.
-- `npx tiged …/packages/monitoring` and `npx cyberui-2045 init` as the start prompt describes them.
+- `npx tiged …/packages/monitoring` as the start prompt describes it. (`npx cyberui-2045 init` with each tool flag was checked 2026-10-16; see the dated note under the prompt.)
 - That `monitoring.png` still matches the demo after the template cleanup (the cleanup was meant not to change how it looks).

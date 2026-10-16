@@ -30,7 +30,7 @@ export function llmsTxt(): string {
     '# CyberUI templates',
     '',
     '> Ready-made React starter apps built with the cyberui-2045 component library. ' +
-      'Each template is a complete, self-contained app: fork just that one with `npx tiged`, ' +
+      'Each template is a complete, self-contained app: fork just that one with `npx --yes tiged`, ' +
       `then change it with your AI coding assistant. Needs Node ${NODE_MIN} or newer.`,
     '',
     `This is the plain-text version of the Templates page at ${SITE_URL}, which needs JavaScript to render.`,

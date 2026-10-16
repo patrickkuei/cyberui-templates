@@ -5,15 +5,26 @@ import path from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { llmsTxt } from './src/content/llms';
+import { headTags, noscriptHtml, sitemapXml } from './src/content/staticHtml';
 
-// Writes dist/llms.txt from the site's own template data (see src/content/llms.ts).
-// deploy.yml fails if it is missing from the build.
-function llmsTxtPlugin(): Plugin {
+// The text a crawler or AI assistant can read without running JavaScript,
+// all built from the site's own template data: dist/llms.txt and
+// dist/sitemap.xml, and index.html's <title>, meta tags and <noscript>
+// (the <!-- static-head --> and <!-- static-noscript --> markers). See
+// src/content/llms.ts and src/content/staticHtml.ts. deploy.yml fails if any
+// of it is missing from the build.
+function staticTextPlugin(): Plugin {
   return {
-    name: 'llms-txt',
-    apply: 'build',
+    name: 'static-text',
+    transformIndexHtml(html) {
+      for (const marker of ['<!-- static-head -->', '<!-- static-noscript -->']) {
+        if (!html.includes(marker)) throw new Error(`index.html is missing ${marker}`);
+      }
+      return html.replace('<!-- static-head -->', headTags()).replace('<!-- static-noscript -->', noscriptHtml());
+    },
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'llms.txt', source: llmsTxt() });
+      this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemapXml() });
     },
   };
 }
@@ -43,7 +54,7 @@ export default defineConfig({
   // subpath (e.g. a GitHub Pages project site, or nested under a combined
   // site deploy) — same convention as packages/monitoring.
   base: './',
-  plugins: [react(), llmsTxtPlugin()],
+  plugins: [react(), staticTextPlugin()],
   define: {
     __LIBRARY_STATS__: JSON.stringify(readLibraryStats()),
   },

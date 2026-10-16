@@ -11,7 +11,7 @@ import { describe, it, expect } from 'vitest';
 // an empty string under Vitest (it does not process CSS), so a check built on
 // it passes whatever the CSS contains. The 'real content' test below is there
 // so that can never happen unnoticed here.
-const SRC = __dirname;
+const SRC = import.meta.dirname;
 
 function cssFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

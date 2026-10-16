@@ -15,7 +15,7 @@ name: Checks
 # weaken a test and still show a green check.
 # The seventh job is what a fork actually does: copy one template out alone and
 # run plain `npm install` on Node 20 (npm 10), which the pnpm lockfile above
-# never exercises. It once caught a vitest range that crashed npm 10.
+# never exercises. It would have caught the vitest range that crashed npm 10.
 on:
   pull_request:
   push:
@@ -119,6 +119,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Add new forkable templates (with their own LICENSE and README) here.
+        # The site is excluded on purpose: it is not a forkable template.
         template: [monitoring, agent-panel]
     steps:
       - uses: actions/checkout@v4

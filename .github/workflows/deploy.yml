@@ -53,14 +53,23 @@ jobs:
           mkdir -p packages/site/dist/live/agent-panel
           cp -r packages/agent-panel/dist/. packages/site/dist/live/agent-panel/
 
-      # The site needs JavaScript to render, so llms.txt is the only text a
-      # crawler or AI assistant can read. The site build writes it
-      # (packages/site/src/content/llms.ts); don't deploy without it.
-      - name: Check llms.txt is in the build
+      # The site needs JavaScript to render, so llms.txt, sitemap.xml and
+      # index.html's meta tags and <noscript> are the only text a crawler,
+      # link preview or AI assistant can read. The site build writes them
+      # (packages/site/src/content/llms.ts and staticHtml.ts); don't deploy
+      # without them.
+      - name: Check the no-JavaScript text is in the build
         run: |
           set -e
-          test -s packages/site/dist/llms.txt
-          grep -q '^# CyberUI templates' packages/site/dist/llms.txt
+          dist=packages/site/dist
+          test -s $dist/llms.txt
+          grep -q '^# CyberUI templates' $dist/llms.txt
+          grep -q '<loc>https://patrickkuei.github.io/cyberui-templates/</loc>' $dist/sitemap.xml
+          grep -q '<meta property="og:image"' $dist/index.html
+          grep -q '<meta name="twitter:card"' $dist/index.html
+          grep -q '<noscript>' $dist/index.html
+          grep -q 'npx --yes tiged' $dist/index.html
+          test -s $dist/screenshots/monitoring.png
 
       - uses: actions/upload-pages-artifact@v3
         with:

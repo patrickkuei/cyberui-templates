@@ -13,6 +13,9 @@ name: Checks
 # Finally the template packages and the site have their own test suites, which
 # nothing else here runs; the sixth job runs them, so a change cannot break or
 # weaken a test and still show a green check.
+# The seventh job is what a fork actually does: copy one template out alone and
+# run plain `npm install` on Node 20 (npm 10), which the pnpm lockfile above
+# never exercises. It once caught a vitest range that crashed npm 10.
 on:
   pull_request:
   push:
@@ -109,3 +112,34 @@ jobs:
       # recharts in the monitoring tests could outlast its timeout (seen locally
       # with `pnpm -r run test`). Serial takes about 35 seconds.
       - run: pnpm -r --workspace-concurrency=1 run test
+
+  fork-install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        template: [monitoring, agent-panel]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Node 20 bundles npm 10, which is what a forker is most likely to have.
+      # The template is copied out of the workspace, so nothing here can fall
+      # back on the repo's pnpm-lock.yaml or node_modules.
+      - name: Copy ${{ matrix.template }} out on its own
+        run: |
+          mkdir "$RUNNER_TEMP/fork"
+          cp -r "packages/${{ matrix.template }}/." "$RUNNER_TEMP/fork/"
+
+      - run: npm --version && npm install
+        working-directory: ${{ runner.temp }}/fork
+
+      - run: npm run build
+        working-directory: ${{ runner.temp }}/fork
+
+      - run: npm test
+        working-directory: ${{ runner.temp }}/fork

@@ -10,7 +10,7 @@ npm run build                # type-check and build to dist/
 npm test                     # run the test suite
 ```
 
-Requires Node 20.19 or newer.
+Requires Node 20.19 or newer. Keep `vitest` at `^4.1.12` or later: with the npm that ships in Node 20 (npm 10), `npm install` crashes with "Cannot read properties of null (reading 'edgesOut')" when it considers vitest 4.1.11 or earlier.
 
 ## Where your data goes
 

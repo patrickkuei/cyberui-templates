@@ -1,0 +1,242 @@
+# Landing Page Template (`packages/landing`) — Design Spec
+
+**Date:** 2026-10-16
+**Status:** Approved by the owner on 2026-10-16. The owner answered every question under "Open questions" with "fine as proposed" (Q1-Q10), so each "proposed" decision below is now decided. This spec was drafted without interactive review before that answer, so its judgment calls are the ones listed in "Decisions I made".
+**Plan:** [docs/superpowers/plans/2026-10-16-landing-page.md](../plans/2026-10-16-landing-page.md).
+**Issue:** [#47](https://github.com/patrickkuei/cyberui-templates/issues/47) (item 3 of tracking issue [#1](https://github.com/patrickkuei/cyberui-templates/issues/1)).
+**Builds on:** [2026-09-27-cyberui-showcase-design.md](2026-09-27-cyberui-showcase-design.md) (self-contained packages, accent-hue theming, one combined deploy), [2026-10-05-templates-page-design.md](2026-10-05-templates-page-design.md) (the `/templates` page every template is published through) and [2026-10-06-agent-panel-design.md](2026-10-06-agent-panel-design.md), the closest model: its structure, its publishing path (§10) and its honesty standard (§3.4) are reused here without being repeated in full.
+**Baseline:** cyberui-2045 **2.8.0**, which the three existing packages moved to in PR #62. This spec relies on two things 2.8.0 fixed (see §7); it must not be built against 2.7.x.
+
+## Decisions I made, and what the owner must answer
+
+Proposed decisions (each cheap to reverse; the section with the reasoning is in brackets):
+
+1. **Slug and package name:** `landing` / `landing-template` (mirrors `monitoring-template`, `agent-panel-template`). [§2]
+2. **One long page, no router.** The other two templates are multi-route apps; a landing page is one scroll. The `ROUTES` tuple pattern does not apply, so this template's "pattern to copy" is different (§6.2). [§3.1]
+3. **Nine sections, each a component:** header, hero, logo strip, features, how it works, pricing, FAQ, closing call to action with a signup form, footer. [§3.2]
+4. **Two real interactions, the rest static:** the monthly/yearly pricing toggle and the FAQ accordion. Everything that would need a backend (signup, "Start free trial", plan buttons, contact link) is mock, and the page says so once. [§3.4]
+5. **No images.** Visuals are cyberui-2045 components, CSS and inline SVG, so the package has no binary assets and nothing to license. [§3.2]
+6. **No `recharts`, no router, no new runtime dependency** beyond `react`, `react-dom` and `cyberui-2045`. [§9]
+7. **Accent is a token override in one file** (`src/theme/<hue>.css`), exactly as `violet.css` does it: `--color-secondary` and `--color-accent` together, `--color-primary` left alone. [§4]
+8. **Two pull requests**, as for agent-panel: PR A is the package, PR B is the site, CI and README wiring (the Code tab's excerpts must exist in the package before CI accepts the site entry). [§10]
+9. **Publishing also edits the other two templates' copy.** Both currently say "Probably not for you: … a landing page" (`packages/site/src/content/templateContent.ts:32` and `:73`). Once this ships that sentence is false and must change. [§11]
+
+Open questions: see the end of this document. Q-numbers are referenced from the sections above.
+
+## 1. Goal
+
+Ship the third template: a self-contained **marketing landing page**, mostly static, that shows cyberui-2045 outside dashboards. It is the most common thing people build (issue #47), so a visitor should recognise it at once as "the page I would start from", and a forker should be able to swap the fiction for their product by editing data and copy, not layout code.
+
+Success, in the repo's terms (spec 2026-10-05 §1):
+1. A visitor can tell within one preview whether this is the shape of thing they want (a product page with pricing and a signup), and what is fake in it.
+2. A forker gets a package that runs after `npx tiged … my-app && cd my-app && npm install && npm run dev` with no other setup, and whose code reads as a pattern to copy.
+3. It follows the same path to publication as the first two and adds no new mechanism to the site.
+4. It is responsive in a way a landing page must be: usable at 1440, 800 and 390px, checked in a real browser, not inferred from tests.
+
+**Not in scope:** a real signup, payment or email backend; analytics; a CMS or blog; i18n; a light theme; a router or multiple pages; a cookie banner; real photography or logos; any change to cyberui-2045 (findings go to patrickkuei/CyberUI as issues, issue #47 step 4).
+
+## 2. What the template is for
+
+A person (founder, indie developer, a PM pitching a product) who needs a presentable page for something they are launching and wants a starting point that already has the sections everyone expects, in this library's look. The template answers "what would my product's front door look like?" with a working page, not a component inventory.
+
+Fiction (proposed, Q1): a developer tool, **"Tessera"**, a zero-config deploy platform. Reasons: developer tools are this library's audience; the page then has natural content for every section (a code/terminal snippet, a usage-based price table, an FAQ about limits); and it does not overlap with the monitoring (AI metrics) or agent-panel (AI assistant) fictions. "Tessera" is a placeholder name, not checked against trademarks beyond the repo's existing rule that no real brand appears; a better name is welcome (Nexus and Vesper were chosen by the owner).
+
+Package folder `packages/landing`, pnpm name `landing-template`, site name "Landing Page" (Q1).
+
+## 3. The experience
+
+### 3.1 Shape
+
+One scrolling page with in-page navigation. No router and no hash routes: navigation buttons scroll to a section (`scrollIntoView`, `behavior: 'auto'` under `prefers-reduced-motion`), they do not rewrite `window.location.hash`, so the page behaves the same inside the site's preview iframe and at any deploy subpath.
+
+### 3.2 Sections (proposed, Q4)
+
+| # | Section | Contents | cyberui-2045 pieces (to confirm in the plan against the 2.8.0 manifest) |
+|---|---|---|---|
+| 1 | **Header** | Wordmark, section links, a "Start free trial" button; below `md` the links collapse into a menu | `Button`, `Drawer` (mobile menu) |
+| 2 | **Hero** | Headline with one gradient phrase, one sentence, primary and secondary buttons, a terminal-style snippet showing the product in use | `GradientText`, `Button`, `Card` |
+| 3 | **Logo strip** | "Teams who ship on Tessera": five invented wordmarks as text/SVG, never real brands (Q5) | `Divider` |
+| 4 | **Features** | Six cards in a responsive grid, each an icon, a title, two lines | `Card` (grid via the responsive props 2.8.0 fixed) |
+| 5 | **How it works** | Three steps: connect repo, push, it is live | `Steps` |
+| 6 | **Pricing** | Three plans, a Monthly/Yearly toggle that really changes the prices, one highlighted plan | `Card`, `Toggle`, `Badge`, `Button` |
+| 7 | **FAQ** | Six questions, one open at a time | `Accordion` |
+| 8 | **Closing call to action** | One line plus an email field and a button | `FormField`, `Input`, `Button` |
+| 9 | **Footer** | Link columns, a copyright line, and the one demo-honesty line (§3.4) | `Divider` |
+
+A numbers strip (uptime, deploys per day) lives inside the hero or features, not as a tenth section; all figures are illustrative and marked so (§3.4). Testimonials are **not** included by default (Q5): invented quotes with names and faces are exactly what a forker might ship by mistake, and the honesty standard in `packages/monitoring/README.md` is the reason to leave them out.
+
+### 3.3 The interactions
+
+- **Pricing toggle:** Monthly/Yearly switches every price and the "billed" caption; yearly shows the saving. State is one `useState` in `PricingSection`; the plan data lives in `src/data/plans.ts` so a forker edits data, not JSX. The toggle is a real `Toggle` with a visible label, not a div.
+- **FAQ:** `Accordion`, keyboard operable by the library; the question list is data in `src/data/faq.ts`.
+- **Menu (below `md`):** `Drawer`, closes on link click and on Esc. Esc pressed inside the preview also closes the site's own dialog (known, spec 2026-10-05 §3); noted in the README, not worked around.
+- **Smooth scroll:** only when the visitor clicks a nav link, never on load (the site's motion rule: motion answers an action or marks a first impression).
+
+### 3.4 What is mock, and how the page says so
+
+Real in the page: the pricing toggle, the FAQ, the mobile menu, the form's own validation (a malformed email shows an error).
+
+Mock: signup (submitting shows a confirmation and sends nothing), every "Start free trial"/"Choose plan"/"Contact sales" button (they scroll to the signup or do nothing), all numbers and logos, all links in the footer (`href="#"`-style, which the code comments call out).
+
+How the page says it (proposed, Q6, following the agent-panel decision that honesty comes from one persistent signal plus the README, not repeated labels): a single line in the footer, "Template demo: Tessera is fictional and the form sends nothing.", and the README's list. No banner, no "(demo)" suffixes on buttons. A comment at the form's `onSubmit` and above the plan data says the same for a forker reading code.
+
+### 3.5 Accessibility and motion
+
+- Landmarks (`header`, `main`, `footer`), one `h1`, headings in order, a skip link to `main`.
+- Every control reachable and operable by keyboard; visible focus (the library's ring).
+- Form field has a real label and an error message tied with `aria-describedby`; the confirmation is announced politely.
+- Colour contrast: the accent (§4) must clear 4.5:1 on `--color-base` and `--color-surface`; the library's two open contrast issues are known and avoided or checked: CyberUI#116 (DatePicker, Image contrast; this template uses neither) and CyberUI#117 (no disabled state for a clickable Badge; no Badge here is clickable).
+- Motion: one entrance at first load for the hero at most, nothing scroll-triggered (owner decision on agent-panel's page, which this template keeps); everything off under `prefers-reduced-motion`.
+
+## 4. Theming
+
+Same mechanism as `violet.css`: one small stylesheet imported after the library's, overriding `--color-secondary` and `--color-accent` together, leaving `--color-primary` alone, with the comment written for a forker ("change these two values to re-theme"). A test fails if any other CSS file under `src/` contains a hex literal (copied from agent-panel's `noHexColors.test.ts`).
+
+Hues already taken: cyan (monitoring, `#00fff9`, hue 179) and violet (agent-panel, `#c084fc`, hue 270). Candidates, with contrast computed by hand from the 2.8.0 tokens (`--color-base` `#1a1a2e`, `--color-surface` `#2d2d44`):
+
+| Candidate | Hex | Hue | on base | on surface | Concern |
+|---|---|---|---|---|---|
+| Orange (proposed) | `#ff8a3d` | 24 | 7.27 | 5.70 | Near the library's `warning` (`#fa0`); a warning Badge would read as accent |
+| Lime | `#a3e635` | 83 | 11.31 | 8.87 | Between `accent` yellow and `success` green; may blur with success ticks in the pricing list |
+| Blue | `#5b9cff` | 216 | 6.21 | 4.87 | Close to the library's `info` (`#0af`, hue 200); least distinct from cyan |
+| Pink | `#ff6b9d` | 340 | 6.37 | 4.99 | Same hue as `--color-primary`, so it would merge with the primary button |
+
+Orange is proposed because it is furthest from both shipped hues and from `primary`; this page has no warning badge, and a forker who adds one can read the caveat in the theme file's comment. (Q2)
+
+The site's `accentHex` for this template must differ from `#00fff9` and `#c084fc`; `packages/site/src/data/templates.test.ts` already enforces distinctness.
+
+## 5. Data and mock-data strategy
+
+There is no engine and no state beyond the toggle and the form. All content is typed data in `src/data/`:
+
+| File | Holds |
+|---|---|
+| `product.ts` | name, tagline, headline pieces, nav links, footer columns |
+| `features.ts` | the six feature cards |
+| `plans.ts` | `Plan[]` with monthly and yearly prices; a `Record<BillingPeriod, …>` so a new period is a compile error until every plan has it |
+| `faq.ts` | the questions |
+
+Copy lives in data, not scattered in JSX, so "swap Tessera for your product" is a data edit. The README has a "Where your content goes" section (the analogue of agent-panel's "Where your data goes") that names these files and says where to replace the mock signup with a real endpoint.
+
+## 6. Code structure and patterns to copy
+
+```
+packages/landing/
+  LICENSE            (identical to the root one)
+  README.md          (the forker's documentation)
+  index.html         (title, description, social tags as placeholders, with a comment)
+  package.json       (name landing-template, license MIT, no workspace: ranges)
+  tsconfig.json      (complete, not extended)
+  vite.config.ts     (base: './')
+  src/
+    main.tsx  App.tsx  App.css
+    components/      (one file per section + SectionHeading, FeatureCard, PlanCard, SignupForm)
+    data/            (§5)
+    hooks/           (usePrefersReducedMotion, copied from agent-panel)
+    theme/           (the accent file + tones if needed)
+    test/            (setup.ts, copied)
+```
+
+### 6.1 Patterns copied from the other templates
+
+`usePrefersReducedMotion`, `test/setup.ts`, the `noInlineStyles` and `noHexColors` tests, the `tones.ts` idea for status colours if used. Duplication across templates stays deliberate (a shared layer would break `tiged` extraction).
+
+### 6.2 Patterns new to this template (each needs a forker-facing comment, per CLAUDE.md)
+
+- **Sections as a typed list.** `App.tsx` renders `SECTIONS = [...] as const` mapped to components, and the nav links derive from the same list, so adding a section without a nav entry (or the reverse) is a compile error. This is the single-page counterpart of the `ROUTES` tuple and needs the same one-line explanation.
+- **Plans as `Record<BillingPeriod, …>`** (§5).
+- **Mock boundaries named in code** (the form handler, the plan buttons, the footer links), matching the honesty rule in CLAUDE.md.
+- **Duplicate visible text in tests.** Plan names appear in the nav, the cards and possibly a comparison row, so queries scope with `within(section)`; one comment at the first collision in the file, none repeated.
+
+## 7. cyberui-2045 components used and what 2.8.0 gives this template
+
+Planned: `Button`, `Card`, `Badge`, `Toggle`, `Accordion`, `Steps`, `Drawer`, `FormField`, `Input`, `Divider`, `GradientText`, `SectionTitle`. The plan confirms each against `component-manifest.json` before using it.
+
+From the 2.8.0 changelog, relevant here:
+- **Responsive props now work in the prebuilt stylesheet** (CyberUI#108). Before 2.8.0, `size={{ base: 'sm', md: 'lg' }}` had no effect above `base`, which would have made a landing page's breakpoint behaviour a workaround. This is why the template starts on 2.8.0.
+- `Badge` `variant="neutral"`, `shape`, `shadow` (for the "Most popular" and "Save 20%" tags); `Tooltip` `glow` (if a tooltip is used at all; none is planned).
+
+Anything found while building goes to patrickkuei/CyberUI as an issue (issue #47 step 4); the template never works around it silently without a comment saying so.
+
+## 8. Testing strategy
+
+Vitest + Testing Library + happy-dom, as in the other packages, run in CI by the `package-tests` job (#35 done). Tests assert behaviour, not markup:
+
+- Toggle switches every price and the caption; the highlighted plan stays highlighted.
+- FAQ: opening one item closes the previous; keyboard works.
+- Form: malformed email shows the error and does not "send"; a valid one shows the confirmation; the confirmation is announced.
+- Nav: clicking a section link scrolls that section into view (spy on `scrollIntoView`), with reduced motion respected.
+- Headings: exactly one `h1`; landmarks present.
+- `noInlineStyles` and `noHexColors` (copied).
+- A data test: every plan has both billing periods; every nav target exists (the typed list makes this mostly a compile guarantee).
+
+Not testable under happy-dom and therefore a **browser check, not a test**: layout at 1440, 800 and 390px, the Drawer, the sticky header, focus rings and the real accent contrast. The plan makes this a task with screenshots, as issue #47 requires.
+
+## 9. Self-containment and forkability
+
+Identical rules to agent-panel §9: own complete `package.json` (`license: MIT`, `cyberui-2045: ^2.8.0`, never `workspace:`), own `tsconfig.json`, own `vite.config.ts` with `base: './'`, no imports outside the package, `LICENSE` file identical to the root one, README as the forker's documentation (what it is and what is mock, commands, "Where your content goes", "Principles this code follows" as on the Code tab, "Re-theming"). Verified by the clean-room method of monitoring plan Task 9 (copy the folder outside the workspace; install with zero warnings; build; test; run) and, once merged, `npx --yes tiged patrickkuei/cyberui-templates/packages/landing my-app` for real (the site's start prompt now uses `npx --yes tiged`, PR #59).
+
+## 10. Integration points (PR B)
+
+Same table as agent-panel §10, with these values. Nothing here is new machinery.
+
+| File | Change |
+|---|---|
+| `packages/site/src/data/templates.ts` | Add the `landing` entry: name "Landing Page", tagline, `accentLabel`, `accentHex` (distinct from the other two), screenshot and live-preview paths. `slug:` then `name:` as plain single-line quoted strings (the README check reads the file as text). |
+| `packages/site/src/content/templateContent.ts` | Add the `landing` entry (`useIf`, `headsUp`, `notFor`, `examples`, `code`); **and edit the `notFor` of `monitoring` (line 32) and `agent-panel` (line 73)**: both end "…or a landing page." |
+| `packages/site/src/content/codeTabs.json` | Add `landing`: principles with verbatim excerpts and the folder map (`check:code-tab` verifies each in CI). |
+| `packages/site/public/screenshots/landing.png` | About 1440px wide; taken at the top of the page with the pricing toggle visible. |
+| `packages/site/scripts/sync-template-builds.mjs`, `.github/workflows/deploy.yml` | The build/copy entries; `check:template-builds` fails CI if either is forgotten. |
+| `README.md` (root) | A row in the Templates table (`check:templates-readme`). |
+| `pnpm-lock.yaml` | A `packages/landing` importer; `deploy.yml` uses `--frozen-lockfile`. |
+| site tests | `getTemplate('landing')` resolves; its screenshot exists; copy assertions. |
+| `packages/site/src/content/staticHtml.ts` (line 18) | The site's meta description hard-codes "such as an AI monitoring dashboard and an agent control panel"; extend it (and its test) to name the landing page. `llms.ts` derives from `TEMPLATES` and `TEMPLATE_CONTENT` (its own comment says so) and needs no edit. The noscript list and `sitemap.xml` were not read; the plan must check whether they derive from `TEMPLATES` too. |
+
+`check:license`, `check:code-tab`, `check:templates-readme`, `check:template-builds` and the full `pnpm -r --workspace-concurrency=1 run test` must pass. PR B says `Closes #47`; the tracking issue #1 gets its checkbox ticked by hand.
+
+## 11. Site copy for the Templates page (proposed wording, to be fixed after Q answers)
+
+- **Name / tagline.** "Landing Page" / "A hero, features, pricing with a working billing toggle, FAQ and a signup form for a product launch."
+- **Use this if you're building…** a launch page for a product or side project; a pricing page with plans to compare; a one-screen "join the waitlist" page.
+- **Heads-up.** One short friendly demo note in the style of the agent-panel decision: the product and numbers are made up and the signup sends nothing. Aim for roughly 150 characters, no list of mock parts.
+- **Probably not for you** "if you're after a dashboard or a native mobile app. (A one-page portfolio is fine.)"
+- **Examples (two folds).** Not written here. Same method as the others: two persona role-plays by subagents, kept verbatim and truncated with ellipses, never invented; "Where they'd get stuck" lists only obstacles the library and templates did not cause (hosting, a domain, an email provider, real payment). If the interviews cannot be run, the task stops and asks. Suggested personas: an indie developer launching a paid side project; a PM who needs a waitlist page before engineering starts.
+- **Code tab principles** (each claim must be true of the shipped code): Single source of truth (content in `src/data/`), DRY, Typed and exhaustive (the `SECTIONS` list and the `Record<BillingPeriod, …>` plans), No inline styles (the test), Tested (the toggle and form), Content as data ("Swap the product by editing four files"). Folder map for `src/components`, `src/data`, `src/theme`.
+
+## 12. Risks and what is not verified
+
+- **Nothing here has been built or run.** This is a draft; the only measured facts are the token contrast numbers in §4 (computed by hand from the 2.8.0 stylesheet, not rendered) and the two `notFor` line numbers.
+- **Component fit is assumed.** `Drawer`, `Steps`, `Accordion`, `Toggle` and `GradientText` exist in 2.8.0 (listed in its manifest) but have not been tried together in this layout; the plan must confirm their props and a11y behaviour before the design leans on them.
+- **Landing pages invite a new class of fakery:** invented customers, logos and numbers. The honesty rule is the main design constraint here, not the layout.
+- **Preview inside the site's dialog:** the sticky header and `scrollIntoView` inside an iframe inside a `<dialog>` are untested; the browser check must include the live preview, not just `npm run dev`.
+- **SEO tags in `index.html`** are placeholders a forker must replace; the template cannot make them correct for a product it does not know.
+
+## 13. Out of scope
+
+Anything under "Not in scope" in §1; a library `Hero` or `Pricing` component (a separate CyberUI feature request if wanted); the mobile-first template (#48) and the community template (#49); changing issue #47's wording.
+
+---
+
+## Open questions for the owner
+
+Each has my recommendation first. "Fine as proposed" is a complete answer.
+
+**Q1. The fiction.** A developer tool called "Tessera" (a zero-config deploy platform)? Alternatives: a consumer app (a habit tracker), a physical product (a keyboard), a SaaS for non-developers (an invoicing tool). Also: is the package name `landing` / site name "Landing Page" right, or do you want a product-style name like "Product Launch Page"?
+
+**Q2. The accent hue.** Orange `#ff8a3d` (proposed), lime `#a3e635`, blue `#5b9cff`, or another. Orange is furthest from cyan, violet and magenta but sits near the library's warning colour (§4).
+
+**Q3. One page or several?** One scrolling page (proposed). The alternative is a small router with Home and Pricing routes, which gives the template the same `ROUTES` pattern as the other two but makes it feel less like a landing page.
+
+**Q4. Sections.** Are the nine in §3.2 the right ones? Cut candidates: logo strip, how it works. Add candidates: a comparison table, a changelog strip, a contact form.
+
+**Q5. Social proof.** No testimonials, and invented logo wordmarks plus a few clearly illustrative numbers (proposed), or include sample testimonials marked "sample" in the code and README?
+
+**Q6. How loudly does the page say it is a demo?** One footer line plus the README (proposed, matching the agent-panel decision) or a visible banner or badge at the top like agent-panel's "Simulated" badge?
+
+**Q7. Images.** None: components, CSS and inline SVG only (proposed), or include one hero image/mock screenshot (which a forker must replace and which adds an asset the licence line must cover)?
+
+**Q8. Mobile menu.** `Drawer` below `md` (proposed), or keep the links in a horizontally scrolling row to avoid a second interaction pattern?
+
+**Q9. Order of work.** Spec, then plan, then PR A (package), then PR B (site) as for agent-panel (proposed). Do you want me to run the two role-play interviews for the site copy before PR B, or stop and ask when we get there?
+
+**Q10. Subagent workflow.** Same as the migration: an implementer subagent per PR, a separate reviewer subagent, and I merge when the review is clean and CI is green. Confirm that this is also what you want for the landing template, or say which step you want to review yourself.

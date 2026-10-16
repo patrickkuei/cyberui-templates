@@ -41,7 +41,9 @@ export function SignupForm() {
       {/*
         Input renders the <label>, the error text, and aria-invalid; when
         `error` is set it also points aria-describedby at that text. It does not
-        mark the error as an alert, which is why submit moves focus to the field.
+        mark the error as an alert, which is why submit moves focus to the field
+        (reported as patrickkuei/CyberUI#121; drop the focus() call if it is
+        fixed in the version you use).
       */}
       <Input
         label={SIGNUP.fieldLabel}

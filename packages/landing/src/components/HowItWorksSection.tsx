@@ -9,6 +9,7 @@ import { SectionHeading } from './SectionHeading';
 // warning. Marking every step 'completed' gives the calm, static look instead.
 // Orientation is left at the library's default: vertical on phones, horizontal
 // from md up (its own responsive object, which works since cyberui-2045 2.8.0).
+// Its marker and chevron glyphs are not aria-hidden (patrickkuei/CyberUI#122).
 const ITEMS = STEPS.map((step) => ({ ...step, status: 'completed' as const }));
 
 export function HowItWorksSection() {

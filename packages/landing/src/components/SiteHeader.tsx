@@ -39,6 +39,9 @@ export function SiteHeader({ goTo }: SiteHeaderProps) {
     chooseFromMenu(id);
   };
 
+  // Drawer is aria-modal but does not trap Tab, so a keyboard user can tab out
+  // of the open menu into the page behind it (patrickkuei/CyberUI#123). This
+  // template does not work around that; Escape and the close button still work.
   return (
     <header className="site-header">
       <div className="site-header-inner page-width">

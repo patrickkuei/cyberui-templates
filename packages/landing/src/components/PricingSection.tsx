@@ -16,7 +16,7 @@ export function PricingSection({ goTo }: SectionProps) {
           {/*
             Toggle only connects its visible label to the switch when it is
             given an `id`, so the id is not optional: without it the switch has
-            no accessible name. role="switch" because it is an on/off setting,
+            no accessible name (patrickkuei/CyberUI#120). role="switch" because it is an on/off setting,
             not a choice to submit; onChange receives the new boolean.
           */}
           <Toggle

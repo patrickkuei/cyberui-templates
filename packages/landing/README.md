@@ -33,7 +33,7 @@ To make the signup real, replace the comment block in `onSubmit` in [src/compone
 
 Before you publish, replace the title, description and social tags in [index.html](index.html). They describe the fictional product, and link previews read them, not your React components.
 
-Two things that are deliberate and easy to trip over. Nav links scroll with `scrollIntoView` and never write `location.hash` (see [src/utils/scrollToSection.ts](src/utils/scrollToSection.ts)), so the page behaves the same inside an iframe or under any deploy subpath. And pressing Escape closes the mobile menu; if you embed this page in another page that also closes on Escape, both close.
+Two things that are deliberate and easy to trip over. Nav links scroll with `scrollIntoView` and never write `location.hash` (see [src/utils/scrollToSection.ts](src/utils/scrollToSection.ts)), so the page behaves the same inside an iframe or under any deploy subpath. And pressing Escape closes the mobile menu; if you embed this page in another page that also closes on Escape, both close. The menu is the library's `Drawer`, which does not yet keep Tab inside it while it is open ([patrickkuei/CyberUI#123](https://github.com/patrickkuei/CyberUI/issues/123)), so a keyboard user can tab out into the page behind it; this template does not work around that.
 
 ## Principles this code follows
 

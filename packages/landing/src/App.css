@@ -1,0 +1,109 @@
+/* Landing page styles. Colours come only from tokens (var(--color-*)); the one
+   place a hex colour is allowed is theme/orange.css (noHexColors.test.ts).
+   Class names are flat, not nested under .landing, because the mobile menu is
+   rendered by the library in a portal outside the app's root element. */
+
+:root {
+  --header-height: 4rem;
+  --page-max: 72rem;
+  --page-pad: 1rem;
+  --section-pad: 3.5rem;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --page-pad: 1.5rem;
+    --section-pad: 5rem;
+  }
+}
+
+/* The page background sits on <body> so it fills the window beyond the centred column. */
+body {
+  margin: 0;
+  background: var(--color-base);
+  color: var(--color-default);
+}
+
+.landing {
+  min-height: 100vh;
+}
+
+.page-width {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-pad);
+}
+
+/* scroll-margin-top keeps a section's heading clear of the sticky header after
+   a nav jump (scrollToSection uses scrollIntoView, which honours it). */
+.section {
+  padding-block: var(--section-pad);
+  scroll-margin-top: var(--header-height);
+}
+
+/* The sections take focus from code (tabIndex -1) after a nav jump; the whole
+   section outlined would be noise, so the ring is reserved for real controls. */
+.section:focus,
+#main:focus {
+  outline: none;
+}
+
+.section-heading {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.section-heading--quiet {
+  margin-bottom: 1.5rem;
+}
+
+.section-lead {
+  max-width: 40rem;
+  margin: 0.75rem auto 0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* Card gives its body text the magenta --color-primary and its children
+   space-y margins. Cards on this page reset both: text is the default colour,
+   the surface is --color-surface, and spacing is each card's own gap. */
+.card-surface {
+  background-color: var(--color-surface);
+  color: var(--color-default);
+}
+
+.card-surface > * {
+  margin: 0;
+}
+
+/* Hidden until it takes focus, then the first thing a keyboard visitor sees. */
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  color: var(--color-base);
+  background: var(--color-secondary);
+  border-radius: 0.25rem;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

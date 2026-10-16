@@ -321,3 +321,267 @@ body {
   margin: 0;
   color: var(--color-success);
 }
+
+/* ---- Header ---- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--color-base) 90%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.site-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: var(--header-height);
+}
+
+.wordmark {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+
+.site-nav {
+  display: none;
+  margin-inline-start: auto;
+  gap: 1.75rem;
+}
+
+.site-nav-link {
+  padding-block: 0.25rem;
+  color: var(--color-default);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+.site-nav-link:hover {
+  color: var(--color-secondary);
+  border-bottom-color: var(--color-secondary);
+}
+
+.site-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-inline-start: auto;
+}
+
+/* Below md: no inline links and no header button; the Menu button opens the Drawer. */
+.header-cta {
+  display: none;
+}
+
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  font-size: 1.125rem;
+}
+
+@media (min-width: 48rem) {
+  .site-nav {
+    display: flex;
+  }
+
+  .site-header-actions {
+    margin-inline-start: 0;
+  }
+
+  .header-cta {
+    display: inline-block;
+  }
+
+  .menu-button {
+    display: none;
+  }
+}
+
+/* ---- Hero ---- */
+
+.hero {
+  padding-block: 2.5rem var(--section-pad);
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 64rem) {
+  .hero-inner {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  }
+}
+
+.hero-title {
+  margin: 1.25rem 0 1rem;
+  font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--color-default);
+}
+
+.hero-lead {
+  margin: 0 0 1.75rem;
+  max-width: 34rem;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  margin: 2.5rem 0 0;
+  padding: 0;
+}
+
+/* dt (the label) comes first in the markup, so the label is read before the
+   number; column-reverse shows the number above it. */
+.hero-stat {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.hero-stat dt {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.hero-stat dd {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-secondary);
+}
+
+.hero-terminal figure {
+  margin: 0;
+}
+
+.terminal {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+
+.terminal-line {
+  display: block;
+  white-space: pre;
+}
+
+.terminal-line--command {
+  color: var(--color-default);
+}
+
+.terminal-line--ok {
+  color: var(--color-success);
+}
+
+/* One entrance at first load, for the hero only, and none for people who asked
+   for less motion. Nothing on this page animates on scroll. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy,
+  .hero-terminal {
+    animation: hero-in 600ms ease-out both;
+  }
+
+  .hero-terminal {
+    animation-delay: 120ms;
+  }
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Footer ---- */
+
+.site-footer {
+  padding-block: 1.5rem 2.5rem;
+}
+
+.footer-grid {
+  display: grid;
+  gap: 2rem;
+  padding-block: 2rem;
+}
+
+@media (min-width: 48rem) {
+  .footer-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+}
+
+.footer-brand p {
+  margin: 0.5rem 0 0;
+  color: var(--color-muted);
+}
+
+.footer-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.footer-heading {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-default);
+}
+
+.footer-columns ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-columns a {
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.footer-columns a:hover {
+  color: var(--color-secondary);
+}
+
+.footer-legal {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}

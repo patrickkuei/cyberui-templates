@@ -11,6 +11,9 @@ export interface ChartColors {
   border: string;
 }
 
+// Used only when a --color-* token can't be read (no DOM, or the stylesheet isn't loaded).
+// Keep these equal to cyberui-2045's current token values; when you bump the library, check
+// its CHANGELOG for colour changes (2.8.0 lightened --color-muted from #8888aa to #9797b5).
 const FALLBACK: ChartColors = {
   primary: '#ff005d',
   secondary: '#00fff9',
@@ -18,7 +21,7 @@ const FALLBACK: ChartColors = {
   success: '#00ff9e',
   error: '#ff4f4f',
   warning: '#ffaa00',
-  muted: '#8888aa',
+  muted: '#9797b5',
   border: '#3c3c5e',
 };
 

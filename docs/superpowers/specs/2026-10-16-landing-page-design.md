@@ -240,3 +240,30 @@ Each has my recommendation first. "Fine as proposed" is a complete answer.
 **Q9. Order of work.** Spec, then plan, then PR A (package), then PR B (site) as for agent-panel (proposed). Do you want me to run the two role-play interviews for the site copy before PR B, or stop and ask when we get there?
 
 **Q10. Subagent workflow.** Same as the migration: an implementer subagent per PR, a separate reviewer subagent, and I merge when the review is clean and CI is green. Confirm that this is also what you want for the landing template, or say which step you want to review yourself.
+
+---
+
+## Findings from the first browser check
+
+Written during PR A (2026-10-16), after building `packages/landing`. Tools: the built-in browser pane of the Claude desktop app (Chromium) for measurements, clicks and key presses at 1440, 800, 768, 767 and 390px; headless Microsoft Edge driven over the DevTools protocol for full-page screenshots at those widths and for `prefers-reduced-motion` emulation (the pane has no switch for it). The pane was hidden and small (509px wide), so its own screenshots were only usable at 390px; wider checks used DOM measurements and the Edge screenshots. Headless Edge cannot go below about 500px by window flag, so the 390px screenshots came from the pane or from CDP device emulation.
+
+**Needed a fix (all in `App.css`):**
+- Section headings and their lead sentences were centred under a `SectionTitle` that draws its caption and rule from the left edge, which looked misaligned. Headings, leads, the billing switch, the logo list and the steps are now left-aligned with the title.
+- At 800px the three plan cards are about 232px wide and the button labels ("Start free trial", "Contact sales") wrapped to two lines, giving buttons of 48, 72 and 76px. Fixed by tightening the card padding and the label between `md` and `lg` (kept three columns; the plan's alternative of moving the breakpoint to 64rem was not needed). Blurbs got a two-line minimum height there so the prices line up.
+- The filled (primary) Button has no border and the outlined one has, so side-by-side buttons differed by 4px (hero at `md` size 44 vs 48; Pro vs its neighbours 36 vs 40). A `min-height` on the hero and plan buttons levels them.
+
+**Checked and held:**
+- Contrast, computed from the installed 2.8.0 stylesheet and `orange.css`: accent on base 7.27:1, accent on surface 5.70:1, base on accent 7.27:1, muted on base 6.02:1, muted on surface 4.72:1, success on base 12.83:1, primary on base 4.39:1 (the far end of the headline gradient; large text, so the 3:1 bar applies).
+- No stray cyan or yellow in any computed colour property on the page at rest or with the menu open (the Drawer's rainbow glow animation cycles through the library tokens, including the orange override, and is turned off under reduced motion). The only magenta text is the Steps chevrons.
+- 1440px: sticky header 65px tall (4rem plus its border), no Menu button, hero in two columns, features and plans in three columns, hero buttons 56px (the 2.8.0 responsive `size` works), horizontal Steps. Page `scrollWidth` 1425 (scrollbar).
+- 800px: `scrollWidth` 785 (scrollbar), no element past the viewport, header links shown and no Menu button, hero one column, features two columns, horizontal Steps, plan cards 232px with nothing clipped.
+- 768px and 767px: at 768 the links, three plan columns and horizontal Steps; at 767 the Menu button, one plan column and vertical Steps. The planner's note that Steps once showed vertical at exactly 768px did not reproduce, from a fresh load, after a resize from 390, and after a resize from 800. `Steps` decides with `window.innerWidth >= 768` and a resize listener, the same threshold as `48rem` in the stylesheet.
+- 390px: `scrollWidth` 390, no element past the viewport, header is the wordmark and Menu only, hero buttons stack, the terminal scrolls inside its card (309px visible, 333px of content), figures wrap, plans in one column in the order Hobby, Pro, Team, Steps vertical.
+- Menu (390px): opens a right-hand dialog with "Menu", four links and the trial button, with focus inside it and `body` scroll locked. Clicking "Pricing" closes it, the scroll lands with the section top 64px under the header (clear of the sticky header, thanks to `scroll-margin-top`), `location.hash` stays empty, focus is on the section and the body scroll lock is released. Escape closes it, also when focus has left the dialog.
+- Billing switch changes every price and caption and back; FAQ: Enter and Space open an answer, Down and End move between questions, one open at a time; form: an empty submit shows the error and keeps focus on the field, a valid address (typed, Enter) clears the field and shows the confirmation in the polite status line.
+- Keyboard from the top: the first stop is the skip link (on screen), then the wordmark, four links, the header button and the hero buttons. Links show the browser's focus ring; the library's buttons show a 2px accent ring at half opacity plus their glow. The ring on buttons is visible but low in emphasis; not changed here.
+- Reduced motion (headless Edge, CDP emulation): the hero has one `hero-in` animation without it and none with it; a nav click moves `scrollY` 78px after 60ms (smooth) without the emulation and to its final 1856px at once with it; `location.hash` empty in both.
+
+**Library findings, reproduced and filed:** `Toggle` without an `id` has no accessible name (CyberUI#120); `Input`'s error is not announced (#121); `Steps` glyphs are not `aria-hidden` (#122); `Drawer` does not trap Tab although it is `aria-modal` (#123; Tab left the open menu for the skip link and the header). Not filed: `Steps` has no static mode (a documented behaviour, a feature request, not reproduced as a defect).
+
+**Not checked:** a screen reader; Firefox and Safari; a real touch device or a real phone (390px was an emulated viewport); hover and focus states in the colour scan; the live preview inside the site's dialog and iframe (PR B); `Modal`'s focus behaviour.

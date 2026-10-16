@@ -22,16 +22,24 @@ export function terminalSteps(slug: string): string[] {
   return [forkCommand(slug), 'cd my-app', 'npm install', 'npm run dev'];
 }
 
+// The command that writes cyberui-2045's usage guide into an AI assistant's
+// rules file. The assistant has to pass its own tool's flag: without one,
+// `init` opens a menu, and in an assistant's shell (no terminal) it can't,
+// so from cyberui-2045 2.7.1 it exits 2 having written nothing. The flags
+// are `init`'s own targets (`npx cyberui-2045 init --help`).
+export const INIT_COMMAND =
+  '`npx cyberui-2045 init` with the flag for your tool (`--claude`, `--cursor`, `--gemini`, `--copilot` or `--agents`)';
+
 // A one-shot start. The last sentence hands the standing "use the library's
 // components" guidance to cyberui-2045's own `init`, which writes it into
-// the user's CLAUDE.md / .cursorrules / AGENTS.md, so the site does not
-// invent a second way of telling an AI about the library.
+// the assistant's rules file, so the site does not invent a second way of
+// telling an AI about the library.
 export function startPrompt(name: string, slug: string): string {
   return [
     `Start a new project from the ${name} template.`,
     `Run \`${forkCommand(slug)}\`, then \`cd my-app\`, \`npm install\`, and \`npm run dev\`.`,
     `It needs Node ${NODE_MIN} or newer, so tell me if I need to install it.`,
     "Tell me when it's running and what address to open.",
-    'Then run `npx cyberui-2045 init` so you know how to use the component library from now on.',
+    `Then run ${INIT_COMMAND} so you know how to use the component library from now on.`,
   ].join(' ');
 }

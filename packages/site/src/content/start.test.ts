@@ -21,7 +21,7 @@ describe('start facts', () => {
         'Run `npx --yes tiged patrickkuei/cyberui-templates/packages/monitoring my-app`, then `cd my-app`, `npm install`, and `npm run dev`. ' +
         'It needs Node 20.19 or newer, so tell me if I need to install it. ' +
         "Tell me when it's running and what address to open. " +
-        'Then run `npx cyberui-2045 init` so you know how to use the component library from now on.'
+        'Then run `npx cyberui-2045 init` with the flag for your tool (`--claude`, `--cursor`, `--gemini`, `--copilot` or `--agents`) so you know how to use the component library from now on.'
     );
   });
 });

@@ -14,7 +14,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "cyberui-2045": "^2.7.0",
+    "cyberui-2045": "^2.8.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "3.10.1"

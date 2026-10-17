@@ -1,7 +1,7 @@
 # Mobile-First App Template (`packages/mobile-app`) — Design Spec
 
 **Date:** 2026-10-17 (revised 2026-10-18)
-**Status:** Draft. The owner decided Q1 on 2026-10-18: the fiction is a **home device controller** (the first draft proposed a pantry tracker; the owner asked whether it suited cyberui and chose this instead). Q2 to Q10 are still open; the other "Decisions I made" are proposals that are cheap to reverse. No plan and no code exist yet.
+**Status:** Approved by the owner on 2026-10-18. The owner chose a **home device controller** for Q1 (the first draft proposed a pantry tracker; the owner asked whether it suited cyberui and picked this instead), then answered Q2 to Q10 with "go your recommend", so every "proposed" decision below is now decided, including the placeholder name "Kestrel" and the site name "Mobile App". See "Owner answers" at the end.
 **Plan:** not written (it follows the owner's answers).
 **Issue:** [#48](https://github.com/patrickkuei/cyberui-templates/issues/48) (item 4 of tracking issue [#1](https://github.com/patrickkuei/cyberui-templates/issues/1)).
 **Builds on:** [2026-09-27-cyberui-showcase-design.md](2026-09-27-cyberui-showcase-design.md) (self-contained packages, accent-hue theming, one combined deploy), [2026-10-05-templates-page-design.md](2026-10-05-templates-page-design.md) (the `/templates` page every template is published through), [2026-10-06-agent-panel-design.md](2026-10-06-agent-panel-design.md) (hash routes, the honesty standard, the phone fixes that came late) and [2026-10-16-landing-page-design.md](2026-10-16-landing-page-design.md), the closest model for this document's shape, its PR split and its publishing path (§10), which are reused here without being repeated in full.
@@ -297,7 +297,24 @@ Anything under "Not in scope" in §1; building a library `BottomNav`, `Swipeable
 
 ---
 
-## Open questions for the owner
+## Owner answers (2026-10-18)
+
+The owner answered Q1 by choosing the device controller, and Q2 to Q10 with "go your recommend". The recommendation in each question below is therefore the decision:
+
+| Q | Decided |
+|---|---|
+| Q1 | Home device controller. Name "Kestrel" and site name "Mobile App" as proposed. |
+| Q2 | Blue `#5b9cff`. |
+| Q3 | The optional `previewFrame: 'phone'` on `Template` (a 390px frame, no toggle); PR B touches the site's components for it. |
+| Q4 | Tap and bottom sheet, no swipe; swipe is filed upstream as a feature request (§7.1). |
+| Q5 | Nothing saved. |
+| Q6 | A "Demo" badge in the app bar, the sentence in Settings and the pairing confirmation, and the README. |
+| Q7 | Devices, Add device, Scenes, Settings. |
+| Q8 | Comment citing the open Drawer issues plus a README "known limits" note; do not wait for a release. |
+| Q9 | One centred content column with the same bottom nav at 800px and above. |
+| Q10 | The landing path as written. The two role-play interviews for the site copy run just before PR B (the handoff method), with no further stop to ask unless an interview cannot be run. |
+
+## Open questions for the owner (as asked)
 
 Each has my recommendation first. "Fine as proposed" is a complete answer.
 

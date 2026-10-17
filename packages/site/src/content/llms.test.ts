@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { llmsTxt } from './llms';
-import { TEMPLATES } from '../data/templates';
+import { TEMPLATES, getTemplate } from '../data/templates';
+import { contentFor } from './templateContent';
 import { forkCommand, startPrompt } from './start';
 
 describe('llmsTxt', () => {
@@ -22,5 +23,18 @@ describe('llmsTxt', () => {
 
   it('says what is simulated, as the page does', () => {
     expect(text).toContain('Heads-up: This is a demo: the agent is just a script');
+    expect(text).toContain('Heads-up: This is a demo: the product and numbers are made up and the signup sends nothing');
+  });
+
+  it("gives each template's own limits as a 'Probably not for you' line", () => {
+    expect(text).toContain('- Probably not for you if you need live data out of the box.');
+    expect(text).toContain('- Probably not for you if you need several pages, a blog or a real signup backend.');
+  });
+
+  it("leaves out the 'Probably not for you' line for an entry that has no notFor", () => {
+    const { notFor: _omitted, ...content } = contentFor('landing');
+    const without = llmsTxt([{ template: getTemplate('landing')!, content }]);
+    expect(without).toContain('### Landing Page');
+    expect(without).not.toContain('Probably not for you');
   });
 });

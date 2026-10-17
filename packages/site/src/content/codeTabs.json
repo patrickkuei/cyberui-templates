@@ -255,5 +255,111 @@
         "purpose": "Inline SVG icons."
       }
     ]
+  },
+  "landing": {
+    "principles": [
+      {
+        "name": "Single source of truth",
+        "detail": "The advertised saving is one number.",
+        "file": "src/data/plans.ts",
+        "excerpt": [
+          "/** The saving the \"Save 20%\" tag advertises. plans.test.ts checks every paid plan really gives it. */",
+          "export const YEARLY_SAVING_PCT = 20;"
+        ]
+      },
+      {
+        "name": "DRY",
+        "detail": "Every section heading comes from one component.",
+        "file": "src/components/SectionHeading.tsx",
+        "excerpt": [
+          "export function SectionHeading({ id, quiet = false }: SectionHeadingProps) {",
+          "  const { title, lead } = SECTION_COPY[id];",
+          "  return (",
+          "    <div className={quiet ? 'section-heading section-heading--quiet' : 'section-heading'}>",
+          "      <div id={headingId(id)}>"
+        ]
+      },
+      {
+        "name": "Typed and exhaustive",
+        "detail": "A section without a component fails to compile.",
+        "file": "src/App.tsx",
+        "excerpt": [
+          "const SECTION_COMPONENTS: Record<SectionId, ComponentType<SectionProps>> = {",
+          "  hero: HeroSection,",
+          "  logos: LogoStrip,",
+          "  features: FeaturesSection,",
+          "  'how-it-works': HowItWorksSection,",
+          "  pricing: PricingSection,",
+          "  faq: FaqSection,",
+          "  signup: SignupSection,",
+          "};"
+        ]
+      },
+      {
+        "name": "No inline styles",
+        "detail": "Styling is in CSS, and a test enforces it.",
+        "file": "src/noInlineStyles.test.ts",
+        "excerpt": [
+          "  const visit = (node: ts.Node) => {",
+          "    if (ts.isJsxAttribute(node) && node.name.getText(sourceFile) === 'style') found = true;",
+          "    ts.forEachChild(node, visit);"
+        ]
+      },
+      {
+        "name": "Tested",
+        "detail": "Tests check what a visitor can do, next to the code.",
+        "file": "src/components/PricingSection.test.tsx",
+        "excerpt": [
+          "  it('starts on monthly billing with the switch off', () => {",
+          "    render(<PricingSection goTo={vi.fn()} />);",
+          "    expect(screen.getByRole('switch', { name: 'Bill yearly' })).not.toBeChecked();",
+          "    expect(within(planCard('Hobby')).getByText('$0')).toBeInTheDocument();",
+          "    expect(within(planCard('Pro')).getByText('$25')).toBeInTheDocument();",
+          "    expect(within(planCard('Team')).getByText('$75')).toBeInTheDocument();",
+          "    expect(within(planCard('Pro')).getByText('billed monthly')).toBeInTheDocument();",
+          "  });"
+        ]
+      },
+      {
+        "name": "Content as data",
+        "detail": "Swap the product by editing four files.",
+        "file": "src/data/features.ts",
+        "excerpt": [
+          "export const FEATURES: Feature[] = [",
+          "  {",
+          "    id: 'zero-config',",
+          "    icon: 'bolt',",
+          "    title: 'Zero-config builds',",
+          "    body: 'Tessera picks the build command and output folder for you. Override either with one line when you need to.',",
+          "  },"
+        ]
+      }
+    ],
+    "folders": [
+      {
+        "path": "src/components",
+        "purpose": "One file per section, plus the cards and the form."
+      },
+      {
+        "path": "src/data",
+        "purpose": "The content of the page: product, features, plans, FAQ. Your product goes here."
+      },
+      {
+        "path": "src/theme",
+        "purpose": "The accent override."
+      },
+      {
+        "path": "src/hooks",
+        "purpose": "Reduced-motion preference."
+      },
+      {
+        "path": "src/utils",
+        "purpose": "Scrolling to a section."
+      },
+      {
+        "path": "src/icons",
+        "purpose": "Inline SVG icons."
+      }
+    ]
   }
 }

@@ -53,6 +53,15 @@ export const TEMPLATES: Template[] = [
     screenshotSrc: './screenshots/agent-panel.png',
     livePreviewPath: './live/agent-panel/index.html',
   },
+  {
+    slug: 'landing',
+    name: 'Landing Page',
+    tagline: 'A hero, features, pricing with a working billing toggle, FAQ and a signup form for a product launch.',
+    accentLabel: 'Orange',
+    accentHex: '#ff8a3d',
+    screenshotSrc: './screenshots/landing.png',
+    livePreviewPath: './live/landing/index.html',
+  },
 ];
 
 export function getTemplate(slug: string): Template | undefined {

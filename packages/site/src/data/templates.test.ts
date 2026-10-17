@@ -32,6 +32,11 @@ describe('templates', () => {
     expect(getTemplate('agent-panel')?.accentHex).toBe('#c084fc');
   });
 
+  it('looks up the landing page and gives it an orange accent distinct from the others', () => {
+    expect(getTemplate('landing')?.name).toBe('Landing Page');
+    expect(getTemplate('landing')?.accentHex).toBe('#ff8a3d');
+  });
+
   it("every item's screenshot file exists, because nothing else in CI would notice a missing one", () => {
     for (const item of TEMPLATES) {
       const file = resolve(__dirname, '../../public', item.screenshotSrc.replace(/^\.\//, ''));

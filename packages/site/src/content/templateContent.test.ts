@@ -29,6 +29,33 @@ describe('template content', () => {
     expect(content.examples).toHaveLength(2);
   });
 
+  it('gives the landing page fit copy that says plainly the signup sends nothing, and two examples', () => {
+    const content = TEMPLATE_CONTENT.landing!;
+    expect(content.useIf).toHaveLength(3);
+    expect(content.headsUp).toMatch(/signup sends nothing/);
+    expect(content.headsUp).toMatch(/the page, not the backend/);
+    expect(content.examples.map((example) => example.title)).toEqual(['An indie developer', 'A product manager']);
+    for (const example of content.examples) expect(example.requests, example.title).toHaveLength(6);
+  });
+
+  it("describes each template's own limits in notFor, never another kind of app", () => {
+    expect(TEMPLATE_CONTENT.monitoring!.notFor).toMatch(/live data/);
+    expect(TEMPLATE_CONTENT['agent-panel']!.notFor).toMatch(/real model or login/);
+    expect(TEMPLATE_CONTENT.landing!.notFor).toMatch(/several pages, a blog or a real signup backend/);
+    for (const [slug, { notFor }] of Object.entries(TEMPLATE_CONTENT)) {
+      expect(notFor ?? '', slug).not.toMatch(/landing page|dashboard|mobile app/i);
+    }
+  });
+
+  it('keeps every other field required: a template with copy but no examples or code is still caught', () => {
+    for (const [slug, content] of Object.entries(TEMPLATE_CONTENT)) {
+      expect(content.useIf.length, slug).toBeGreaterThan(0);
+      expect(content.headsUp.length, slug).toBeGreaterThan(0);
+      expect(content.examples.length, slug).toBeGreaterThan(0);
+      expect(content.code.principles.length, slug).toBeGreaterThan(0);
+    }
+  });
+
   it('keeps every example request verbatim and in order', () => {
     const [shop, api] = TEMPLATE_CONTENT.monitoring!.examples;
     expect(shop!.requests).toHaveLength(5);

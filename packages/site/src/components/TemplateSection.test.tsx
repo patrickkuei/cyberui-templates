@@ -44,6 +44,15 @@ describe('TemplateSection', () => {
     for (const bullet of content.useIf) expect(screen.getByText(bullet)).toBeInTheDocument();
     expect(screen.getByText(/You get the screens, not the data connection/)).toBeInTheDocument();
     expect(screen.getByText(/Probably not for you/)).toBeInTheDocument();
+    expect(screen.getByText(/if you need live data out of the box/)).toBeInTheDocument();
+  });
+
+  it('renders no "Probably not for you" line for a template that gives none', () => {
+    const { notFor: _omitted, ...withoutNotFor } = content;
+    renderSection({ content: withoutNotFor });
+    expect(screen.queryByText(/Probably not for you/)).not.toBeInTheDocument();
+    // The rest of the fit copy is untouched.
+    expect(screen.getByText(/You get the screens, not the data connection/)).toBeInTheDocument();
   });
 
   it('includes the examples and the start block', () => {

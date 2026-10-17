@@ -18,6 +18,10 @@ describe('headTags', () => {
     expect(head).toContain('<meta name="twitter:card" content="summary_large_image" />');
   });
 
+  it('names all three templates in the description a link preview and a search result show', () => {
+    expect(head).toContain('an AI monitoring dashboard, an agent control panel and a landing page');
+  });
+
   it('points at a screenshot that exists', () => {
     expect(existsSync(path.resolve(__dirname, '../../public/screenshots/monitoring.png'))).toBe(true);
   });

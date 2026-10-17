@@ -268,3 +268,21 @@ Written during PR A (2026-10-16), after building `packages/landing`. Tools: the 
 **Library findings, reproduced and filed:** `Toggle` without an `id` has no accessible name (CyberUI#120); `Input`'s error is not announced (#121); `Steps` glyphs are not `aria-hidden` (#122); `Drawer` does not trap Tab although it is `aria-modal` (#123; Tab left the open menu for the skip link and the header); the `Drawer`'s border animation hard-codes its colours (#124) and its title is 3.45:1 on its surface (#125). Not filed: `Steps` has no static mode (a documented behaviour, a feature request, not reproduced as a defect).
 
 **Not checked:** a screen reader; Firefox and Safari; a real touch device or a real phone (390px was an emulated viewport); hover and focus states in the colour scan; the live preview inside the site's dialog and iframe (PR B); `Modal`'s focus behaviour.
+
+---
+
+## Findings from checking the published page
+
+Written during PR B (2026-10-17). Tools: the site's dev server (`vite`, port 5200) after `pnpm --filter cyberui-templates-site run sync-templates` (all three real builds), driven in headless Microsoft Edge over the DevTools protocol at 1440x900 and 390x844 (the latter with mobile emulation), with `prefers-reduced-motion` emulated both ways. The built-in browser pane was not used.
+
+**Held, no fix needed:**
+- `#/templates` shows three sections in order (monitoring, agent-panel, landing) under one h1 "Templates". The landing hero's `--color-accent` computes to `#ff8a3d`; the fit copy and the Examples compute to the library default and the neutral scope, so the orange does not leak out of the hero. Badge reads "Orange accent". No horizontal scroll at 1440 (scrollbar only) or 390 (`scrollWidth` 390).
+- Home says "3 templates ready." and lists none by name.
+- "Run the live demo" opens `#/templates/landing`; the orange page runs inside the dialog (iframe 1262x659 at 1440, 356x693 at 390; the dialog is full-screen at 390). The Live preview and Code tabs switch without reloading the preview (a marker set on the iframe's window survived). The Code tab shows the six principles and the six folders.
+- **Spec §12's open question: `scrollIntoView` inside an iframe inside a `<dialog>`.** Clicking "Pricing" in the preview's header scrolled only the preview (`scrollY` 0 to 1856 at 1440; 0 to 3277 at 390 through the Drawer menu). The site's `scrollY` (3552 and 3054), the dialog's and the dialog body's `scrollTop` (0) and the site's hash (`#/templates/landing`) were unchanged, and the section landed 64px under the 65px sticky header. The `window.scrollTo` fallback in the plan was therefore **not** needed and `scrollToSection.ts` is untouched.
+- The preview's header stays at the top while scrolling it (`top` 0 after scrolling 1200px). Inside the preview: the billing switch changes every price ($25 and $75 become $20 and $60 a month, with yearly totals), an FAQ item opens, "bob@" shows "Enter a valid email address.", a valid address shows "Thanks, you're on the list. This is a demo, so nothing was sent.". At 390 the Menu button opens the Drawer inside the preview with the four links and the trial button, and its "Pricing" link scrolls the preview (whether the Drawer closes afterwards was not asserted in this run; PR A checked it outside the dialog).
+- Closing: Esc with focus on the dialog's close button, Esc after a real click inside the running preview (the site forwards it), the close button, a backdrop click and the browser's Back button all close the dialog and leave `#/templates`; loading `#/templates/landing` directly reopens it.
+- Reduced motion: the dialog's `preview-dialog-in` animation is absent (opacity 1 at once), the preview has no `hero-in` animation, and a nav click lands at its final scroll position at once (2621 after 60ms) instead of 72.
+- The Copy start prompt text names `npx --yes tiged patrickkuei/cyberui-templates/packages/landing my-app`, and the terminal fold shows the same command.
+
+**Not checked:** the real production deploy (only happens after merge); `npx tiged patrickkuei/cyberui-templates/packages/landing` against the published repo (cannot run before merge); what the Copy start prompt button actually puts on the clipboard (the prompt text on the page was read, the clipboard was not); Firefox, Safari, a real phone, a screen reader.

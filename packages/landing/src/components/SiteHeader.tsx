@@ -42,6 +42,8 @@ export function SiteHeader({ goTo }: SiteHeaderProps) {
   // Drawer is aria-modal but does not trap Tab, so a keyboard user can tab out
   // of the open menu into the page behind it (patrickkuei/CyberUI#123). This
   // template does not work around that; Escape and the close button still work.
+  // The Drawer's border animation also uses hard-coded colours, so it ignores
+  // the accent in theme/orange.css (patrickkuei/CyberUI#124).
   return (
     <header className="site-header">
       <div className="site-header-inner page-width">

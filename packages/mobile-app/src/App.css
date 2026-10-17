@@ -1,0 +1,27 @@
+/* Kestrel styles. Colours come only from tokens (var(--color-*)); the one place
+   a hex colour is allowed is theme/blue.css (noHexColors.test.ts). Class names
+   are flat, not nested under .app, because the device sheet is rendered by the
+   library in a portal outside the app's root element.
+
+   The phone rules live in this file, each with its reason, and
+   phoneRules.test.ts guards the ones a tidy-up would break:
+     - Touch targets (44px)   see "Touch targets"
+     - Safe areas and dvh     see ".app", ".app-bar", ".bottom-nav", ".device-sheet"
+     - No sticky hover        every :hover is inside @media (hover: hover)
+     - Reduced motion         the only transitions are under no-preference */
+
+:root {
+  /* The one column. Below this width it is the whole screen; above it the app
+     stays this wide and centred, with the same bottom nav. */
+  --app-max: 30rem;
+  /* The smallest comfortable touch target: 44 by 44 CSS pixels. */
+  --touch: 2.75rem;
+  --pad: 1rem;
+}
+
+/* The page background sits on <body> so it fills the window beyond the centred column. */
+body {
+  margin: 0;
+  background: var(--color-base);
+  color: var(--color-default);
+}

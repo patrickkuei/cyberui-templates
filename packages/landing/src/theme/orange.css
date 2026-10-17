@@ -1,0 +1,26 @@
+/* src/theme/orange.css
+ *
+ * This template's accent. cyberui-2045 declares every colour as a custom
+ * property (inside `@layer theme`) and its components read them, so changing
+ * two values re-themes everything, including the opacity variants it builds
+ * with color-mix(). An unlayered :root rule beats the library's layered one,
+ * but keep the import AFTER 'cyberui-2045/styles.css' (see main.tsx) anyway.
+ *
+ * secondary and accent move together: secondary is the text, link and active
+ * colour (and one end of most gradients), accent is the rule under card titles,
+ * focus glows and the other end of the primary button's gradient. Overriding
+ * only one leaves a stray cyan or yellow. --color-primary (magenta) is left alone on purpose: only the
+ * accent hue varies per template. It still shows as the far end of the
+ * headline's gradient.
+ *
+ * Contrast of this orange: 7.3:1 on --color-base and 5.7:1 on --color-surface
+ * (WCAG AA needs 4.5:1 for body text). If you pick another accent, check both.
+ * It is close to the library's `warning` colour (#fa0), so if you add a
+ * <Badge variant="warning"> next to accent-coloured text, give them room.
+ *
+ * Re-theme this template by changing these two values.
+ */
+:root {
+  --color-secondary: #ff8a3d;
+  --color-accent: #ff8a3d;
+}

@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-17 (revised 2026-10-18)
 **Status:** Approved by the owner on 2026-10-18. The owner chose a **home device controller** for Q1 (the first draft proposed a pantry tracker; the owner asked whether it suited cyberui and picked this instead), then answered Q2 to Q10 with "go your recommend", so every "proposed" decision below is now decided, including the placeholder name "Kestrel" and the site name "Mobile App". See "Owner answers" at the end.
-**Plan:** not written (it follows the owner's answers).
+**Plan:** [docs/superpowers/plans/2026-10-18-mobile-app.md](../plans/2026-10-18-mobile-app.md) (20 tasks: PR A is Tasks 1-14, PR B is Tasks 15-20).
 **Issue:** [#48](https://github.com/patrickkuei/cyberui-templates/issues/48) (item 4 of tracking issue [#1](https://github.com/patrickkuei/cyberui-templates/issues/1)).
 **Builds on:** [2026-09-27-cyberui-showcase-design.md](2026-09-27-cyberui-showcase-design.md) (self-contained packages, accent-hue theming, one combined deploy), [2026-10-05-templates-page-design.md](2026-10-05-templates-page-design.md) (the `/templates` page every template is published through), [2026-10-06-agent-panel-design.md](2026-10-06-agent-panel-design.md) (hash routes, the honesty standard, the phone fixes that came late) and [2026-10-16-landing-page-design.md](2026-10-16-landing-page-design.md), the closest model for this document's shape, its PR split and its publishing path (§10), which are reused here without being repeated in full.
 **Baseline:** cyberui-2045 **2.8.0** (what the three shipped templates use; it is also the latest on npm). Everything about the library below was read from the published 2.8.0 package (`npm pack cyberui-2045@2.8.0`, its typings, compiled components and stylesheet), not from memory.
@@ -313,6 +313,8 @@ The owner answered Q1 by choosing the device controller, and Q2 to Q10 with "go 
 | Q8 | Comment citing the open Drawer issues plus a README "known limits" note; do not wait for a release. |
 | Q9 | One centred content column with the same bottom nav at 800px and above. |
 | Q10 | The landing path as written. The two role-play interviews for the site copy run just before PR B (the handoff method), with no further stop to ask unless an interview cannot be run. |
+
+**Deviations found while planning.** Building the package for the plan showed that a few details in this spec do not hold or are better done differently (for example the bottom nav is `position: sticky` in the app column rather than fixed, `Notification` is not used because its close button is 20px, and the sheet's controls are an exhaustive `switch` over the device kind). They are listed one by one in the plan's "Self-review notes"; where the two differ, the plan is the later and more exact statement.
 
 ## Open questions for the owner (as asked)
 

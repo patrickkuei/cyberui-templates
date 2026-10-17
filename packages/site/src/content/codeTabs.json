@@ -269,7 +269,7 @@
       },
       {
         "name": "DRY",
-        "detail": "Every section heading comes from one component.",
+        "detail": "Every section heading comes from one component (the hero's headline is written by hand).",
         "file": "src/components/SectionHeading.tsx",
         "excerpt": [
           "export function SectionHeading({ id, quiet = false }: SectionHeadingProps) {",
@@ -322,7 +322,7 @@
       },
       {
         "name": "Content as data",
-        "detail": "Swap the product by editing four files.",
+        "detail": "Swap the product by editing four data files, then the page title in index.html.",
         "file": "src/data/features.ts",
         "excerpt": [
           "export const FEATURES: Feature[] = [",

@@ -19,7 +19,7 @@ Proposed decisions (each cheap to reverse; the section with the reasoning is in 
 6. **No `recharts`, no router, no new runtime dependency** beyond `react`, `react-dom` and `cyberui-2045`. [§9]
 7. **Accent is a token override in one file** (`src/theme/<hue>.css`), exactly as `violet.css` does it: `--color-secondary` and `--color-accent` together, `--color-primary` left alone. [§4]
 8. **Two pull requests**, as for agent-panel: PR A is the package, PR B is the site, CI and README wiring (the Code tab's excerpts must exist in the package before CI accepts the site entry). [§10]
-9. **Publishing also edits the other two templates' copy.** Both currently say "Probably not for you: … a landing page" (`packages/site/src/content/templateContent.ts:32` and `:73`). Once this ships that sentence is false and must change. [§11]
+9. **`notFor` becomes optional and is rewritten about each template's own limits** (owner decision, 2026-10-16). Monitoring and agent-panel used to say "… or a landing page", which would turn false once this shipped, so all three lines now describe what that template lacks and name no other template type. [§11]
 
 Open questions: see the end of this document. Q-numbers are referenced from the sections above.
 
@@ -183,7 +183,7 @@ Same table as agent-panel §10, with these values. Nothing here is new machinery
 | File | Change |
 |---|---|
 | `packages/site/src/data/templates.ts` | Add the `landing` entry: name "Landing Page", tagline, `accentLabel`, `accentHex` (distinct from the other two), screenshot and live-preview paths. `slug:` then `name:` as plain single-line quoted strings (the README check reads the file as text). |
-| `packages/site/src/content/templateContent.ts` | Add the `landing` entry (`useIf`, `headsUp`, `notFor`, `examples`, `code`); **and edit the `notFor` of `monitoring` (line 32) and `agent-panel` (line 73)**: both end "…or a landing page." |
+| `packages/site/src/content/templateContent.ts` | Add the `landing` entry (`useIf`, `headsUp`, `notFor`, `examples`, `code`); **make `notFor` optional in `types.ts`, `TemplateSection.tsx` and `llms.ts`, and rewrite the `notFor` of `monitoring` and `agent-panel` about their own limits** (they used to end "…or a landing page.") |
 | `packages/site/src/content/codeTabs.json` | Add `landing`: principles with verbatim excerpts and the folder map (`check:code-tab` verifies each in CI). |
 | `packages/site/public/screenshots/landing.png` | About 1440px wide; taken at the top of the page with the pricing toggle visible. |
 | `packages/site/scripts/sync-template-builds.mjs`, `.github/workflows/deploy.yml` | The build/copy entries; `check:template-builds` fails CI if either is forgotten. |
@@ -199,7 +199,7 @@ Same table as agent-panel §10, with these values. Nothing here is new machinery
 - **Name / tagline.** "Landing Page" / "A hero, features, pricing with a working billing toggle, FAQ and a signup form for a product launch."
 - **Use this if you're building…** a launch page for a product or side project; a pricing page with plans to compare; a one-screen "join the waitlist" page.
 - **Heads-up.** One short friendly demo note in the style of the agent-panel decision: the product and numbers are made up and the signup sends nothing. Aim for roughly 150 characters, no list of mock parts.
-- **Probably not for you** "if you're after a dashboard or a native mobile app. (A one-page portfolio is fine.)"
+- **Probably not for you** "if you need several pages, a blog or a real signup backend. It's one scrolling page with a mock form." (Owner's rule: describe the template's own limits, never another template type.)
 - **Examples (two folds).** Not written here. Same method as the others: two persona role-plays by subagents, kept verbatim and truncated with ellipses, never invented; "Where they'd get stuck" lists only obstacles the library and templates did not cause (hosting, a domain, an email provider, real payment). If the interviews cannot be run, the task stops and asks. Suggested personas: an indie developer launching a paid side project; a PM who needs a waitlist page before engineering starts.
 - **Code tab principles** (each claim must be true of the shipped code): Single source of truth (content in `src/data/`), DRY, Typed and exhaustive (the `SECTIONS` list and the `Record<BillingPeriod, …>` plans), No inline styles (the test), Tested (the toggle and form), Content as data ("Swap the product by editing four files"). Folder map for `src/components`, `src/data`, `src/theme`.
 

@@ -17,8 +17,8 @@ const CLASS_NAMES: Record<Control, string> = {
  * that is Toggle (a 28 or 32px track), Checkbox (20 or 24px), RadioGroup
  * (20px rows) and Slider (a 20 or 24px thumb on an 8 or 12px track). Making
  * the control itself bigger is not an option the library offers (a touch-size
- * option is an open feature request on patrickkuei/CyberUI, linked from the
- * README's Known limits), so the rule is a class here that stretches the part
+ * option is an open feature request, patrickkuei/CyberUI#133), so the rule
+ * is a class here that stretches the part
  * of the control that takes the tap, without changing how it looks. App.css
  * has the rules and says which part of the library's markup each one relies
  * on; re-check them when you upgrade cyberui-2045 (the README's Phone

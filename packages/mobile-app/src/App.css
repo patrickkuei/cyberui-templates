@@ -296,7 +296,7 @@ body {
 /* Toggle draws no focus indicator: its focus classes set a ring colour but never
    a ring width, so a keyboard user cannot see which switch has focus. The real
    <input> is visually hidden and the track is the element right after it, so the
-   ring is drawn there (see the README's Known limits). */
+   ring is drawn there (patrickkuei/CyberUI#126, and the README's Known limits). */
 .touch-switch input:focus-visible + div {
   outline: 2px solid var(--color-secondary);
   outline-offset: 2px;
@@ -312,7 +312,8 @@ body {
    click on its element) without changing what is drawn. touch-action: none
    stops a finger that starts on the slider from scrolling the sheet or page
    instead of dragging: the library sets no touch-action of its own, so it is
-   the template's job. The padding keeps the widened areas inside the wrapper. */
+   the template's job (patrickkuei/CyberUI#127). The padding keeps the widened
+   areas inside the wrapper. */
 .touch-slider {
   padding-block: 0.75rem;
   touch-action: none;

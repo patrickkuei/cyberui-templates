@@ -3,8 +3,8 @@ import { TAB_ICONS } from '../icons';
 import { TAB_ROUTES, type Route } from '../router/useHashRoute';
 
 // cyberui-2045 has no bottom navigation (its TabNavigation is a strip along the
-// top; a bottom bar is an open feature request on patrickkuei/CyberUI, linked
-// from the README's Known limits), so this is hand-built from plain links and
+// top; a bottom bar is an open feature request, patrickkuei/CyberUI#131), so
+// this is hand-built from plain links and
 // App.css. They are real <a href="#/..."> links, so the browser's Back and
 // Forward buttons, a long-press and "copy link" all work, and the current tab
 // is marked with aria-current for screen readers. Three tabs, not five: more

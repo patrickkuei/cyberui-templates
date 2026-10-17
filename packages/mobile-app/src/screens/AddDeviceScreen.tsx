@@ -83,7 +83,10 @@ export function AddDeviceScreen({ dispatch, leave }: AddDeviceScreenProps) {
           Select is the library's native <select>, so a phone opens its own
           picker, which is what a thumb wants. variant="secondary" because
           Select's default variant glows with --color-primary (magenta) where
-          Input's default uses the accent, so the two would not match.
+          Input's default uses the accent, so the two would not match. No Select
+          here is given an `error`: Select does not tie it to the field with
+          aria-invalid or aria-describedby (patrickkuei/CyberUI#129), and every
+          option is valid anyway.
         */}
         <Select
           label={ADD_DEVICE.roomLabel}

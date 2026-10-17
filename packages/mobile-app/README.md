@@ -60,10 +60,12 @@ These are in the library, not in this template, and the template does not work a
 - **The Drawer's own title is 3.45:1 on its surface**, so the sheet writes its own heading and passes no `title`. (CyberUI#125)
 - **`Toggle` has no accessible name unless it has an `id`** (for its visible label) or an `aria-label`; every switch here has both. (CyberUI#120)
 - **`Input` does not announce a new error**, so a failed Save moves focus to the first field with a problem. (CyberUI#121)
-- **`Toggle` draws no keyboard focus indicator** (its focus classes set a ring color but never a width), so `.touch-switch input:focus-visible + div` in [src/App.css](src/App.css) draws one.
-- **`Slider` sets no `touch-action`**, so a touch drag that drifts a little up or down inside something that can scroll (the device sheet on a short screen) is cancelled by the browser part-way; the `.touch-slider` wrapper in [src/App.css](src/App.css) sets `touch-action: none`.
-- **There is no bottom navigation, no safe-area or `dvh` support, no way to make `Toggle`, `Checkbox` or `Slider` touch-sized, and no swipeable row**, so this template hand-builds the first, writes the safe-area and `dvh` rules itself, wraps the small controls in `TouchRow`, and uses a bottom sheet instead of swipe. These are filed upstream as feature requests.
-- **The `Remove device` button is the library's `danger` variant**, whose red text is 4.13:1 on the sheet's surface (it is 18px bold, which is not "large text" for the WCAG 3:1 allowance).
+- **`Toggle` draws no keyboard focus indicator** (its focus classes set a ring color but never a width), so `.touch-switch input:focus-visible + div` in [src/App.css](src/App.css) draws one. (CyberUI#126)
+- **`Slider` sets no `touch-action`**, so a touch drag that drifts a little up or down inside something that can scroll (the device sheet on a short screen) is cancelled by the browser part-way; the `.touch-slider` wrapper in [src/App.css](src/App.css) sets `touch-action: none`. (CyberUI#127)
+- **`Select` does not tie its `error` to the field** (no `aria-invalid`, no `aria-describedby`), so the Add device form never gives a `Select` an error. (CyberUI#129)
+- **Setting a `Drawer`'s `isOpen` to false yourself restores no focus**, unlike Escape, so the Devices screen puts focus back on the row that opened the sheet. (CyberUI#130)
+- **There is no bottom navigation, no safe-area or `dvh` support, no way to make `Toggle`, `Checkbox` or `Slider` touch-sized, and no swipeable row**, so this template hand-builds the first, writes the safe-area and `dvh` rules itself, wraps the small controls in `TouchRow`, and uses a bottom sheet instead of swipe. These are filed upstream as feature requests. (CyberUI#131 bottom navigation, #132 safe-area and `dvh`, #133 touch-size, #134 swipe and action sheet)
+- **The `Remove device` button is the library's `danger` variant**, whose red text is 4.13:1 on the sheet's surface (it is 18px bold, which is not "large text" for the WCAG 3:1 allowance). (CyberUI#128)
 
 ## Principles this code follows
 

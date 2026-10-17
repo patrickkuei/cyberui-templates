@@ -115,7 +115,10 @@ function Controls({ device, unit, dispatch }: { device: Device; unit: Temperatur
  *   the 44px way out. It sizes the panel to a fixed height by `size`; App.css
  *   lets the content decide instead.
  * - The panel is full width. App.css centres it in the app's column on wide
- *   screens and pads it for the home indicator.
+ *   screens and pads it for the home indicator (safe-area and dvh support is
+ *   an open feature request, patrickkuei/CyberUI#132).
+ * - Setting isOpen to false from the parent restores no focus, unlike Escape
+ *   (patrickkuei/CyberUI#130), which is why DevicesScreen does it.
  */
 export function DeviceSheet({ device, unit, dispatch, onClose }: DeviceSheetProps) {
   return (
@@ -140,6 +143,7 @@ export function DeviceSheet({ device, unit, dispatch, onClose }: DeviceSheetProp
           </div>
           {device.status === 'offline' && <p className="sheet-note">This device is offline, so its controls are switched off.</p>}
           <div className="sheet-actions">
+            {/* The library's danger variant is 4.13:1 on this surface (patrickkuei/CyberUI#128). It is kept rather than restyled, so a fix upstream reaches this button. */}
             <Button variant="danger" onClick={() => dispatch({ type: 'device/remove', id: device.id })}>
               Remove device
             </Button>

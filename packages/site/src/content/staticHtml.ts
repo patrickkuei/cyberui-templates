@@ -15,7 +15,7 @@ import { REPO, SITE_URL, forkCommand } from './start';
 export const SITE_TITLE = 'CyberUI templates — React starter apps built with cyberui-2045';
 
 export const SITE_DESCRIPTION =
-  'React starter templates built with cyberui-2045, such as an AI monitoring dashboard and an agent control panel. ' +
+  'React starter templates built with cyberui-2045, such as an AI monitoring dashboard, an agent control panel and a landing page. ' +
   'Live previews, code, and a one-command fork with npx tiged.';
 
 // Link previews need an absolute image URL. The monitoring screenshot is

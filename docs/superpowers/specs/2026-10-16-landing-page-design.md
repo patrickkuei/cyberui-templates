@@ -19,7 +19,7 @@ Proposed decisions (each cheap to reverse; the section with the reasoning is in 
 6. **No `recharts`, no router, no new runtime dependency** beyond `react`, `react-dom` and `cyberui-2045`. [§9]
 7. **Accent is a token override in one file** (`src/theme/<hue>.css`), exactly as `violet.css` does it: `--color-secondary` and `--color-accent` together, `--color-primary` left alone. [§4]
 8. **Two pull requests**, as for agent-panel: PR A is the package, PR B is the site, CI and README wiring (the Code tab's excerpts must exist in the package before CI accepts the site entry). [§10]
-9. **Publishing also edits the other two templates' copy.** Both currently say "Probably not for you: … a landing page" (`packages/site/src/content/templateContent.ts:32` and `:73`). Once this ships that sentence is false and must change. [§11]
+9. **`notFor` becomes optional and is rewritten about each template's own limits** (owner decision, 2026-10-16). Monitoring and agent-panel used to say "… or a landing page", which would turn false once this shipped, so all three lines now describe what that template lacks and name no other template type. [§11]
 
 Open questions: see the end of this document. Q-numbers are referenced from the sections above.
 
@@ -183,7 +183,7 @@ Same table as agent-panel §10, with these values. Nothing here is new machinery
 | File | Change |
 |---|---|
 | `packages/site/src/data/templates.ts` | Add the `landing` entry: name "Landing Page", tagline, `accentLabel`, `accentHex` (distinct from the other two), screenshot and live-preview paths. `slug:` then `name:` as plain single-line quoted strings (the README check reads the file as text). |
-| `packages/site/src/content/templateContent.ts` | Add the `landing` entry (`useIf`, `headsUp`, `notFor`, `examples`, `code`); **and edit the `notFor` of `monitoring` (line 32) and `agent-panel` (line 73)**: both end "…or a landing page." |
+| `packages/site/src/content/templateContent.ts` | Add the `landing` entry (`useIf`, `headsUp`, `notFor`, `examples`, `code`); **make `notFor` optional in `types.ts`, `TemplateSection.tsx` and `llms.ts`, and rewrite the `notFor` of `monitoring` and `agent-panel` about their own limits** (they used to end "…or a landing page.") |
 | `packages/site/src/content/codeTabs.json` | Add `landing`: principles with verbatim excerpts and the folder map (`check:code-tab` verifies each in CI). |
 | `packages/site/public/screenshots/landing.png` | About 1440px wide; taken at the top of the page with the pricing toggle visible. |
 | `packages/site/scripts/sync-template-builds.mjs`, `.github/workflows/deploy.yml` | The build/copy entries; `check:template-builds` fails CI if either is forgotten. |
@@ -199,7 +199,7 @@ Same table as agent-panel §10, with these values. Nothing here is new machinery
 - **Name / tagline.** "Landing Page" / "A hero, features, pricing with a working billing toggle, FAQ and a signup form for a product launch."
 - **Use this if you're building…** a launch page for a product or side project; a pricing page with plans to compare; a one-screen "join the waitlist" page.
 - **Heads-up.** One short friendly demo note in the style of the agent-panel decision: the product and numbers are made up and the signup sends nothing. Aim for roughly 150 characters, no list of mock parts.
-- **Probably not for you** "if you're after a dashboard or a native mobile app. (A one-page portfolio is fine.)"
+- **Probably not for you** "if you need several pages, a blog or a real signup backend. It's one scrolling page with a mock form." (Owner's rule: describe the template's own limits, never another template type.)
 - **Examples (two folds).** Not written here. Same method as the others: two persona role-plays by subagents, kept verbatim and truncated with ellipses, never invented; "Where they'd get stuck" lists only obstacles the library and templates did not cause (hosting, a domain, an email provider, real payment). If the interviews cannot be run, the task stops and asks. Suggested personas: an indie developer launching a paid side project; a PM who needs a waitlist page before engineering starts.
 - **Code tab principles** (each claim must be true of the shipped code): Single source of truth (content in `src/data/`), DRY, Typed and exhaustive (the `SECTIONS` list and the `Record<BillingPeriod, …>` plans), No inline styles (the test), Tested (the toggle and form), Content as data ("Swap the product by editing four files"). Folder map for `src/components`, `src/data`, `src/theme`.
 
@@ -268,3 +268,21 @@ Written during PR A (2026-10-16), after building `packages/landing`. Tools: the 
 **Library findings, reproduced and filed:** `Toggle` without an `id` has no accessible name (CyberUI#120); `Input`'s error is not announced (#121); `Steps` glyphs are not `aria-hidden` (#122); `Drawer` does not trap Tab although it is `aria-modal` (#123; Tab left the open menu for the skip link and the header); the `Drawer`'s border animation hard-codes its colours (#124) and its title is 3.45:1 on its surface (#125). Not filed: `Steps` has no static mode (a documented behaviour, a feature request, not reproduced as a defect).
 
 **Not checked:** a screen reader; Firefox and Safari; a real touch device or a real phone (390px was an emulated viewport); hover and focus states in the colour scan; the live preview inside the site's dialog and iframe (PR B); `Modal`'s focus behaviour.
+
+---
+
+## Findings from checking the published page
+
+Written during PR B (2026-10-17). Tools: the site's dev server (`vite`, port 5200) after `pnpm --filter cyberui-templates-site run sync-templates` (all three real builds), driven in headless Microsoft Edge over the DevTools protocol at 1440x900 and 390x844 (the latter with mobile emulation), with `prefers-reduced-motion` emulated both ways. The built-in browser pane was not used.
+
+**Held, no fix needed:**
+- `#/templates` shows three sections in order (monitoring, agent-panel, landing) under one h1 "Templates". The landing hero's `--color-accent` computes to `#ff8a3d`; the fit copy and the Examples compute to the library default and the neutral scope, so the orange does not leak out of the hero. Badge reads "Orange accent". No horizontal scroll at 1440 (scrollbar only) or 390 (`scrollWidth` 390).
+- Home says "3 templates ready." and lists none by name.
+- "Run the live demo" opens `#/templates/landing`; the orange page runs inside the dialog (iframe 1262x659 at 1440, 356x693 at 390; the dialog is full-screen at 390). The Live preview and Code tabs switch without reloading the preview (a marker set on the iframe's window survived). The Code tab shows the six principles and the six folders.
+- **Spec §12's open question: `scrollIntoView` inside an iframe inside a `<dialog>`.** Clicking "Pricing" in the preview's header scrolled only the preview (`scrollY` 0 to 1856 at 1440; 0 to 3277 at 390 through the Drawer menu). The site's `scrollY` (3552 and 3054), the dialog's and the dialog body's `scrollTop` (0) and the site's hash (`#/templates/landing`) were unchanged, and the section landed 64px under the 65px sticky header. The `window.scrollTo` fallback in the plan was therefore **not** needed and `scrollToSection.ts` is untouched.
+- The preview's header stays at the top while scrolling it (`top` 0 after scrolling 1200px). Inside the preview: the billing switch changes every price ($25 and $75 become $20 and $60 a month, with yearly totals), an FAQ item opens, "bob@" shows "Enter a valid email address.", a valid address shows "Thanks, you're on the list. This is a demo, so nothing was sent.". At 390 the Menu button opens the Drawer inside the preview with the four links and the trial button, and its "Pricing" link scrolls the preview (whether the Drawer closes afterwards was not asserted in this run; PR A checked it outside the dialog).
+- Closing: Esc with focus on the dialog's close button, Esc after a real click inside the running preview (the site forwards it), the close button, a backdrop click and the browser's Back button all close the dialog and leave `#/templates`; loading `#/templates/landing` directly reopens it.
+- Reduced motion: the dialog's `preview-dialog-in` animation is absent (opacity 1 at once), the preview has no `hero-in` animation, and a nav click lands at its final scroll position at once (2621 after 60ms) instead of 72.
+- The Copy start prompt text names `npx --yes tiged patrickkuei/cyberui-templates/packages/landing my-app`, and the terminal fold shows the same command.
+
+**Not checked:** the real production deploy (only happens after merge); `npx tiged patrickkuei/cyberui-templates/packages/landing` against the published repo (cannot run before merge); what the Copy start prompt button actually puts on the clipboard (the prompt text on the page was read, the clipboard was not); Firefox, Safari, a real phone, a screen reader.

@@ -15,6 +15,7 @@ const repoRoot = path.resolve(siteDir, '..', '..');
 const TEMPLATE_BUILDS = [
   { slug: 'monitoring', pnpmFilter: 'monitoring-template' },
   { slug: 'agent-panel', pnpmFilter: 'agent-panel-template' },
+  { slug: 'landing', pnpmFilter: 'landing-template' },
 ];
 
 for (const { slug, pnpmFilter } of TEMPLATE_BUILDS) {

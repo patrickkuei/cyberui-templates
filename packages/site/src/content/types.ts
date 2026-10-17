@@ -37,8 +37,12 @@ export interface TemplateContent {
   useIf: string[];
   /** What is simulated or mock, and that the template ships screens, not a data connection. */
   headsUp: string;
-  /** Completes the sentence "Probably not for you …". */
-  notFor: string;
+  /**
+   * Completes the sentence "Probably not for you …". Optional: when absent,
+   * the page and llms.txt render no such line at all (not an empty one). Say
+   * what this template's own limits are; never name another template type.
+   */
+  notFor?: string;
   examples: ExampleCase[];
   /** The dialog's Code tab: the principles the template follows and a map of its folders. */
   code: CodeTabContent;

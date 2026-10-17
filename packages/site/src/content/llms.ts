@@ -4,18 +4,19 @@
 // <div id="root">; this file is what they can read instead. vite.config.ts
 // writes it into dist/ at build time from the same data the page renders,
 // so adding a template to TEMPLATES and TEMPLATE_CONTENT adds it here too.
-import { TEMPLATE_ENTRIES } from './templateContent';
+import { TEMPLATE_ENTRIES, type TemplateEntry } from './templateContent';
 import { INIT_COMMAND, NODE_MIN, REPO, SITE_URL, forkCommand, startPrompt, terminalSteps } from './start';
 
-export function llmsTxt(): string {
-  const templates = TEMPLATE_ENTRIES.flatMap(({ template, content }) => [
+/** `entries` is overridable so a test can render an entry that has no `notFor`. */
+export function llmsTxt(entries: TemplateEntry[] = TEMPLATE_ENTRIES): string {
+  const templates = entries.flatMap(({ template, content }) => [
     `### ${template.name}`,
     '',
     template.tagline,
     '',
     `- Use it if you're building: ${content.useIf.join('; ')}.`,
     `- Heads-up: ${content.headsUp}`,
-    `- Probably not for you ${content.notFor}`,
+    ...(content.notFor ? [`- Probably not for you ${content.notFor}`] : []),
     `- Fork it: \`${forkCommand(template.slug)}\`, then ${terminalSteps(template.slug)
       .slice(1)
       .map((step) => `\`${step}\``)

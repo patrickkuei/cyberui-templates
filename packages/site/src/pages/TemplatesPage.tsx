@@ -37,7 +37,7 @@ export function TemplatesPage({ openSlug, entries = TEMPLATE_ENTRIES }: Template
         />
       ))}
       {/* The page's only link to "How we design" besides the nav and the Code tab: someone who has
-          just seen both templates is the person wondering where they came from. */}
+          just seen the templates is the person wondering where they came from. */}
       <p className="templates-page-end signpost">
         Wondering how these were made? <a href="#/process">How we design</a>
       </p>

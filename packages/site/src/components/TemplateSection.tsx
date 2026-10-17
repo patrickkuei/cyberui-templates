@@ -73,9 +73,11 @@ export function TemplateSection({ template, content, previewOpen, onOpenPreview,
         <p className="template-headsup">
           <strong>Heads-up:</strong> {content.headsUp}
         </p>
-        <p className="template-notfor">
-          <strong>Probably not for you</strong> {content.notFor}
-        </p>
+        {content.notFor && (
+          <p className="template-notfor">
+            <strong>Probably not for you</strong> {content.notFor}
+          </p>
+        )}
       </div>
 
       <div className="template-examples neutral-scope">

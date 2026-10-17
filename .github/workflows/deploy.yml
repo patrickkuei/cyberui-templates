@@ -42,6 +42,9 @@ jobs:
       - name: Build agent-panel template
         run: pnpm --filter agent-panel-template run build
 
+      - name: Build landing template
+        run: pnpm --filter landing-template run build
+
       - name: Build site
         run: pnpm --filter cyberui-templates-site run build
 
@@ -52,6 +55,8 @@ jobs:
           cp -r packages/monitoring/dist/. packages/site/dist/live/monitoring/
           mkdir -p packages/site/dist/live/agent-panel
           cp -r packages/agent-panel/dist/. packages/site/dist/live/agent-panel/
+          mkdir -p packages/site/dist/live/landing
+          cp -r packages/landing/dist/. packages/site/dist/live/landing/
 
       # The site needs JavaScript to render, so llms.txt, sitemap.xml and
       # index.html's meta tags and <noscript> are the only text a crawler,

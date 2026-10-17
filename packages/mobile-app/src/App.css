@@ -1,0 +1,538 @@
+/* Kestrel styles. Colours come only from tokens (var(--color-*)); the one place
+   a hex colour is allowed is theme/blue.css (noHexColors.test.ts). Class names
+   are flat, not nested under .app, because the device sheet is rendered by the
+   library in a portal outside the app's root element.
+
+   The phone rules live in this file, each with its reason, and
+   phoneRules.test.ts guards the ones a tidy-up would break:
+     - Touch targets (44px)   see "Touch targets"
+     - Safe areas and dvh     see ".app", ".app-bar", ".bottom-nav", ".device-sheet"
+     - No sticky hover        every :hover is inside @media (hover: hover)
+     - Reduced motion         the only transitions are under no-preference */
+
+:root {
+  /* The one column. Below this width it is the whole screen; above it the app
+     stays this wide and centred, with the same bottom nav. */
+  --app-max: 30rem;
+  /* The smallest comfortable touch target: 44 by 44 CSS pixels. */
+  --touch: 2.75rem;
+  --pad: 1rem;
+}
+
+/* The page background sits on <body> so it fills the window beyond the centred column. */
+body {
+  margin: 0;
+  background: var(--color-base);
+  color: var(--color-default);
+}
+
+/* ---- App shell ---- */
+
+/* 100dvh, not 100vh: on a phone 100vh is the viewport with the browser's
+   toolbar tucked away, so a bottom nav sized to it sits under the toolbar until
+   the page is scrolled. cyberui-2045 2.8.0 uses no dvh/svh anywhere. 100vh is
+   written first as the fallback for browsers that do not know dvh (they drop
+   the second line).
+   The side padding is the notch in landscape. It needs viewport-fit=cover in
+   index.html, or the insets are always 0. */
+.app {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--app-max);
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  background: var(--color-base);
+}
+
+@media (min-width: 30.0625rem) {
+  .app {
+    border-inline: 1px solid var(--color-border-default);
+  }
+}
+
+/* Hidden until it takes focus, then the first thing a keyboard visitor sees. */
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  color: var(--color-base);
+  background: var(--color-secondary);
+  border-radius: 0.25rem;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* A double tap on a switch or a link would zoom the page on iOS. */
+.app :is(a, button, label, select) {
+  touch-action: manipulation;
+}
+
+/* The ring is for real controls. The things code focuses (the screen, its
+   title) take focus without drawing one. */
+:where(.app-bar-back, .device-main, .nav-tab):focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.screen:focus,
+.screen-title:focus {
+  outline: none;
+}
+
+/* ---- App bar ---- */
+
+/* Sticky, not fixed: it stays in the column. The top padding is the status bar
+   or notch when the page runs full screen. */
+.app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: calc(3.5rem + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) var(--pad) 0;
+  background: var(--color-base);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.app-bar-name {
+  margin-inline-end: auto;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.app-bar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  margin-inline-start: -0.5rem;
+  padding: 0 0.75rem 0 0.25rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-secondary);
+  background: none;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+/* ---- Notice (after pairing a device) ---- */
+
+.notice-region {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notice-region--open {
+  padding: 0.75rem var(--pad);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+/* Empty (zero height) until there is something to say, but always in the page: a live region has to exist before its text changes. */
+.notice-text {
+  flex: 1 1 12rem;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+/* ---- Screens ---- */
+
+.screen {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem var(--pad) 1.5rem;
+}
+
+.screen-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-secondary);
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Card gives its body text the magenta --color-primary and its children
+   space-y margins. Cards in this app reset both: text is the default colour,
+   the surface is --color-surface, and spacing is each card's own gap. */
+.card-surface {
+  background-color: var(--color-surface);
+  color: var(--color-default);
+}
+
+.card-surface > * {
+  margin: 0;
+}
+
+/* ---- Devices ---- */
+
+.room {
+  display: flex;
+  flex-direction: column;
+}
+
+.device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.device-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0.75rem;
+}
+
+.device-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 4rem;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 0.75rem 0 0 0.75rem;
+  cursor: pointer;
+}
+
+.device-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--color-secondary);
+}
+
+.device-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.device-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.device-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.device-reading {
+  padding-inline: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.device-row .touch-switch {
+  padding-inline: 0.25rem 0.75rem;
+}
+
+/* ---- Touch targets ----
+   A thumb needs about 44 by 44 CSS pixels. In cyberui-2045 2.8.0 Button and
+   Input are already 44px or more at size md, but Toggle (a 28 or 32px track),
+   Checkbox, RadioGroup (20px rows) and Slider (a 20 or 24px thumb on an 8 or
+   12px track) are not, and the library has no option to make them bigger.
+   TouchRow (components/TouchRow.tsx) puts a class on a wrapper, and these rules
+   stretch the part of the control that takes the tap without changing how it
+   looks. They name parts of the library's markup (a <label> around the switch,
+   the radio <label>s, the slider's track as the last child and its
+   role="slider" thumb), so re-check them when you upgrade the library
+   (the README's Phone checklist). */
+
+/* Toggle: the <label> around the switch is what the tap lands on, so give it the height. */
+.touch-switch label {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+}
+
+/* Toggle draws no focus indicator: its focus classes set a ring colour but never
+   a ring width, so a keyboard user cannot see which switch has focus. The real
+   <input> is visually hidden and the track is the element right after it, so the
+   ring is drawn there (patrickkuei/CyberUI#126, and the README's Known limits). */
+.touch-switch input:focus-visible + div {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* RadioGroup: each option is a <label>, 20px high as shipped. */
+.touch-radios label {
+  min-height: var(--touch);
+}
+
+/* Slider: the drag starts on the track or the thumb. Pseudo-elements on both
+   widen what counts as the track or the thumb (a click on a pseudo-element is a
+   click on its element) without changing what is drawn. touch-action: none
+   stops a finger that starts on the slider from scrolling the sheet or page
+   instead of dragging: the library sets no touch-action of its own, so it is
+   the template's job (patrickkuei/CyberUI#127). The padding keeps the widened
+   areas inside the wrapper. */
+.touch-slider {
+  padding-block: 0.75rem;
+  touch-action: none;
+}
+
+.slider-control > div:last-child::before {
+  content: '';
+  position: absolute;
+  inset: -1rem 0;
+}
+
+.slider-control [role='slider']::before {
+  content: '';
+  position: absolute;
+  inset: -0.75rem;
+}
+
+/* ---- Device sheet (cyberui-2045 Drawer, side="bottom") ----
+   Drawer sizes the panel to a fixed height by `size`; this lets the content
+   decide, up to the screen, and the content scrolls past that. It is full
+   width by default, so it is held to the app's column and centred on wide
+   screens (fixed + left/right 0 + max-width + auto margins). The bottom padding
+   keeps the buttons clear of the home indicator (the library adds none).
+   Last, the border glow: Drawer animates its border through hard-coded colours
+   (magenta, cyan, green) and ignores the accent (patrickkuei/CyberUI#124), which
+   on a sheet this large would flash on a blue app. These three lines, which
+   beat the library's layered CSS, hold it at the steady accent border the
+   library itself uses under prefers-reduced-motion. */
+.device-sheet {
+  height: auto;
+  max-height: calc(100vh - 1rem);
+  max-height: calc(100dvh - 1rem);
+  max-width: var(--app-max);
+  margin-inline: auto;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-radius: 1rem 1rem 0 0;
+  animation: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* The library's own Drawer title is 3.45:1 on its surface (patrickkuei/CyberUI#125), so the sheet draws its own heading in the default text colour. */
+.sheet-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-default);
+}
+
+.sheet-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+}
+
+.sheet-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sheet-reading,
+.sheet-note {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sheet-actions > * {
+  width: 100%;
+}
+
+/* ---- Add device ---- */
+
+.add-form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Sticky inside the form, not fixed over the page: with the on-screen keyboard
+   open it stays reachable without covering a field. */
+.form-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding: 0.75rem 0 calc(0.75rem + env(safe-area-inset-bottom));
+  background: var(--color-base);
+}
+
+/* ---- Scenes ---- */
+
+.scene-result {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.scene-result:not(:empty) {
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border-left: 4px solid var(--color-secondary);
+  border-radius: 0.5rem;
+}
+
+.scene-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scene-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scene-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+}
+
+.scene-summary {
+  color: var(--color-muted);
+}
+
+/* ---- Settings ---- */
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.about-version {
+  font-weight: 600;
+}
+
+.about-demo {
+  color: var(--color-muted);
+}
+
+/* ---- Bottom navigation ----
+   Sticky at the foot of the app column, so it can never leave the column (a
+   fixed bar would have to be re-centred by hand on wide screens). The bottom
+   padding is the home indicator. */
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border-default);
+}
+
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  min-height: 3.5rem;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.nav-tab[aria-current='page'] {
+  color: var(--color-secondary);
+  box-shadow: inset 0 2px 0 var(--color-secondary);
+}
+
+/* Pressed feedback for a finger. It is :active, which a touch ends, unlike :hover. */
+.nav-tab:active,
+.device-main:active {
+  background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+
+/* Hover only where a pointer can hover: after a tap on a touch screen :hover
+   sticks to the last thing touched. Hover never carries meaning here, it only
+   decorates. */
+@media (hover: hover) {
+  .nav-tab:hover,
+  .device-main:hover,
+  .app-bar-back:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+}
+
+/* No animation at all for people who ask for none. */
+@media (prefers-reduced-motion: no-preference) {
+  .nav-tab,
+  .device-main,
+  .app-bar-back {
+    transition: background-color 150ms ease-out, color 150ms ease-out;
+  }
+}

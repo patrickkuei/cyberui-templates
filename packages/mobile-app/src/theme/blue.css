@@ -1,0 +1,30 @@
+/* src/theme/blue.css
+ *
+ * This template's accent. cyberui-2045 declares every colour as a custom
+ * property (inside `@layer theme`) and its components read them, so changing
+ * two values re-themes everything, including the opacity variants it builds
+ * with color-mix(). An unlayered :root rule beats the library's layered one,
+ * but keep the import AFTER 'cyberui-2045/styles.css' (see main.tsx) anyway.
+ *
+ * secondary and accent move together: secondary is the text, link and active
+ * colour, accent is the rule under card titles, focus glows and the other end
+ * of the primary button's gradient. Overriding only one leaves a stray cyan or
+ * yellow. --color-primary (magenta) is left alone on purpose: only the accent
+ * hue varies per template.
+ *
+ * Why blue (hue 216): this app shows device status in the library's own
+ * colours, so the accent has to stay clear of them. --color-success (green),
+ * --color-warning (amber) and --color-error (red) mean Online, Low battery and
+ * Offline here, and are not touched. A green, amber, red or magenta accent
+ * would blur with one of them.
+ *
+ * Contrast of this blue: 6.21:1 on --color-base and 4.87:1 on --color-surface
+ * (WCAG AA needs 4.5:1 for body text). If you pick another accent, check both.
+ * Indigo #818cf8, for instance, is 4.48:1 on the surface and fails.
+ *
+ * Re-theme this template by changing these two values.
+ */
+:root {
+  --color-secondary: #5b9cff;
+  --color-accent: #5b9cff;
+}

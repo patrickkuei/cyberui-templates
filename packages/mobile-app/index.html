@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      viewport-fit=cover lets the page draw under a notch and the home
+      indicator. Without it browsers letterbox the page inside the safe area and
+      every env(safe-area-inset-*) in src/App.css reads 0. With it, the app bar,
+      the bottom nav and the device sheet pad themselves (see src/App.css).
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!--
+      The colour of the browser's own bar on a phone. A meta tag cannot read a
+      CSS variable, so this repeats --color-base from cyberui-2045 (#1a1a2e).
+      color-scheme: dark gives native controls, such as the picker behind the
+      Room and Type fields, dark colours too.
+    -->
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="color-scheme" content="dark" />
+    <!--
+      Replace these before you publish. They describe Kestrel, a fictional
+      device controller, and link previews and search results read them, not
+      your React code. The title changes per screen once the app is running
+      (src/App.tsx).
+    -->
+    <title>Kestrel: a home device controller template</title>
+    <meta name="description" content="A phone-first home device controller built with cyberui-2045. A template: the devices are made up and nothing is controlled." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

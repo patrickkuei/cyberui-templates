@@ -288,10 +288,12 @@ body {
 }
 
 /* min-height: the primary button has no border and the secondary one has, which
-   left the Pro button 4px shorter than its neighbours. */
+   left the Pro button 4px shorter than its neighbours. 3rem is the height the
+   outlined button has at the library's default size, so it levels the filled
+   one up to it at every width. */
 .plan-cta {
   width: 100%;
-  min-height: 2.75rem;
+  min-height: 3rem;
   margin-top: auto;
 }
 
@@ -319,7 +321,9 @@ body {
 
 /* ---- FAQ ---- */
 
-.faq-width {
+/* The list is narrower than the page for readability, but left-aligned so its
+   edge lines up with the headings and cards of the other sections. */
+.faq-list {
   max-width: 48rem;
 }
 
@@ -330,11 +334,8 @@ body {
 
 /* ---- Signup ---- */
 
-.signup-inner {
-  max-width: 40rem;
-}
-
 .signup-form {
+  max-width: 40rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -519,6 +520,20 @@ body {
 .terminal-line {
   display: block;
   white-space: pre;
+}
+
+/* On phones the longest line ("Live at https://my-app.tessera.example") is
+   wider than the card, which cut it off mid-word. Smaller type, and wrapping
+   instead of horizontal scrolling, so nothing is ever hidden. */
+@media (max-width: 29.99rem) {
+  .terminal {
+    font-size: 0.8125rem;
+  }
+
+  .terminal-line {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
 }
 
 .terminal-line--command {

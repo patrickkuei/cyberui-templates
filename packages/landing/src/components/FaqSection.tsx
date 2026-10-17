@@ -17,9 +17,9 @@ const ITEMS = FAQ.map((item) => ({
 export function FaqSection() {
   return (
     <section {...sectionProps('faq')} className="section">
-      <div className="page-width faq-width">
+      <div className="page-width">
         <SectionHeading id="faq" />
-        <Accordion items={ITEMS} mode="single" />
+        <Accordion className="faq-list" items={ITEMS} mode="single" />
       </div>
     </section>
   );

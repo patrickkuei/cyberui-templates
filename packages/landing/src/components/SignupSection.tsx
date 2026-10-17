@@ -4,8 +4,8 @@ import { SignupForm } from './SignupForm';
 
 export function SignupSection() {
   return (
-    <section {...sectionProps('signup')} className="section signup">
-      <div className="page-width signup-inner">
+    <section {...sectionProps('signup')} className="section">
+      <div className="page-width">
         <SectionHeading id="signup" />
         <SignupForm />
       </div>

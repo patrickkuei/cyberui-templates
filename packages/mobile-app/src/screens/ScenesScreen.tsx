@@ -17,6 +17,8 @@ const names = (ids: string[], devices: Device[]) =>
 /** What applying a scene did, in a sentence or two. Devices that no longer exist are left out. */
 export function describeSceneResult(result: SceneResult, devices: Device[]): string {
   const sceneName = SCENES.find((scene) => scene.id === result.sceneId)?.name ?? 'Scene';
+  // With every device removed, "applied. Nothing needed changing." would read as if there were devices.
+  if (devices.length === 0) return `${sceneName}: no devices to change.`;
   const changed = names(result.changed, devices);
   const offline = names(result.offline, devices);
   const parts = [`${sceneName} applied.`, changed ? `Changed: ${changed}.` : 'Nothing needed changing.'];

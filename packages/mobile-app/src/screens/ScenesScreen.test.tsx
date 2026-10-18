@@ -45,6 +45,10 @@ describe('ScenesScreen', () => {
 });
 
 describe('describeSceneResult', () => {
+  it('says there are no devices when there is nothing to change them, instead of "nothing needed changing"', () => {
+    expect(describeSceneResult({ sceneId: 'good-night', changed: [], offline: [] }, [])).toBe('Good night: no devices to change.');
+  });
+
   it('leaves out devices that no longer exist', () => {
     expect(describeSceneResult({ sceneId: 'away', changed: ['desk-lamp', 'gone'], offline: [] }, STARTING_DEVICES)).toBe('Away applied. Changed: Desk lamp.');
   });

@@ -166,8 +166,11 @@ body {
   gap: 0.25rem;
   min-width: var(--touch);
   min-height: var(--touch);
-  margin-inline-start: -0.5rem;
-  padding: 0 0.75rem 0 0.25rem;
+  /* The hover tint is painted on this box, so the arrow needs 0.5rem of padding
+     before the tint's edge (it had 0.25rem). The margin takes back what that
+     adds, so the arrow stays where it was, lined up with the page's own edge. */
+  margin-inline-start: -0.75rem;
+  padding: 0 0.75rem 0 0.5rem;
   font: inherit;
   font-weight: 600;
   color: var(--color-secondary);
@@ -447,7 +450,9 @@ body {
   display: grid;
   grid-template-columns: 3rem minmax(0, 1fr);
   align-items: center;
-  column-gap: 0.75rem;
+  /* Only 0.375rem because the link's own side padding (below) supplies the rest
+     of the distance between the glyph and the name. */
+  column-gap: 0.375rem;
   padding: 0.5rem;
   border: 1px solid transparent;
   border-radius: 0.875rem;
@@ -494,12 +499,28 @@ body {
   cursor: default;
 }
 
+/* The link's own box is what the hover tint, the pressed tint (both near the
+   end of this file) and the focus ring (top of this file) are painted on, so the
+   text must not sit on that box's edge: without side padding the tint's rounded
+   edge touched "Bedside lamp" and "Off". Nothing paints the box at rest, which
+   is why it looked right until a pointer arrived.
+   The padding is paid for so the row hardly moves: .device-row's column-gap is
+   0.375rem instead of 0.75rem, which leaves the name 0.375rem right of where it
+   was, and the negative end margin lets the tint run to the row's inner edge, so
+   "Off" ends within 0.25rem of the end of the level bar below. 0.375rem is also
+   the clear space between the glyph tile and the tint, enough for the 2px focus
+   ring (2px outline at 2px offset) not to touch the tile. The level bar is the
+   link's sibling, not inside it, so this padding does not inset the bar.
+   Any control that gets a tint needs side padding for the same reason;
+   phoneRules.test.ts lists them. */
 .device-link {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
   min-height: 3.5rem;
+  margin-inline-end: -0.5rem;
+  padding-inline: 0.75rem;
   color: inherit;
   text-decoration: none;
   border-radius: 0.5rem;

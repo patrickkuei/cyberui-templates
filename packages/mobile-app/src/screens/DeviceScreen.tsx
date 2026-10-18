@@ -199,13 +199,19 @@ export function DeviceScreen({ state, dispatch, connection, deviceId, leave }: D
                 <MinusIcon />
               </Button>
             )}
-            <p
-              className={big.dim ? 'numeral numeral--dim' : 'numeral'}
-              // The thermostat has no slider-style announcement for the plus and
-              // minus buttons, so its numeral is a polite live region.
-              aria-live={device.kind === 'thermostat' ? 'polite' : undefined}
-              aria-label={device.kind === 'thermostat' ? `${DEVICE_COPY.target} ${formatTemp(device.targetC, unit)}${device.on ? '' : ', off'}` : undefined}
-            >
+            {/* The plus and minus buttons say nothing about what changed, so the
+                thermostat's target is announced from a polite live region of
+                visually hidden text, and the drawn numeral is hidden from
+                assistive technology so it is not read twice. (An aria-label on
+                a <p> is not reliably announced, which is why it is not used.)
+                The region is rendered from the start so it exists before its
+                text changes. */}
+            {device.kind === 'thermostat' && (
+              <span className="sr-only" aria-live="polite">
+                {`${DEVICE_COPY.target} ${formatTemp(device.targetC, unit)}${device.on ? '' : ', off'}`}
+              </span>
+            )}
+            <p className={big.dim ? 'numeral numeral--dim' : 'numeral'} aria-hidden={device.kind === 'thermostat' ? true : undefined}>
               {big.value}
               {big.unit && <span className="numeral-unit">{big.unit}</span>}
             </p>

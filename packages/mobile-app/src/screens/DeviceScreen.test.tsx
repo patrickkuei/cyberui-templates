@@ -117,10 +117,23 @@ describe('DeviceScreen', () => {
       expect(screen.getByRole('slider', { name: 'Target temperature' })).toHaveAttribute('aria-valuenow', '19.5');
     });
 
-    it('announces its numeral politely, since the buttons have nothing else to say what changed', () => {
+    it('announces its target politely in words, since the buttons have nothing else to say what changed', async () => {
       render(<Harness id="hall-thermostat" />);
-      expect(numeral()).toHaveAttribute('aria-live', 'polite');
-      expect(numeral()).toHaveAccessibleName('Target temperature 20 °C');
+      // A live region of visually hidden text: an aria-label on a <p> is not reliably announced.
+      const announcement = screen.getByText('Target temperature 20 °C');
+      expect(announcement).toHaveAttribute('aria-live', 'polite');
+      expect(announcement).toHaveClass('sr-only');
+      expect(numeral()).toHaveAttribute('aria-hidden', 'true');
+      expect(numeral()).not.toHaveAttribute('aria-label');
+      await userEvent.click(screen.getByRole('button', { name: 'Raise target temperature' }));
+      expect(screen.getByText('Target temperature 20.5 °C')).toBe(announcement);
+      await userEvent.click(preset('Off'));
+      expect(screen.getByText('Target temperature 20.5 °C, off')).toBe(announcement);
+    });
+
+    it('does not hide the numeral of a light or a plug from assistive technology', () => {
+      render(<Harness id="desk-lamp" />);
+      expect(numeral()).not.toHaveAttribute('aria-hidden');
     });
 
     it('follows the unit setting while storing Celsius: 68° in Fahrenheit, and one press is one whole degree', async () => {

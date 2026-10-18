@@ -199,6 +199,12 @@ describe('reducer', () => {
       expect(next.nextRoomNumber).toBe(2);
     });
 
+    it('refuses a name longer than the form allows, so a dispatch that skips the form cannot overflow a card, and accepts exactly that long', () => {
+      const state = start();
+      expect(reducer(state, { type: 'room/add', name: 'W'.repeat(25) })).toBe(state);
+      expect(reducer(state, { type: 'room/add', name: `  ${'W'.repeat(24)}  ` }).rooms.at(-1)?.name).toBe('W'.repeat(24));
+    });
+
     it('refuses an empty name and a name that is taken, whatever its case', () => {
       const state = start();
       expect(reducer(state, { type: 'room/add', name: '   ' })).toBe(state);

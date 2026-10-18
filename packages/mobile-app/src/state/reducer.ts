@@ -1,5 +1,6 @@
 import { LEVEL, STARTING_DEVICES, STARTING_ROOMS } from '../data/devices';
 import { LIGHT_PRESETS, THERMOSTAT_PRESETS } from '../data/presets';
+import { ADD_ROOM } from '../data/product';
 import { DEFAULT_SETTINGS } from '../data/settings';
 import type { Device, DeviceDraft, Room, Settings, TemperatureUnit } from '../data/types';
 import { isReachable, isSwitchable, roomName, roomNameProblem } from '../utils/summary';
@@ -161,6 +162,9 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'room/add': {
       if (roomNameProblem(action.name, state.rooms) !== null) return state;
       const name = action.name.trim();
+      // The form's input caps the length (ADD_ROOM.maxLength); the reducer
+      // enforces it too, like the other room rules, so a dispatch that skips the form cannot overflow a card.
+      if (name.length > ADD_ROOM.maxLength) return state;
       return {
         ...state,
         rooms: [...state.rooms, { id: `room-${state.nextRoomNumber}`, name }],

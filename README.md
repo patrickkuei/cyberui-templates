@@ -11,7 +11,7 @@ The library: [npm](https://www.npmjs.com/package/cyberui-2045) · [GitHub](https
 | [AI Product Monitoring](packages/monitoring) | Request volume, latency percentiles, error rate, and a live alerts feed for a production AI API. |
 | [Agent Control Panel](packages/agent-panel) | A conversation, task queue, live status and reasoning trace for an AI assistant, with a human approval step. |
 | [Landing Page](packages/landing) | A hero, features, pricing with a working billing toggle, FAQ and a signup form for a product launch. |
-| [Mobile App](packages/mobile-app) | A home device controller built for a phone: bottom navigation, on/off switches and sliders in a list, one-tap scenes and a pairing form. |
+| [Mobile App](packages/mobile-app) | A home device controller built for a phone: rooms, a glowing glyph for every device, a full page to control each one and a scan-and-link flow to add more. |
 
 More are planned; follow [the open issues](https://github.com/patrickkuei/cyberui-templates/issues) to see what is next. The [site](https://patrickkuei.github.io/cyberui-templates/) has a live preview and a one-step start for each template that is ready.
 

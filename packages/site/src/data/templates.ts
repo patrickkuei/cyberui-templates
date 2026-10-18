@@ -74,7 +74,7 @@ export const TEMPLATES: Template[] = [
   {
     slug: 'mobile-app',
     name: 'Mobile App',
-    tagline: 'A home device controller built for a phone: bottom navigation, on/off switches and sliders in a list, one-tap scenes and a pairing form.',
+    tagline: 'A home device controller built for a phone: rooms, a glowing glyph for every device, a full page to control each one and a scan-and-link flow to add more.',
     accentLabel: 'Blue',
     accentHex: '#5b9cff',
     screenshotSrc: './screenshots/mobile-app.png',

@@ -366,12 +366,12 @@
     "principles": [
       {
         "name": "Single source of truth",
-        "detail": "All app state changes in one reducer.",
+        "detail": "All app state changes in one reducer, and every total is derived from the devices.",
         "file": "src/state/reducer.ts",
         "excerpt": [
           "// The one place state changes. Every screen reads from AppState and describes a",
-          "// change as an Action; nothing else holds app data (the form fields and which",
-          "// sheet is open are screen state, not app state)."
+          "// change as an Action; nothing else holds app data (the form fields, the scan",
+          "// and the open step of Add device are screen state, not app state)."
         ]
       },
       {
@@ -379,8 +379,34 @@
         "detail": "Screens are one tuple, and a missing case fails to compile.",
         "file": "src/router/useHashRoute.ts",
         "excerpt": [
-          "export const ROUTES = ['devices', 'scenes', 'settings', 'add'] as const;",
+          "export const ROUTES = ['devices', 'device', 'rooms', 'settings', 'add', 'add-room'] as const;",
           "export type Route = (typeof ROUTES)[number];"
+        ]
+      },
+      {
+        "name": "Light is state",
+        "detail": "A device's glow is one pure number, and the drawing only reads it.",
+        "file": "src/utils/glow.ts",
+        "excerpt": [
+          "export function glowLevel(device: Device): number {",
+          "  if (!isReachable(device)) return 0;",
+          "  switch (device.kind) {",
+          "    case 'light':",
+          "      return device.on ? device.level : 0;"
+        ]
+      },
+      {
+        "name": "A seam for the real thing",
+        "detail": "Scanning and linking sit behind one interface; swap the script for your hub.",
+        "file": "src/connection/types.ts",
+        "excerpt": [
+          "export interface Connection {",
+          "  /**",
+          "   * Looks for devices nearby. Calls onProgress with 0 to 100 while it works",
+          "   * and resolves with what it found. Rejects with an AbortError when `signal`",
+          "   * is aborted (the screen was left).",
+          "   */",
+          "  scan(onProgress: (percent: number) => void, signal?: AbortSignal): Promise<NearbyDevice[]>;"
         ]
       },
       {
@@ -396,50 +422,42 @@
       {
         "name": "Tested",
         "detail": "Tests check what a person can do, next to the code.",
-        "file": "src/screens/AddDeviceScreen.test.tsx",
+        "file": "src/screens/AddRoomScreen.test.tsx",
         "excerpt": [
-          "  it.each(['', '   '])('rejects the name %j: shows the error, links it to the field, keeps focus there and adds nothing', async (value) => {",
+          "  it('requires a name: shows the error, links it to the field, keeps focus there and adds nothing', async () => {",
           "    const leave = vi.fn();",
           "    render(<Harness leave={leave} />);",
-          "    if (value) await userEvent.type(name(), value);",
-          "    await userEvent.type(code(), 'ab12cd');",
+          "    await userEvent.type(name(), '   ');",
           "    await userEvent.click(save());",
           "    expect(name()).toHaveAttribute('aria-invalid', 'true');",
-          "    expect(name()).toHaveAccessibleDescription('Enter a name for the device.');",
-          "    expect(name()).toHaveFocus();"
+          "    expect(name()).toHaveAccessibleDescription('Enter a name for the room.');",
+          "    expect(name()).toHaveFocus();",
+          "    expect(leave).not.toHaveBeenCalled();"
         ]
       },
       {
         "name": "Phone rules in one place",
-        "detail": "Touch targets, safe areas and dvh live in one stylesheet.",
+        "detail": "Touch targets, safe areas, dvh and the switch's knob live in one stylesheet.",
         "file": "src/App.css",
         "excerpt": [
-          ".touch-switch label {",
-          "  display: inline-flex;",
-          "  align-items: center;",
-          "  min-height: var(--touch);",
+          ".touch-switch input + div {",
+          "  position: relative;",
           "}"
-        ]
-      },
-      {
-        "name": "Content as data",
-        "detail": "Devices, scenes and settings are typed data, not buried in the screens.",
-        "file": "src/data/devices.ts",
-        "excerpt": [
-          "export const STARTING_DEVICES: Device[] = [",
-          "  { id: 'desk-lamp', name: 'Desk lamp', room: 'Living room', kind: 'light', status: 'online', on: true, brightness: 70 },",
-          "  { id: 'tv-plug', name: 'TV plug', room: 'Living room', kind: 'plug', status: 'online', on: true },"
         ]
       }
     ],
     "folders": [
       {
         "path": "src/screens",
-        "purpose": "The four screens: Devices, Add device, Scenes and Settings."
+        "purpose": "Home, a device page, Rooms, Add room, Add device and Settings."
       },
       {
         "path": "src/components",
-        "purpose": "The app bar, bottom nav, device row and sheet, and the touch-target wrapper."
+        "purpose": "The app bar, bottom nav, device row, glowing glyph, link steps and the touch-target wrapper."
+      },
+      {
+        "path": "src/connection",
+        "purpose": "The scan and link interface, and the scripted version of it. Your hub goes here."
       },
       {
         "path": "src/state",
@@ -447,7 +465,7 @@
       },
       {
         "path": "src/data",
-        "purpose": "The devices, scenes, settings and words. Your product goes here."
+        "purpose": "The rooms, devices, presets, nearby list and words. Your product goes here."
       },
       {
         "path": "src/router",
@@ -459,7 +477,7 @@
       },
       {
         "path": "src/utils",
-        "purpose": "Temperature units and device descriptions."
+        "purpose": "The summary figures, the glow level and temperature units."
       },
       {
         "path": "src/icons",

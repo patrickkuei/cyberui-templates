@@ -42,6 +42,14 @@ describe('templates', () => {
     expect(getTemplate('mobile-app')?.accentHex).toBe('#5b9cff');
   });
 
+  // The first version of the Mobile App had bottom navigation with a Scenes tab, a bottom sheet
+  // and a pairing form; the redesign has none of them, so a tagline that still says so is stale.
+  it('describes the redesigned mobile app, not the first one', () => {
+    const tagline = getTemplate('mobile-app')!.tagline;
+    expect(tagline).toMatch(/rooms/);
+    expect(tagline).not.toMatch(/one-tap scenes|pairing form|bottom sheet|bottom navigation/i);
+  });
+
   it('asks for the phone-sized preview frame only where the template is made for a phone', () => {
     expect(TEMPLATES.filter((item) => item.previewFrame === 'phone').map((item) => item.slug)).toEqual(['mobile-app']);
   });

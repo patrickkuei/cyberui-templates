@@ -43,7 +43,7 @@ describe('template content', () => {
     expect(content.useIf).toHaveLength(3);
     expect(content.headsUp).toMatch(/nothing is controlled or sent/);
     expect(content.headsUp).toMatch(/screens, not the hub/);
-    expect(content.examples.map((example) => example.title)).toEqual(['A home-lab hobbyist', 'A designer']);
+    expect(content.examples).toHaveLength(2);
     for (const example of content.examples) {
       expect(example.requests.length, example.title).toBeGreaterThanOrEqual(4);
       expect(example.requests.length, example.title).toBeLessThanOrEqual(6);
@@ -51,11 +51,30 @@ describe('template content', () => {
     }
   });
 
+  // The first version of the Mobile App had a bottom sheet, a pairing form and a Scenes tab. The
+  // two examples written for it said so, and the redesign has none of them: copy that still mentions
+  // them is stale. (The redesigned app does have scenes, but as the three one-tap presets on a
+  // light's own page, and the interview brief says so, so a person who asks to rename "the three
+  // one-tap scenes" on "the light page" is describing the redesigned app: "scenes" and "one-tap
+  // scenes" are not on this list. The tagline test above does reject "one-tap scenes", because
+  // in the tagline it was the first version's feature list.)
+  it('describes the redesigned mobile app everywhere, not the first one', () => {
+    const content = TEMPLATE_CONTENT['mobile-app']!;
+    const words = [...content.useIf, content.headsUp, content.notFor ?? '', ...content.examples.flatMap((e) => [e.title, ...e.requests, e.stuck, e.worked])].join('\n');
+    expect(words).not.toMatch(/bottom sheet|pairing form|Scenes tab|Add device form/i);
+  });
+
+  it("keeps the mobile app's examples to the owner's rules: no remark about the template or the demo in where they would get stuck, and labels that say they", () => {
+    for (const example of TEMPLATE_CONTENT['mobile-app']!.examples) {
+      expect(example.stuck, example.title).not.toMatch(/\b(the template|the demo|this template|the README|it is (all )?fake|it'?s (all )?fake|pretend)\b/i);
+    }
+  });
+
   it("describes each template's own limits in notFor, never another kind of app", () => {
     expect(TEMPLATE_CONTENT.monitoring!.notFor).toMatch(/live data/);
     expect(TEMPLATE_CONTENT['agent-panel']!.notFor).toMatch(/real model or login/);
     expect(TEMPLATE_CONTENT.landing!.notFor).toMatch(/several pages, a blog or a real signup backend/);
-    expect(TEMPLATE_CONTENT['mobile-app']!.notFor).toMatch(/real devices or install it on a phone/);
+    expect(TEMPLATE_CONTENT['mobile-app']!.notFor).toMatch(/find or talk to real devices, or install it on a phone/);
     for (const [slug, { notFor }] of Object.entries(TEMPLATE_CONTENT)) {
       expect(notFor ?? '', slug).not.toMatch(/landing page|dashboard|mobile app/i);
     }

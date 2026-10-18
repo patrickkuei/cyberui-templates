@@ -349,6 +349,29 @@ describe('AddDeviceScreen', () => {
       expect(screen.queryByRole('list')).not.toBeInTheDocument();
     });
 
+    it('does not show "The scan failed" for a cancelled scan that fails late', async () => {
+      const { ignoring, scans } = stubborn();
+      render(<Harness connection={ignoring} />);
+      press('Start scan');
+      press('Cancel');
+      scans[0]!.reject(new Error('Too late'));
+      await advance(10);
+      expect(screen.getByRole('button', { name: 'Start scan' })).toBeInTheDocument();
+      expect(screen.queryByText(/The scan failed/)).not.toBeInTheDocument();
+    });
+
+    it('does not let a cancelled scan move the bar of the next one', async () => {
+      const { ignoring } = stubborn();
+      const spy = vi.spyOn(ignoring, 'scan');
+      render(<Harness connection={ignoring} />);
+      press('Start scan');
+      const firstProgress = spy.mock.calls[0]![0];
+      press('Cancel');
+      press('Start scan');
+      await act(async () => { firstProgress(90); });
+      expect(screen.getByRole('progressbar', { name: 'Scan progress' })).toHaveAttribute('value', '0');
+    });
+
     it('stays at the start when a link that was cancelled succeeds late: it does not move on to naming the device', async () => {
       const { ignoring, scans, links } = stubborn();
       render(<Harness connection={ignoring} />);

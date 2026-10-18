@@ -1,16 +1,16 @@
 import type { ReactNode } from 'react';
-import type { DeviceKind } from '../data/types';
 import type { TabRoute } from '../router/useHashRoute';
 
 // Inline SVG, so the package has no image files to license or lose. Decorative:
 // aria-hidden, because the text beside each icon says what it means. Colour is
-// currentColor, so CSS (never the SVG) decides it.
-function Svg({ children }: { children: ReactNode }) {
+// currentColor, so CSS (never the SVG) decides it. The device drawings, which
+// glow, are not here: they are components/Glyph.tsx.
+function Svg({ children, size = 24 }: { children: ReactNode; size?: number }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="24"
-      height="24"
+      width={size}
+      height={size}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.75"
@@ -32,49 +32,82 @@ export function BackIcon() {
   );
 }
 
-// Record<DeviceKind, ...> and Record<TabRoute, ...> rather than a switch: a
-// kind or a tab with no drawing is a compile error instead of a blank square.
-export const KIND_ICONS: Record<DeviceKind, () => ReactNode> = {
-  light: () => (
+export function ChevronIcon() {
+  return (
     <Svg>
-      <path d="M9 18h6M10 21h4" />
-      <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" />
+      <path d="m9 5 7 7-7 7" />
     </Svg>
-  ),
-  plug: () => (
-    <Svg>
-      <path d="M9 3v5M15 3v5" />
-      <path d="M6 8h12v3a6 6 0 0 1-12 0V8Z" />
-      <path d="M12 17v4" />
-    </Svg>
-  ),
-  thermostat: () => (
-    <Svg>
-      <path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0Z" />
-      <path d="M12 9v7" />
-    </Svg>
-  ),
-  sensor: () => (
-    <Svg>
-      <circle cx="12" cy="12" r="2.5" />
-      <path d="M7.5 7.5a6.4 6.4 0 0 0 0 9M16.5 7.5a6.4 6.4 0 0 1 0 9M4.5 4.5a10.6 10.6 0 0 0 0 15M19.5 4.5a10.6 10.6 0 0 1 0 15" />
-    </Svg>
-  ),
-};
+  );
+}
 
+export function PlusIcon() {
+  return (
+    <Svg>
+      <path d="M12 5v14M5 12h14" />
+    </Svg>
+  );
+}
+
+export function MinusIcon() {
+  return (
+    <Svg>
+      <path d="M5 12h14" />
+    </Svg>
+  );
+}
+
+/** The small amber marks on a row. The row's own text says what they mean; these only catch the eye. */
+export function BatteryLowIcon() {
+  return (
+    <Svg size={16}>
+      <rect x="3" y="7" width="15" height="10" rx="2" />
+      <path d="M21 10.5v3" />
+      <path d="M6.5 10.5v3" />
+    </Svg>
+  );
+}
+
+export function WeakSignalIcon() {
+  return (
+    <Svg size={16}>
+      <path d="M5 19v-3M10 19v-6M15 19V9M20 19V5" opacity="0.35" />
+      <path d="M5 19v-3" />
+    </Svg>
+  );
+}
+
+export function CheckIcon() {
+  return (
+    <Svg size={20}>
+      <path d="m5 12.5 4.5 4.5L19 7.5" />
+    </Svg>
+  );
+}
+
+export function CrossIcon() {
+  return (
+    <Svg size={20}>
+      <path d="m6 6 12 12M18 6 6 18" />
+    </Svg>
+  );
+}
+
+// Record<TabRoute, ...> rather than a switch: a tab with no drawing is a
+// compile error instead of a blank square.
 export const TAB_ICONS: Record<TabRoute, () => ReactNode> = {
   devices: () => (
+    <Svg>
+      <path d="M4 11 12 4l8 7" />
+      <path d="M6 10v10h12V10" />
+      <path d="M10 20v-5h4v5" />
+    </Svg>
+  ),
+  rooms: () => (
     <Svg>
       <rect x="4" y="4" width="7" height="7" rx="1.5" />
       <rect x="13" y="4" width="7" height="7" rx="1.5" />
       <rect x="4" y="13" width="7" height="7" rx="1.5" />
       <rect x="13" y="13" width="7" height="7" rx="1.5" />
-    </Svg>
-  ),
-  scenes: () => (
-    <Svg>
-      <path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" />
-      <path d="M19 16v4M17 18h4" />
     </Svg>
   ),
   settings: () => (

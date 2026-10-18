@@ -24,6 +24,12 @@ const CLASS_NAMES: Record<Control, string> = {
  * on; re-check them when you upgrade cyberui-2045 (the README's Phone
  * checklist).
  *
+ * Stretching a part of the library's markup has side effects, and the switch
+ * is the example: its label grows to 44px, and the knob, which the library
+ * positions against that label, slides out of the 32px track unless App.css
+ * also makes the track the positioned element. Whenever you resize or pad
+ * something around a library control, look at it in a browser.
+ *
  * Do not "clean this up" as an extra wrapper: removing it brings back
  * switches and sliders that are hard to hit. Button and Input are already 44px
  * or more at size md, so they do not need it.

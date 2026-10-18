@@ -4,9 +4,9 @@ import { BackIcon } from '../icons';
 
 /**
  * The bar at the top of every screen: the app's name and the "Demo" badge, the
- * template's one persistent signal that nothing here is real (the full sentence
- * is in Settings and in the pairing confirmation). Pass onBack on a screen that
- * was pushed on top of another, and a Back button appears.
+ * one signal that stays on screen to say nothing here is real (Settings, the
+ * Scan screen and the README say the rest). Pass onBack on a screen that was
+ * pushed on top of another, and a Back button appears.
  */
 export function AppBar({ onBack }: { onBack?: () => void }) {
   return (

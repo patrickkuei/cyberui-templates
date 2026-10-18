@@ -1,5 +1,5 @@
 import type { Dispatch } from 'react';
-import { Card, Divider, RadioGroup, SectionTitle, Toggle } from 'cyberui-2045';
+import { RadioGroup, Toggle } from 'cyberui-2045';
 import { ScreenTitle } from '../components/ScreenTitle';
 import { TouchRow } from '../components/TouchRow';
 import { DEMO_NOTE, ROUTE_TITLES, SETTINGS_COPY } from '../data/product';
@@ -22,8 +22,10 @@ export function SettingsScreen({ state, dispatch }: SettingsScreenProps) {
     <>
       <ScreenTitle>{ROUTE_TITLES.settings}</ScreenTitle>
 
-      <section className="settings-section" aria-label={SETTINGS_COPY.temperatureTitle}>
-        <SectionTitle size="sm">{SETTINGS_COPY.temperatureTitle}</SectionTitle>
+      <section className="settings-section" aria-labelledby="settings-temperature">
+        <h2 id="settings-temperature" className="section-title">
+          {SETTINGS_COPY.temperatureTitle}
+        </h2>
         <TouchRow control="radios">
           <RadioGroup
             label={SETTINGS_COPY.unitLabel}
@@ -35,16 +37,18 @@ export function SettingsScreen({ state, dispatch }: SettingsScreenProps) {
         </TouchRow>
       </section>
 
-      <Divider />
-
-      <section className="settings-section" aria-label={SETTINGS_COPY.alertsTitle}>
-        <SectionTitle size="sm">{SETTINGS_COPY.alertsTitle}</SectionTitle>
+      <section className="settings-section" aria-labelledby="settings-alerts">
+        <h2 id="settings-alerts" className="section-title">
+          {SETTINGS_COPY.alertsTitle}
+        </h2>
         {/*
           MOCK: both switches are remembered in memory so they respond, and that
           is all. The template never asks for notification permission and never
           shows a notification; there is no remote access.
           Toggle needs an id for its visible label to name the switch
-          (patrickkuei/CyberUI#120).
+          (patrickkuei/CyberUI#120). size="lg" is the library's biggest switch:
+          these are standard-size labelled switches, not the glyph buttons Home
+          uses for power.
         */}
         <TouchRow control="switch">
           <Toggle
@@ -70,14 +74,12 @@ export function SettingsScreen({ state, dispatch }: SettingsScreenProps) {
         </TouchRow>
       </section>
 
-      <Divider />
-
-      <section className="settings-section" aria-label={SETTINGS_COPY.aboutTitle}>
-        <SectionTitle size="sm">{SETTINGS_COPY.aboutTitle}</SectionTitle>
-        <Card className="card-surface">
-          <p className="about-version">{SETTINGS_COPY.version}</p>
-          <p className="about-demo">{DEMO_NOTE}</p>
-        </Card>
+      <section className="settings-section" aria-labelledby="settings-about">
+        <h2 id="settings-about" className="section-title">
+          {SETTINGS_COPY.aboutTitle}
+        </h2>
+        <p className="about-version">{SETTINGS_COPY.version}</p>
+        <p className="about-demo">{DEMO_NOTE}</p>
       </section>
     </>
   );

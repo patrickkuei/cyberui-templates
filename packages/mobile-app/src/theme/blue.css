@@ -12,15 +12,16 @@
  * yellow. --color-primary (magenta) is left alone on purpose: only the accent
  * hue varies per template.
  *
- * Why blue (hue 216): this app shows device status in the library's own
- * colours, so the accent has to stay clear of them. --color-success (green),
- * --color-warning (amber) and --color-error (red) mean Online, Low battery and
- * Offline here, and are not touched. A green, amber, red or magenta accent
- * would blur with one of them.
+ * Why blue (hue 216): in this app the accent means "on" (a lit glyph, a lit
+ * value, the selected chip), and the library's own colours mean "look at this":
+ * --color-warning (amber) marks a low battery or a weak signal and
+ * --color-error (red) a lost device or a failed step. They are not touched. An
+ * amber, red or magenta accent would blur with one of them.
  *
  * Contrast of this blue: 6.21:1 on --color-base and 4.87:1 on --color-surface
- * (WCAG AA needs 4.5:1 for body text). If you pick another accent, check both.
- * Indigo #818cf8, for instance, is 4.48:1 on the surface and fails.
+ * (WCAG AA needs 4.5:1 for body text). If you pick another accent, check both,
+ * and check the white lines of a lit glyph against the glow it makes (App.css,
+ * .glyph--lit). Indigo #818cf8, for instance, is 4.48:1 on the surface and fails.
  *
  * Re-theme this template by changing these two values.
  */

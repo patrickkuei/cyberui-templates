@@ -1,54 +1,65 @@
 import { useReducer } from 'react';
 import { describe, it, expect } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { DEMO_NOTE } from '../data/product';
 import { createInitialState, reducer } from '../state/reducer';
 import { SettingsScreen } from './SettingsScreen';
 
-let latest = createInitialState();
 function Harness() {
-  const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
-  latest = state;
-  return <SettingsScreen state={state} dispatch={dispatch} />;
+  const [state, dispatch] = useReducer(reducer, createInitialState());
+  return (
+    <>
+      <SettingsScreen state={state} dispatch={dispatch} />
+      <p data-testid="settings">{JSON.stringify(state.settings)}</p>
+    </>
+  );
 }
 
+const stored = () => JSON.parse(screen.getByTestId('settings').textContent!) as { unit: string; alertOffline: boolean; remoteAccess: boolean };
+
 describe('SettingsScreen', () => {
-  it('has one h1 and a heading for each group', () => {
+  it('has one h1 and its sections in order', () => {
     render(<Harness />);
     expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument();
     expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual(['Temperature', 'Alerts and access', 'About']);
   });
 
-  it('offers the two units and shows the current one', () => {
+  it('changes the unit, and only the unit', async () => {
     render(<Harness />);
-    const group = within(screen.getByRole('group', { name: 'Temperature unit' }));
-    expect(group.getByRole('radio', { name: '°C' })).toBeChecked();
-    expect(group.getByRole('radio', { name: '°F' })).not.toBeChecked();
-  });
-
-  it('changes the unit in state, and only the unit', async () => {
-    render(<Harness />);
+    expect(screen.getByRole('radio', { name: '°C' })).toBeChecked();
     await userEvent.click(screen.getByRole('radio', { name: '°F' }));
-    expect(latest.settings).toEqual({ unit: 'F', alertOffline: true, remoteAccess: false });
     expect(screen.getByRole('radio', { name: '°F' })).toBeChecked();
+    expect(stored()).toEqual({ unit: 'F', alertOffline: true, remoteAccess: false });
   });
 
-  it('has a named switch for each setting, reflecting the defaults', () => {
+  it('names each switch by its label and flips each on its own', async () => {
     render(<Harness />);
-    expect(screen.getByRole('switch', { name: 'Alert me when a device goes offline' })).toBeChecked();
-    expect(screen.getByRole('switch', { name: 'Remote access' })).not.toBeChecked();
+    const alerts = screen.getByRole('switch', { name: 'Alert me when a device goes offline' });
+    const remote = screen.getByRole('switch', { name: 'Remote access' });
+    expect(alerts).toBeChecked();
+    expect(remote).not.toBeChecked();
+    await userEvent.click(alerts);
+    expect(stored()).toEqual({ unit: 'C', alertOffline: false, remoteAccess: false });
+    await userEvent.click(remote);
+    expect(stored()).toEqual({ unit: 'C', alertOffline: false, remoteAccess: true });
   });
 
-  it('flips each switch on its own', async () => {
+  it('flips a switch when its label is pressed, which is what the 44px hit area is for', async () => {
     render(<Harness />);
-    await userEvent.click(screen.getByRole('switch', { name: 'Remote access' }));
-    expect(latest.settings).toEqual({ unit: 'C', alertOffline: true, remoteAccess: true });
-    await userEvent.click(screen.getByRole('switch', { name: 'Alert me when a device goes offline' }));
-    expect(latest.settings).toEqual({ unit: 'C', alertOffline: false, remoteAccess: true });
+    await userEvent.click(screen.getByText('Remote access'));
+    expect(screen.getByRole('switch', { name: 'Remote access' })).toBeChecked();
   });
 
-  it('says in the About block that the app is a demo that controls nothing', () => {
+  it('says in the About block that the app is a demo', () => {
     render(<Harness />);
-    expect(screen.getByText('Template demo: Kestrel is fictional and controls nothing.')).toBeInTheDocument();
+    expect(screen.getByText(DEMO_NOTE)).toBeInTheDocument();
+    expect(screen.getByText('Kestrel 1.0, a template')).toBeInTheDocument();
+  });
+
+  it('wraps the switches and the radios in the rows that give them a 44px target', () => {
+    const { container } = render(<Harness />);
+    expect(container.querySelectorAll('.touch-switch')).toHaveLength(2);
+    expect(container.querySelectorAll('.touch-radios')).toHaveLength(1);
   });
 });

@@ -121,7 +121,7 @@ jobs:
       matrix:
         # Add new forkable templates (with their own LICENSE and README) here.
         # The site is excluded on purpose: it is not a forkable template.
-        template: [monitoring, agent-panel, landing]
+        template: [monitoring, agent-panel, landing, mobile-app]
     steps:
       - uses: actions/checkout@v4
 

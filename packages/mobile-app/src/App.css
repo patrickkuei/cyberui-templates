@@ -1085,14 +1085,23 @@ body {
   box-shadow: inset 0 2px 0 var(--color-secondary);
 }
 
-/* Pressed feedback for a finger. It is :active, which a touch ends, unlike :hover. */
-.nav-tab:active,
-.device-link:active,
-.nearby-row:active,
-.chip:active,
-.preset:active {
-  background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
-}
+/* Hover and pressed tints. Two rules about them, both kept by phoneRules.test.ts:
+   1. Pressed comes after hover, at the same specificity. A mouse that is
+      pressing a control is also hovering it, so with the pressed rule first the
+      10% hover tint won and the 16% pressed tint only ever showed on a touch
+      screen. Every :active rule below therefore sits under the :hover rule it
+      pairs with, in the same selector shape.
+   2. A control that is selected (aria-pressed or aria-current with a fill of its
+      own) is left out of the tint with :not([aria-pressed='true']). The selected
+      chip is filled with the accent and has dark text; the tint is a faint
+      background-color, so it used to replace the fill (same specificity, later
+      in the file) and leave dark text on a near-transparent background:
+      contrast 1.17:1 on hover. The :not() is how this file keeps the selected
+      look; raising the specificity of the selected rule instead would also have
+      to out-rank the :active rule and the next one added. The tint is for
+      controls that are not already filled. A selected control with no fill of its
+      own (the current nav tab, a pressed preset) keeps the tint: its text and
+      border stay as they are on it. */
 
 /* Hover only where a pointer can hover: after a tap on a touch screen :hover
    sticks to the last thing touched. Hover never carries meaning here, it only
@@ -1101,7 +1110,7 @@ body {
   .nav-tab:hover,
   .device-link:hover,
   .nearby-row:hover,
-  .chip:hover,
+  .chip:not([aria-pressed='true']):hover,
   .preset:hover,
   .app-bar-back:hover,
   .chevron-button:hover,
@@ -1109,6 +1118,16 @@ body {
   .glyph-button:not(.glyph-button--static):hover {
     background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
+}
+
+/* Pressed feedback, after hover on purpose (rule 1 above). It is :active, which a
+   touch ends, unlike :hover. */
+.nav-tab:active,
+.device-link:active,
+.nearby-row:active,
+.chip:not([aria-pressed='true']):active,
+.preset:active {
+  background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
 }
 
 /* No animation at all for people who ask for none. Everything of this template's

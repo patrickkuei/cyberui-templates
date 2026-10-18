@@ -72,6 +72,15 @@ function horizontalPaddingOf(source: string, selector: string): { start: string;
   return { start, end };
 }
 
+/** Every selector of every rule, with where its rule starts in the source (so two can be put in order). */
+function selectorRules(source: string): { selector: string; index: number }[] {
+  const out: { selector: string; index: number }[] = [];
+  for (const match of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const selector of (match[1] ?? '').split(',')) out.push({ selector: selector.trim(), index: match.index ?? 0 });
+  }
+  return out;
+}
+
 const isZero = (length: string) => /^0(\.0+)?[a-z%]*$/.test(length);
 
 describe('horizontalPaddingOf', () => {
@@ -251,6 +260,40 @@ describe('phone rules', () => {
     // The first class of each selector that has :hover or :active ('.glyph-button:not(.glyph-button--static):hover' is the glyph button).
     const tinted = new Set([...code.matchAll(/(\.[\w-]+)[^,{}]*?:(?:hover|active)\b/g)].map((match) => match[1]));
     expect([...tinted].sort()).toEqual([...TINTED_WITH_TEXT, ...TINTED_ICON_ONLY].sort());
+  });
+
+  // The tint is a background-color, and so is a selected chip's fill. Both rules
+  // have the same specificity and the tint is later, so hovering or pressing the
+  // selected chip replaced its accent fill with a 10% tint and left its dark text
+  // on it (1.17:1). Every control whose selected state has a fill of its own must
+  // be left out of its own tint with :not(<that state>). Controls whose selected
+  // state has no fill (the current nav tab, a pressed preset) are not in this list.
+  it('leaves a selected control that has a fill of its own out of its hover and pressed tint', () => {
+    const rules = selectorRules(code);
+    const selectedFills = [...code.matchAll(/(\.[\w-]+)(\[aria-[\w-]+='[^']*'\])\s*\{([^{}]*)\}/g)].filter((match) => /background/.test(match[3] ?? ''));
+    expect(selectedFills.map((match) => match[1])).toContain('.chip');
+    for (const [, control = '', state = ''] of selectedFills) {
+      const tints = rules.filter(({ selector }) => selector.startsWith(control) && /:(hover|active)\b/.test(selector) && !selector.startsWith(`${control}-`));
+      expect(tints.some(({ selector }) => selector.endsWith(':hover')), `${control} has a hover tint to check`).toBe(true);
+      expect(tints.some(({ selector }) => selector.endsWith(':active')), `${control} has a pressed tint to check`).toBe(true);
+      for (const { selector } of tints) expect(selector, `${selector} must leave out ${state}`).toContain(`:not(${state})`);
+    }
+  });
+
+  // A mouse that is pressing a control is also hovering it, and with equal
+  // specificity the later rule wins. :active first meant the 10% hover tint beat
+  // the 16% pressed tint on desktop; only a touch screen (no hover) showed 16%.
+  it('puts each pressed tint after the hover tint of the same selector, so pressing with a mouse shows the pressed one', () => {
+    const rules = selectorRules(code);
+    const hovers = rules.filter(({ selector }) => selector.endsWith(':hover'));
+    let pairs = 0;
+    for (const hover of hovers) {
+      const pressed = rules.find(({ selector }) => selector === hover.selector.replace(/:hover$/, ':active'));
+      if (!pressed) continue;
+      pairs++;
+      expect(pressed.index, `${pressed.selector} must come after ${hover.selector}`).toBeGreaterThan(hover.index);
+    }
+    expect(pairs).toBeGreaterThanOrEqual(5);
   });
 
   it('lets the page draw under the notch (viewport-fit=cover) and names its theme colour', () => {

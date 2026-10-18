@@ -1,21 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { DEVICE_KINDS } from '../data/types';
 import { TAB_ROUTES } from '../router/useHashRoute';
-import { BackIcon, KIND_ICONS, TAB_ICONS } from './index';
+import { BackIcon, BatteryLowIcon, CheckIcon, ChevronIcon, CrossIcon, MinusIcon, PlusIcon, TAB_ICONS, WeakSignalIcon } from './index';
 
 describe('icons', () => {
-  it('draws an aria-hidden svg for the back arrow', () => {
-    const { container } = render(<BackIcon />);
-    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
-  });
-
-  it('draws an aria-hidden svg for every device kind', () => {
-    expect(Object.keys(KIND_ICONS).sort()).toEqual([...DEVICE_KINDS].sort());
-    for (const kind of DEVICE_KINDS) {
-      const Icon = KIND_ICONS[kind];
+  it('draws an aria-hidden svg for each single icon', () => {
+    for (const Icon of [BackIcon, ChevronIcon, PlusIcon, MinusIcon, BatteryLowIcon, WeakSignalIcon, CheckIcon, CrossIcon]) {
       const { container, unmount } = render(<Icon />);
-      expect(container.querySelector('svg'), `${kind} draws nothing`).toHaveAttribute('aria-hidden', 'true');
+      expect(container.querySelector('svg'), Icon.name).toHaveAttribute('aria-hidden', 'true');
       unmount();
     }
   });

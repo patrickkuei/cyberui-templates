@@ -71,6 +71,16 @@ export const TEMPLATES: Template[] = [
     screenshotSrc: './screenshots/landing.png',
     livePreviewPath: './live/landing/index.html',
   },
+  {
+    slug: 'mobile-app',
+    name: 'Mobile App',
+    tagline: 'A home device controller built for a phone: bottom navigation, on/off switches and sliders in a list, one-tap scenes and a pairing form.',
+    accentLabel: 'Blue',
+    accentHex: '#5b9cff',
+    screenshotSrc: './screenshots/mobile-app.png',
+    livePreviewPath: './live/mobile-app/index.html',
+    previewFrame: 'phone',
+  },
 ];
 
 export function getTemplate(slug: string): Template | undefined {

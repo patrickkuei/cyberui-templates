@@ -361,5 +361,110 @@
         "purpose": "Inline SVG icons."
       }
     ]
+  },
+  "mobile-app": {
+    "principles": [
+      {
+        "name": "Single source of truth",
+        "detail": "All app state changes in one reducer.",
+        "file": "src/state/reducer.ts",
+        "excerpt": [
+          "// The one place state changes. Every screen reads from AppState and describes a",
+          "// change as an Action; nothing else holds app data (the form fields and which",
+          "// sheet is open are screen state, not app state)."
+        ]
+      },
+      {
+        "name": "Typed and exhaustive",
+        "detail": "Screens are one tuple, and a missing case fails to compile.",
+        "file": "src/router/useHashRoute.ts",
+        "excerpt": [
+          "export const ROUTES = ['devices', 'scenes', 'settings', 'add'] as const;",
+          "export type Route = (typeof ROUTES)[number];"
+        ]
+      },
+      {
+        "name": "No inline styles",
+        "detail": "Styling is in CSS, and a test enforces it.",
+        "file": "src/noInlineStyles.test.ts",
+        "excerpt": [
+          "  const visit = (node: ts.Node) => {",
+          "    if (ts.isJsxAttribute(node) && node.name.getText(sourceFile) === 'style') found = true;",
+          "    ts.forEachChild(node, visit);"
+        ]
+      },
+      {
+        "name": "Tested",
+        "detail": "Tests check what a person can do, next to the code.",
+        "file": "src/screens/AddDeviceScreen.test.tsx",
+        "excerpt": [
+          "  it.each(['', '   '])('rejects the name %j: shows the error, links it to the field, keeps focus there and adds nothing', async (value) => {",
+          "    const leave = vi.fn();",
+          "    render(<Harness leave={leave} />);",
+          "    if (value) await userEvent.type(name(), value);",
+          "    await userEvent.type(code(), 'ab12cd');",
+          "    await userEvent.click(save());",
+          "    expect(name()).toHaveAttribute('aria-invalid', 'true');",
+          "    expect(name()).toHaveAccessibleDescription('Enter a name for the device.');",
+          "    expect(name()).toHaveFocus();"
+        ]
+      },
+      {
+        "name": "Phone rules in one place",
+        "detail": "Touch targets, safe areas and dvh live in one stylesheet.",
+        "file": "src/App.css",
+        "excerpt": [
+          ".touch-switch label {",
+          "  display: inline-flex;",
+          "  align-items: center;",
+          "  min-height: var(--touch);",
+          "}"
+        ]
+      },
+      {
+        "name": "Content as data",
+        "detail": "Devices, scenes and settings are typed data, not buried in the screens.",
+        "file": "src/data/devices.ts",
+        "excerpt": [
+          "export const STARTING_DEVICES: Device[] = [",
+          "  { id: 'desk-lamp', name: 'Desk lamp', room: 'Living room', kind: 'light', status: 'online', on: true, brightness: 70 },",
+          "  { id: 'tv-plug', name: 'TV plug', room: 'Living room', kind: 'plug', status: 'online', on: true },"
+        ]
+      }
+    ],
+    "folders": [
+      {
+        "path": "src/screens",
+        "purpose": "The four screens: Devices, Add device, Scenes and Settings."
+      },
+      {
+        "path": "src/components",
+        "purpose": "The app bar, bottom nav, device row and sheet, and the touch-target wrapper."
+      },
+      {
+        "path": "src/state",
+        "purpose": "The reducer: the one place state changes."
+      },
+      {
+        "path": "src/data",
+        "purpose": "The devices, scenes, settings and words. Your product goes here."
+      },
+      {
+        "path": "src/router",
+        "purpose": "Hash routes and the list of screens."
+      },
+      {
+        "path": "src/theme",
+        "purpose": "The accent override."
+      },
+      {
+        "path": "src/utils",
+        "purpose": "Temperature units and device descriptions."
+      },
+      {
+        "path": "src/icons",
+        "purpose": "Inline SVG icons."
+      }
+    ]
   }
 }

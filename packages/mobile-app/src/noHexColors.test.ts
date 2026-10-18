@@ -28,6 +28,20 @@ const sheets = Object.fromEntries(
 
 const stripComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '');
 const hasHexColor = (css: string) => /#[0-9a-fA-F]{3,8}\b/.test(stripComments(css));
+// A colour written as a function (rgb(), hsl(), oklch()...) is as much a literal
+// as a hex one. color-mix() of tokens is fine and is not matched.
+const hasColorFunction = (css: string) => /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(/.test(stripComments(css));
+
+describe('hasColorFunction', () => {
+  it('finds colour functions, ignores comments, and lets color-mix() of tokens through', () => {
+    expect(hasColorFunction('a { color: rgb(1 2 3); }')).toBe(true);
+    expect(hasColorFunction('a { color: rgba(0, 0, 0, 0.5); }')).toBe(true);
+    expect(hasColorFunction('a { color: hsl(216 100% 68%); }')).toBe(true);
+    expect(hasColorFunction('a { color: oklch(0.7 0.1 250); }')).toBe(true);
+    expect(hasColorFunction('/* rgb(1 2 3) */ a { color: var(--color-accent); }')).toBe(false);
+    expect(hasColorFunction('a { background: color-mix(in srgb, var(--color-accent) 16%, transparent); }')).toBe(false);
+  });
+});
 
 describe('hasHexColor', () => {
   it('finds 3, 6 and 8 digit hex colours, and ignores comments', () => {
@@ -50,6 +64,14 @@ describe('colours come from tokens', () => {
     const offenders = Object.entries(sheets)
       .filter(([file]) => file !== 'theme/blue.css')
       .filter(([, css]) => hasHexColor(css))
+      .map(([file]) => file);
+    expect(offenders).toEqual([]);
+  });
+
+  it('has no rgb(), hsl() or other colour function outside theme/blue.css either', () => {
+    const offenders = Object.entries(sheets)
+      .filter(([file]) => file !== 'theme/blue.css')
+      .filter(([, css]) => hasColorFunction(css))
       .map(([file]) => file);
     expect(offenders).toEqual([]);
   });

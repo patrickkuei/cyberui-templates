@@ -173,6 +173,11 @@ describe('phone rules', () => {
     expect(code).not.toMatch(/--tw-ring/);
   });
 
+  it('gives the hover tint to the glyph power button only, not to the static glyph tile of a sensor or a nearby device', () => {
+    expect(code).toMatch(/\.glyph-button:not\(\.glyph-button--static\):hover/);
+    expect(code).not.toMatch(/\.glyph-button:hover/);
+  });
+
   it('lets the page draw under the notch (viewport-fit=cover) and names its theme colour', () => {
     expect(html).toMatch(/<meta name="viewport"[^>]*viewport-fit=cover/);
     expect(html).toMatch(/<meta name="theme-color"/);

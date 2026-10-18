@@ -1084,7 +1084,8 @@ body {
   .preset:hover,
   .app-bar-back:hover,
   .chevron-button:hover,
-  .glyph-button:hover {
+  /* Not the static tile (a sensor's, a nearby device's): it is not a control. */
+  .glyph-button:not(.glyph-button--static):hover {
     background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
 }

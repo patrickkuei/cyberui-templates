@@ -1,14 +1,17 @@
 /* Kestrel styles. Colours come only from tokens (var(--color-*)); the one place
    a hex colour is allowed is theme/blue.css (noHexColors.test.ts). Class names
-   are flat, not nested under .app, because the device sheet is rendered by the
-   library in a portal outside the app's root element.
+   are flat, not nested under .app. Nothing is rendered outside .app (no portal),
+   so every rule here reaches every screen.
 
    The phone rules live in this file, each with its reason, and
    phoneRules.test.ts guards the ones a tidy-up would break:
      - Touch targets (44px)   see "Touch targets"
-     - Safe areas and dvh     see ".app", ".app-bar", ".bottom-nav", ".device-sheet"
+     - Safe areas and dvh     see ".app", ".app-bar", ".bottom-nav", ".form-actions"
      - No sticky hover        every :hover is inside @media (hover: hover)
-     - Reduced motion         the only transitions are under no-preference */
+     - Reduced motion         everything of ours that moves is under no-preference;
+                              under reduce every transition and animation is 0s
+     - The switch's knob      see "Touch targets"
+   and the look's one bold idea, the glowing glyph, is in "Glyphs". */
 
 :root {
   /* The one column. Below this width it is the whole screen; above it the app
@@ -30,7 +33,8 @@ body {
 
 /* 100dvh, not 100vh: on a phone 100vh is the viewport with the browser's
    toolbar tucked away, so a bottom nav sized to it sits under the toolbar until
-   the page is scrolled. cyberui-2045 2.8.0 uses no dvh/svh anywhere. 100vh is
+   the page is scrolled. cyberui-2045 2.8.0 uses no dvh/svh anywhere
+   (patrickkuei/CyberUI#132). 100vh is
    written first as the fallback for browsers that do not know dvh (they drop
    the second line).
    The side padding is the notch in landscape. It needs viewport-fit=cover in
@@ -54,6 +58,32 @@ body {
   }
 }
 
+/* Sentence case everywhere. cyberui-2045's Button is bold, uppercase and
+   letter-spaced; this app writes its labels like sentences and lets the
+   numbers carry the weight, so the one rule here undoes that for every button. */
+.app button {
+  text-transform: none;
+  letter-spacing: normal;
+  /* The library's Buttons glow at rest (the primary one in magenta, whatever
+     the accent is). Here the glow belongs to the devices, so a button is flat.
+     --tw-shadow is the library's own glow; its focus ring is a separate
+     variable and is left alone. */
+  --tw-shadow: 0 0 transparent;
+}
+
+/* Visible to assistive technology only: a status that the picture shows and the words must also say. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Hidden until it takes focus, then the first thing a keyboard visitor sees.
    It is a control, so it gets the 44px target like the others. */
 .skip-link {
@@ -75,23 +105,21 @@ body {
   transform: none;
 }
 
-/* A double tap on a switch or a link would zoom the page on iOS. The device
-   sheet is rendered by the library in a portal on <body>, outside .app, so it
-   needs its own selector. */
-.app :is(a, button, label, select),
-.device-sheet :is(a, button, label, select) {
+/* A double tap on a switch or a link would zoom the page on iOS. */
+.app :is(a, button, label, select) {
   touch-action: manipulation;
 }
 
 /* The ring is for real controls. The things code focuses (the screen, its
-   title) take focus without drawing one. */
-:where(.app-bar-back, .device-main, .nav-tab):focus-visible {
+   title, a step's heading) take focus without drawing one. */
+:where(.app-bar-back, .device-link, .glyph-button, .nav-tab, .chip, .preset, .nearby-row, .chevron-button, .text-button, .text-link):focus-visible {
   outline: 2px solid var(--color-secondary);
   outline-offset: 2px;
 }
 
 .screen:focus,
-.screen-title:focus {
+.screen-title:focus,
+.step-title:focus {
   outline: none;
 }
 
@@ -117,9 +145,6 @@ body {
   margin-inline-end: auto;
   font-size: 1.125rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-secondary);
 }
 
 .app-bar-back {
@@ -139,7 +164,7 @@ body {
   cursor: pointer;
 }
 
-/* ---- Notice (after pairing a device) ---- */
+/* ---- Notice (a device or room was added or removed, or a room could not be) ---- */
 
 .notice-region {
   display: flex;
@@ -158,9 +183,8 @@ body {
 .notice-text {
   flex: 1 1 12rem;
   /* A device name can be 30 characters with no place to break. Every place that
-     prints one (.device-name, this notice, .sheet-title, .scene-result) may wrap
-     anywhere, or the page scrolls sideways at 320px and the sheet grows wider
-     than the screen. phoneRules.test.ts keeps each of them. */
+     prints one (.device-name, this notice, .step-title) may wrap anywhere, or
+     the page scrolls sideways at 320px. phoneRules.test.ts keeps each of them. */
   overflow-wrap: anywhere;
   margin: 0;
   font-size: 0.9375rem;
@@ -180,84 +204,299 @@ body {
 
 .screen-title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   line-height: 1.2;
-  color: var(--color-secondary);
+  color: var(--color-default);
+  overflow-wrap: anywhere;
 }
 
-.empty {
+.section-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.empty,
+.note {
   margin: 0;
   color: var(--color-muted);
+  line-height: 1.4;
+}
+
+.note {
+  font-size: 0.9375rem;
 }
 
 .full-width {
   width: 100%;
 }
 
-/* Card gives its body text the magenta --color-primary and its children
-   space-y margins. Cards in this app reset both: text is the default colour,
-   the surface is --color-surface, and spacing is each card's own gap. */
-.card-surface {
-  background-color: var(--color-surface);
-  color: var(--color-default);
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.card-surface > * {
+/* A link or a button that looks like text. Both are controls, so both get the 44px target. */
+.text-link,
+.text-button {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--touch);
+  padding: 0 0.25rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-secondary);
+  background: none;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.text-link {
+  text-decoration: none;
+}
+
+/* The quiet one: for an action that should be reachable but not inviting (Remove room). */
+.text-button--quiet {
+  color: var(--color-muted);
+}
+
+/* A progress bar for the scan and the link. <progress> is native, so it is
+   announced with its value; only its colours are ours, and each browser needs
+   its own pseudo-element for them. */
+.progress {
+  width: 100%;
+  height: 0.5rem;
+  appearance: none;
+  background: var(--color-surface);
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress::-webkit-progress-bar {
+  background: var(--color-surface);
+}
+
+.progress::-webkit-progress-value {
+  background: var(--color-accent);
+}
+
+.progress::-moz-progress-bar {
+  background: var(--color-accent);
+}
+
+/* ---- Glyphs ----
+   The app's one bold idea. A device's drawing glows in the accent in
+   proportion to its level (utils/glow.ts decides the number, components/Glyph.tsx
+   puts it in the SVG as attributes). Off is dark: muted lines and no glow. The
+   colours are tokens, so re-theming reaches the glow too. */
+.glyph {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: var(--color-muted);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Lit lines are drawn in white on top of the glow, like a neon tube. White, not
+   the text colour: against the brightest the glow gets (the accent at 80% under
+   a 40% body) --color-default is 2.5:1 and --color-white is 3.2:1, and 3:1 is
+   what a graphic needs. Re-check both if you change the accent or the glow
+   (utils/glow.ts, components/Glyph.tsx). */
+.glyph--lit {
+  color: var(--color-white);
+}
+
+.glyph-halo {
+  stroke: none;
+}
+
+.glyph-stop {
+  stop-color: var(--color-accent);
+}
+
+.glyph-body {
+  fill: var(--color-accent);
+}
+
+/* ---- Home ---- */
+
+.summary {
   margin: 0;
+  font-size: 1.375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ---- Devices ---- */
+/* Room filter: one chip per room, with its device count. It scrolls sideways
+   on its own (and only itself: the page never does), so five rooms still fit
+   44px chips on a 320px screen. Full bleed, so the chips run to the screen edge. */
+.chips {
+  display: flex;
+  gap: 0.5rem;
+  margin-inline: calc(var(--pad) * -1);
+  padding: 0.125rem var(--pad);
+  overflow-x: auto;
+  scroll-padding-inline: var(--pad);
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: none;
+  min-height: var(--touch);
+  padding: 0 0.875rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-default);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip-count {
+  margin-inline-start: 0.25rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+/* Accent means on, and a chip that is pressed is the one thing selected. */
+.chip[aria-pressed='true'] {
+  color: var(--color-inverse);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.chip[aria-pressed='true'] .chip-count {
+  color: var(--color-inverse);
+}
 
 .room {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+}
+
+.room-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.room-title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.room-count {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+.room-off {
+  flex: none;
+  padding-inline: 1rem;
 }
 
 .device-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* A row is two sibling controls (the glyph button, the link) and, for a
+   light, a thin bar under them. The transparent border is there so that the
+   dashed one of a row that is down does not shift anything. */
 .device-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 3rem minmax(0, 1fr);
   align-items: center;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: 0.75rem;
+  column-gap: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.875rem;
 }
 
-.device-main {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
-  min-height: 4rem;
-  padding: 0.5rem 0.75rem;
-  font: inherit;
+/* Lost or offline: dashed and muted. The words "Lost" and "Offline" are the row's value. */
+.device-row--down {
+  border-color: var(--color-muted);
+  border-style: dashed;
+}
+
+.device-row--down .device-name,
+.device-row--down .device-value {
+  color: var(--color-muted);
+}
+
+.device-row--down .glyph,
+.hero--down .glyph {
+  stroke-dasharray: 3 4;
+}
+
+/* The glyph is the quick power button: 48px, a hairline tile, and the glow
+   clipped to it. The sensor's is the same tile without a button. */
+.glyph-button {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  overflow: hidden;
   color: inherit;
-  text-align: left;
-  background: none;
-  border: 0;
-  border-radius: 0.75rem 0 0 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0.875rem;
   cursor: pointer;
 }
 
-.device-icon {
-  display: inline-flex;
-  flex: none;
-  color: var(--color-secondary);
+.glyph-button:disabled {
+  cursor: default;
+}
+
+.glyph-button--static {
+  cursor: default;
+}
+
+.device-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.5rem;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 0.5rem;
 }
 
 .device-text {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.125rem 0.5rem;
   min-width: 0;
 }
 
@@ -267,152 +506,257 @@ body {
 }
 
 .device-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
   font-size: 0.875rem;
   color: var(--color-muted);
 }
 
-.device-reading {
-  padding-inline: 1rem;
+/* Status only by exception: a small amber mark next to the name. */
+.mark {
+  display: inline-flex;
+  color: var(--color-warning);
+}
+
+.device-value {
+  font-size: 1.25rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.device-row .touch-switch {
-  padding-inline: 0.25rem 0.75rem;
+.device-value--on {
+  color: var(--color-accent);
 }
 
-/* ---- Touch targets ----
-   A thumb needs about 44 by 44 CSS pixels. In cyberui-2045 2.8.0 Button and
-   Input are already 44px or more at size md, but Toggle (a 28 or 32px track),
-   Checkbox, RadioGroup (20px rows) and Slider (a 20 or 24px thumb on an 8 or
-   12px track) are not, and the library has no option to make them bigger.
-   TouchRow (components/TouchRow.tsx) puts a class on a wrapper, and these rules
-   stretch the part of the control that takes the tap without changing how it
-   looks. They name parts of the library's markup (a <label> around the switch,
-   the radio <label>s, the slider's track as the last child and its
-   role="slider" thumb), so re-check them when you upgrade the library
-   (the README's Phone checklist). */
-
-/* Toggle: the <label> around the switch is what the tap lands on, so give it the height. */
-.touch-switch label {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--touch);
+/* The level of a light, as a thin bar under its row. */
+.level-bar {
+  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
+  height: 3px;
+  margin-top: 0.5rem;
+  background: var(--color-border-default);
+  border-radius: 2px;
 }
 
-/* Toggle draws no focus indicator: its focus classes set a ring colour but never
-   a ring width, so a keyboard user cannot see which switch has focus. The real
-   <input> is visually hidden and the track is the element right after it, so the
-   ring is drawn there (patrickkuei/CyberUI#126, and the README's Known limits). */
-.touch-switch input:focus-visible + div {
-  outline: 2px solid var(--color-secondary);
-  outline-offset: 2px;
+.level-bar-fill {
+  fill: var(--color-accent);
 }
 
-/* RadioGroup: each option is a <label>, 20px high as shipped. */
-.touch-radios label {
-  min-height: var(--touch);
-}
+/* ---- A device's page ---- */
 
-/* Slider: the drag starts on the track or the thumb. Pseudo-elements on both
-   widen what counts as the track or the thumb (a click on a pseudo-element is a
-   click on its element) without changing what is drawn. touch-action: none
-   stops a finger that starts on the slider from scrolling the sheet or page
-   instead of dragging: the library sets no touch-action of its own, so it is
-   the template's job (patrickkuei/CyberUI#127). The padding keeps the widened
-   areas inside the wrapper. */
-.touch-slider {
-  padding-block: 0.75rem;
-  touch-action: none;
-}
-
-.slider-control > div:last-child::before {
-  content: '';
-  position: absolute;
-  inset: -1rem 0;
-}
-
-.slider-control [role='slider']::before {
-  content: '';
-  position: absolute;
-  inset: -0.75rem;
-}
-
-/* ---- Device sheet (cyberui-2045 Drawer, side="bottom") ----
-   Drawer sizes the panel to a fixed height by `size`; this lets the content
-   decide, up to the screen, and the content scrolls past that. It is full
-   width by default, so it is held to the app's column and centred on wide
-   screens (fixed + left/right 0 + max-width + auto margins). The bottom padding
-   keeps the buttons clear of the home indicator (the library adds none).
-   Last, the border glow: Drawer animates its border through hard-coded colours
-   (magenta, cyan, green) and ignores the accent (patrickkuei/CyberUI#124), which
-   on a sheet this large would flash on a blue app. These three lines, which
-   beat the library's layered CSS, hold it at the steady accent border the
-   library itself uses under prefers-reduced-motion. */
-.device-sheet {
-  height: auto;
-  max-height: calc(100vh - 1rem);
-  max-height: calc(100dvh - 1rem);
-  max-width: var(--app-max);
-  margin-inline: auto;
-  padding-bottom: env(safe-area-inset-bottom);
-  border-radius: 1rem 1rem 0 0;
-  animation: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 12px var(--color-accent);
-}
-
-.sheet {
+/* The halo reaches past the glyph's own box; clipping the sideways overflow
+   here keeps it from ever making the page scroll sideways at 320px. */
+.hero {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+  overflow-x: clip;
 }
 
-/* The library's own Drawer title is 3.45:1 on its surface (patrickkuei/CyberUI#125), so the sheet draws its own heading in the default text colour. */
-.sheet-title {
-  overflow-wrap: anywhere;
+.hero-glyph {
+  width: 10.5rem;
+  height: 10.5rem;
+  margin-block: 0.5rem 1rem;
+}
+
+.hero-room,
+.hero-caption {
   margin: 0;
-  font-size: 1.25rem;
+  color: var(--color-muted);
+}
+
+.hero-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Numbers are the typography: one big tabular numeral per thing. */
+.numeral {
+  margin: 0;
+  font-size: clamp(3.5rem, 18vw, 5rem);
   font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
   color: var(--color-default);
 }
 
-.sheet-sub {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.25rem 0 0;
+.numeral--dim {
   color: var(--color-muted);
 }
 
-.sheet-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.numeral--card {
+  font-size: 2.25rem;
 }
 
-.sheet-reading,
-.sheet-note {
-  margin: 0;
+.numeral-unit {
+  margin-inline-start: 0.15em;
+  font-size: 0.4em;
+  font-weight: 600;
   color: var(--color-muted);
 }
 
-.sheet-actions {
+.down-note {
+  margin: 0.5rem 0 0;
+  font-size: 1.125rem;
+  color: var(--color-muted);
+}
+
+/* 48px round buttons either side of the thermostat's target. */
+.stepper {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  min-width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.presets,
+.link-panel {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.sheet-actions > * {
-  width: 100%;
+.preset-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
 }
 
-/* ---- Add device ---- */
+.preset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  min-height: 3.5rem;
+  padding: 0.25rem 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-default);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0.75rem;
+  cursor: pointer;
+}
+
+.preset-num {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+.preset[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+.link-panel {
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0.75rem;
+}
+
+.link-facts {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.link-text {
+  font-variant-numeric: tabular-nums;
+}
+
+.link-text--weak {
+  color: var(--color-warning);
+}
+
+/* Four bars, lit from the left. Outlined when dim, so the scale is visible without colour. */
+.signal-bar {
+  fill: none;
+  stroke: var(--color-muted);
+  stroke-width: 1;
+}
+
+.signal-bar--lit {
+  fill: var(--color-accent);
+  stroke: var(--color-accent);
+}
+
+/* ---- Rooms ---- */
+
+.room-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.room-card {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 1rem;
+}
+
+.room-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.room-card-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.chevron-button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--touch);
+  height: var(--touch);
+  margin-inline-end: -0.5rem;
+  color: var(--color-secondary);
+  background: none;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.room-card-watts {
+  margin: 0;
+}
+
+.room-card-on {
+  margin: 0 0 0.5rem;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.room-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ---- Add device, Add room ---- */
 
 .add-form {
   display: flex;
@@ -434,45 +778,138 @@ body {
   background: var(--color-base);
 }
 
-/* ---- Scenes ---- */
-
-.scene-result {
-  overflow-wrap: anywhere;
-  margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.4;
-}
-
-.scene-result:not(:empty) {
-  padding: 0.75rem 1rem;
-  background: var(--color-surface);
-  border-left: 4px solid var(--color-secondary);
-  border-radius: 0.5rem;
-}
-
-.scene-list {
+.step {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.step-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* The scan's pulse: three rings that grow and fade, only while scanning and
+   only for people who have not asked for less motion (see the end of this
+   file). Without motion the rings are one still ring, and the words "Scanning…"
+   below say what is happening. */
+.pulse {
+  position: relative;
+  align-self: center;
+  width: 7rem;
+  height: 7rem;
+}
+
+.pulse span {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.pulse span:first-child {
+  opacity: 0.6;
+}
+
+.scan-status,
+.link-status {
+  margin: 0;
+  font-weight: 600;
+}
+
+.link-status--failed {
+  color: var(--color-error);
+}
+
+.nearby-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.scene-card {
+/* One tap picks the device: the whole row is the target, 64px high. */
+.nearby-row {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 4rem;
+  padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+  font: inherit;
+  color: var(--color-default);
+  text-align: left;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0.875rem;
+  cursor: pointer;
+}
+
+.link-run {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+}
+
+.link-steps {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link-step {
+  display: flex;
+  align-items: center;
   gap: 0.75rem;
-}
-
-.scene-name {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-secondary);
-}
-
-.scene-summary {
+  min-height: 2.5rem;
   color: var(--color-muted);
+}
+
+.link-step--done,
+.link-step--active {
+  color: var(--color-default);
+}
+
+.link-step--active {
+  font-weight: 600;
+}
+
+.link-step--failed {
+  color: var(--color-error);
+}
+
+.link-step-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  box-sizing: border-box;
+  border: 2px solid var(--color-muted);
+  border-radius: 50%;
+}
+
+.link-step--active .link-step-mark {
+  border-color: var(--color-accent);
+}
+
+.link-step--done .link-step-mark {
+  color: var(--color-inverse);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.link-step--failed .link-step-mark {
+  border-color: var(--color-error);
 }
 
 /* ---- Settings ---- */
@@ -484,11 +921,90 @@ body {
 }
 
 .about-version {
+  margin: 0;
   font-weight: 600;
 }
 
 .about-demo {
+  margin: 0;
   color: var(--color-muted);
+}
+
+/* ---- Touch targets ----
+   A thumb needs about 44 by 44 CSS pixels. In cyberui-2045 2.8.0 Button and
+   Input are already 44px or more at size md, but Toggle (a 28 or 32px track),
+   Checkbox, RadioGroup (20px rows) and Slider (a 20 or 24px thumb on an 8 or
+   12px track) are not, and the library has no option to make them bigger.
+   TouchRow (components/TouchRow.tsx) puts a class on a wrapper, and these rules
+   stretch the part of the control that takes the tap without changing how it
+   looks. They name parts of the library's markup (a <label> around the switch,
+   the radio <label>s, the slider's track as the last child and its
+   role="slider" thumb), so re-check them when you upgrade the library
+   (the README's Phone checklist). */
+
+/* Toggle: the <label> around the switch is what the tap lands on, so give it the height. */
+.touch-switch label {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+}
+
+/* ... and that is exactly what breaks the knob. The knob is the track's ::after,
+   drawn `absolute; top: 2px` against the nearest positioned ancestor, and the
+   library makes the <label> `relative` while the track stays static. A label
+   stretched to 44px around a 32px track therefore puts the knob at the label's
+   top: 6px above where it belongs, poking out of the track. Making the track the
+   positioned ancestor puts the knob back inside it. This is the same
+   div-after-the-input the focus ring below draws on. phoneRules.test.ts keeps
+   the rule and the browser check measures the knob against the track. */
+.touch-switch input + div {
+  position: relative;
+}
+
+/* Toggle draws no focus indicator: its focus classes set a ring colour but never
+   a ring width, so a keyboard user cannot see which switch has focus. The real
+   <input> is visually hidden and the track is the element right after it, so the
+   ring is drawn there (patrickkuei/CyberUI#126, and the README's Known limits). */
+.touch-switch input:focus-visible + div {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* RadioGroup: each option is a <label>, 20px high as shipped. */
+.touch-radios label {
+  min-height: var(--touch);
+}
+
+/* Slider: the drag starts on the track or the thumb. Pseudo-elements on both
+   widen what counts as the track or the thumb (a click on a pseudo-element is a
+   click on its element) without changing what is drawn. touch-action: none
+   stops a finger that starts on the slider from scrolling the page instead of
+   dragging: the library sets no touch-action of its own, so it is the
+   template's job (patrickkuei/CyberUI#127). The padding keeps the widened
+   areas inside the wrapper. */
+.touch-slider {
+  padding-block: 0.75rem;
+  touch-action: none;
+}
+
+.slider-control > div:last-child::before {
+  content: '';
+  position: absolute;
+  inset: -1rem 0;
+}
+
+.slider-control [role='slider']::before {
+  content: '';
+  position: absolute;
+  inset: -0.75rem;
+}
+
+/* The library's accent Slider fills from the accent to the primary colour
+   (magenta), which makes a lit light look half-pink. The fill is the first
+   child of the track; a solid accent keeps "blue means on" true. */
+.slider-control > div:last-child > div:first-child {
+  background-image: none;
+  background-color: var(--color-accent);
 }
 
 /* ---- Bottom navigation ----
@@ -527,7 +1043,10 @@ body {
 
 /* Pressed feedback for a finger. It is :active, which a touch ends, unlike :hover. */
 .nav-tab:active,
-.device-main:active {
+.device-link:active,
+.nearby-row:active,
+.chip:active,
+.preset:active {
   background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
 }
 
@@ -536,17 +1055,69 @@ body {
    decorates. */
 @media (hover: hover) {
   .nav-tab:hover,
-  .device-main:hover,
-  .app-bar-back:hover {
+  .device-link:hover,
+  .nearby-row:hover,
+  .chip:hover,
+  .preset:hover,
+  .app-bar-back:hover,
+  .chevron-button:hover,
+  .glyph-button:hover {
     background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
 }
 
-/* No animation at all for people who ask for none. */
+/* No animation at all for people who ask for none. Everything of this template's
+   own that moves is in the second block. cyberui-2045 2.8.0 still animates its
+   Button, Toggle, Slider, RadioGroup, Input and Badge under reduced motion
+   (measured: 0.1s to 0.3s), so the first block turns every transition and
+   animation under .app off, theirs included. !important is the point: it has
+   to beat the library's own rules wherever they are. */
+@media (prefers-reduced-motion: reduce) {
+  .app,
+  .app *,
+  .app *::before,
+  .app *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .nav-tab,
-  .device-main,
-  .app-bar-back {
+  .device-link,
+  .app-bar-back,
+  .chip,
+  .preset,
+  .nearby-row {
     transition: background-color 150ms ease-out, color 150ms ease-out;
+  }
+
+  .glyph-halo {
+    transition: opacity 200ms ease-out;
+  }
+
+  .pulse span {
+    animation: pulse 2.4s ease-out infinite;
+  }
+
+  .pulse span:nth-child(2) {
+    animation-delay: 0.8s;
+  }
+
+  .pulse span:nth-child(3) {
+    animation-delay: 1.6s;
+  }
+
+  @keyframes pulse {
+    from {
+      opacity: 0.7;
+      transform: scale(0.3);
+    }
+
+    to {
+      opacity: 0;
+      transform: scale(1);
+    }
   }
 }

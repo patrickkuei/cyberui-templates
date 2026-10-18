@@ -1,78 +1,162 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { STARTING_DEVICES } from '../data/devices';
 import type { Device } from '../data/types';
-import { DeviceRow } from './DeviceRow';
+import { DeviceRow, devicePath } from './DeviceRow';
 
 const byId = (id: string): Device => STARTING_DEVICES.find((device) => device.id === id)!;
+const with_ = (id: string, change: Record<string, unknown>): Device => ({ ...byId(id), ...change }) as Device;
 
-function setup(id: string, unit: 'C' | 'F' = 'C') {
-  const onToggle = vi.fn();
-  const onOpen = vi.fn();
+function renderRow(device: Device, onToggle = vi.fn(), unit: 'C' | 'F' = 'C') {
   render(
     <ul>
-      <DeviceRow device={byId(id)} unit={unit} onToggle={onToggle} onOpen={onOpen} />
+      <DeviceRow device={device} unit={unit} onToggle={onToggle} />
     </ul>,
   );
-  return { onToggle, onOpen };
+  return { onToggle, row: screen.getByRole('listitem') };
 }
 
 describe('DeviceRow', () => {
-  it('shows the name, the status in words and the state, with a named switch that reflects it', () => {
-    setup('desk-lamp');
-    const open = screen.getByRole('button', { name: /Desk lamp/ });
-    expect(open).toHaveTextContent('Online');
-    expect(open).toHaveTextContent('70%');
-    expect(screen.getByRole('switch', { name: 'Desk lamp power' })).toBeChecked();
+  it('has two sibling controls: a power switch and a link to the device page, never one inside the other', () => {
+    const { row } = renderRow(byId('desk-lamp'));
+    const power = within(row).getByRole('switch', { name: 'Desk lamp power' });
+    const link = within(row).getByRole('link', { name: /Desk lamp/ });
+    expect(link).toHaveAttribute('href', '#/device/desk-lamp');
+    expect(power.contains(link)).toBe(false);
+    expect(link.contains(power)).toBe(false);
+    expect(power.parentElement).toBe(link.parentElement);
   });
 
-  it('flips the switch without opening the sheet', async () => {
-    const { onToggle, onOpen } = setup('desk-lamp');
-    await userEvent.click(screen.getByRole('switch', { name: 'Desk lamp power' }));
-    expect(onToggle).toHaveBeenCalledExactlyOnceWith('desk-lamp');
-    expect(onOpen).not.toHaveBeenCalled();
+  it('shows its name and one value at the right', () => {
+    const { row } = renderRow(byId('desk-lamp'));
+    expect(within(row).getByText('Desk lamp')).toBeInTheDocument();
+    expect(within(row).getByText('70%')).toBeInTheDocument();
   });
 
-  it('opens the sheet from the main button without flipping the switch', async () => {
-    const { onToggle, onOpen } = setup('desk-lamp');
-    await userEvent.click(screen.getByRole('button', { name: /Desk lamp/ }));
-    expect(onOpen).toHaveBeenCalledExactlyOnceWith('desk-lamp');
+  it('is checked while the device is on, unchecked while it is off, and the glyph button is what flips it', async () => {
+    const { onToggle } = renderRow(byId('desk-lamp'));
+    expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    await userEvent.click(screen.getByRole('switch'));
+    expect(onToggle).toHaveBeenCalledWith('desk-lamp');
+  });
+
+  it('is unchecked for a light that is off, and says Off', () => {
+    const { row } = renderRow(byId('bedside-lamp'));
+    expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+    expect(within(row).getByText('Off')).toBeInTheDocument();
+  });
+
+  it('does not toggle when the link is pressed', async () => {
+    const { onToggle } = renderRow(byId('tv-plug'));
+    await userEvent.click(screen.getByRole('link', { name: /TV plug/ }));
     expect(onToggle).not.toHaveBeenCalled();
   });
 
-  it('disables the switch of an offline device, and says Offline', () => {
-    setup('hall-light');
-    expect(screen.getByRole('switch', { name: 'Hall light power' })).toBeDisabled();
-    expect(screen.getByText('Offline')).toBeInTheDocument();
+  it('draws a level bar under a light, filled to its level, and empty while it is off', () => {
+    const on = render(
+      <ul>
+        <DeviceRow device={byId('desk-lamp')} unit="C" onToggle={vi.fn()} />
+      </ul>,
+    );
+    expect(on.container.querySelector('.level-bar-fill')).toHaveAttribute('width', '70');
+    on.unmount();
+    const off = render(
+      <ul>
+        <DeviceRow device={byId('bedside-lamp')} unit="C" onToggle={vi.fn()} />
+      </ul>,
+    );
+    expect(off.container.querySelector('.level-bar-fill')).toHaveAttribute('width', '0');
   });
 
-  it('says that the main button opens a dialog', () => {
-    setup('desk-lamp');
-    expect(screen.getByRole('button', { name: /Desk lamp/ })).toHaveAttribute('aria-haspopup', 'dialog');
+  it('draws no level bar for anything but a light', () => {
+    for (const id of ['tv-plug', 'hall-thermostat', 'living-sensor']) {
+      const { container, unmount } = render(
+        <ul>
+          <DeviceRow device={byId(id)} unit="C" onToggle={vi.fn()} />
+        </ul>,
+      );
+      expect(container.querySelector('.level-bar'), id).toBeNull();
+      unmount();
+    }
   });
 
-  // The accent variant is a solid accent track when on; the library's default
-  // would be a gradient to magenta. Toggle puts that on the track, which is the
-  // element after the input (update this with the library if its class names change).
-  it('uses the accent variant of the switch', () => {
-    setup('desk-lamp');
-    expect(screen.getByRole('switch', { name: 'Desk lamp power' }).nextElementSibling).toHaveClass('peer-checked:bg-accent');
+  describe('a sensor', () => {
+    it('shows its reading as the value and has no power button', () => {
+      const { row } = renderRow(byId('living-sensor'));
+      expect(within(row).getByText('21.5°')).toBeInTheDocument();
+      expect(within(row).queryByRole('switch')).not.toBeInTheDocument();
+      expect(within(row).getByRole('link', { name: /Living room sensor/ })).toBeInTheDocument();
+    });
+
+    it('shows the reading in Fahrenheit when that is the unit', () => {
+      const { row } = renderRow(byId('living-sensor'), vi.fn(), 'F');
+      expect(within(row).getByText('71°')).toBeInTheDocument();
+    });
   });
 
-  it('shows a low-battery device as such', () => {
-    setup('bedroom-sensor');
-    expect(screen.getByText('Low battery')).toBeInTheDocument();
+  describe('status only by exception', () => {
+    it('shows no mark and no badge for a healthy device', () => {
+      const { row } = renderRow(byId('desk-lamp'));
+      expect(row.querySelector('.mark')).toBeNull();
+      expect(row).not.toHaveTextContent(/online|battery|weak|lost|offline/i);
+    });
+
+    it('marks a low battery with a small amber mark that is also in words for assistive technology', () => {
+      const { row } = renderRow(byId('bedroom-sensor'));
+      expect(row.querySelectorAll('.mark')).toHaveLength(1);
+      expect(within(row).getByRole('link')).toHaveAccessibleName(/Bedroom sensor Low battery/);
+    });
+
+    it('marks a weak signal the same way', () => {
+      const { row } = renderRow(byId('fan-plug'));
+      expect(row.querySelectorAll('.mark')).toHaveLength(1);
+      expect(within(row).getByRole('link')).toHaveAccessibleName(/Fan plug Weak signal/);
+    });
+
+    it('is dashed and muted with the word Lost for a lost device, and its power button is disabled', () => {
+      const { row } = renderRow(byId('hall-light'));
+      expect(row).toHaveClass('device-row--down');
+      expect(within(row).getByText('Lost')).toBeInTheDocument();
+      expect(within(row).getByRole('switch')).toBeDisabled();
+      expect(within(row).getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+      expect(row.querySelector('.level-bar')).toBeNull();
+      expect(row.querySelector('.mark')).toBeNull();
+    });
+
+    it('says Offline for a device that was disconnected', () => {
+      const { row } = renderRow(with_('desk-lamp', { link: 'offline' }));
+      expect(row).toHaveClass('device-row--down');
+      expect(within(row).getByText('Offline')).toBeInTheDocument();
+      expect(within(row).getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('does not call a sensor on: a lost sensor is down and has no power button either', () => {
+      const { row } = renderRow(with_('living-sensor', { link: 'lost' }));
+      expect(row).toHaveClass('device-row--down');
+      expect(within(row).getByText('Lost')).toBeInTheDocument();
+      expect(within(row).queryByRole('switch')).not.toBeInTheDocument();
+    });
   });
 
-  it('gives a sensor a reading and no switch', () => {
-    setup('living-sensor');
-    expect(screen.queryByRole('switch')).not.toBeInTheDocument();
-    expect(screen.getByText('21.5 °C')).toBeInTheDocument();
+  it('colours the value as lit only while the device is on', () => {
+    const on = render(
+      <ul>
+        <DeviceRow device={byId('tv-plug')} unit="C" onToggle={vi.fn()} />
+      </ul>,
+    );
+    expect(on.container.querySelector('.device-value')).toHaveClass('device-value--on');
+    on.unmount();
+    const off = render(
+      <ul>
+        <DeviceRow device={byId('fan-plug')} unit="C" onToggle={vi.fn()} />
+      </ul>,
+    );
+    expect(off.container.querySelector('.device-value')).not.toHaveClass('device-value--on');
   });
 
-  it('shows temperatures in the chosen unit', () => {
-    setup('living-sensor', 'F');
-    expect(screen.getByText('71 °F')).toBeInTheDocument();
+  it('builds the link to a device page from its id, encoded', () => {
+    expect(devicePath('desk-lamp')).toBe('#/device/desk-lamp');
+    expect(devicePath('a b')).toBe('#/device/a%20b');
   });
 });

@@ -40,6 +40,66 @@ describe('withoutHoverBlocks', () => {
   });
 });
 
+/**
+ * The left and right padding that the rules for exactly `selector` leave in
+ * effect, as the CSS wrote them (read in source order, so a later declaration
+ * wins; left-to-right, so start is left). '0' when nothing sets it.
+ */
+function horizontalPaddingOf(source: string, selector: string): { start: string; end: string } {
+  let start = '0';
+  let end = '0';
+  // Comments are already gone, and no rule here nests, so [^{}] is the rule body. A
+  // rule inside @media still matches: the at-rule's own prelude cannot, it has a { in its body.
+  for (const [, selectors = '', body = ''] of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!selectors.split(',').some((candidate) => candidate.trim() === selector)) continue;
+    for (const [, property = '', value = ''] of body.matchAll(/([\w-]+)\s*:\s*([^;]+)/g)) {
+      const parts = value.trim().split(/\s+/);
+      const first = parts[0] ?? '0';
+      if (property === 'padding') {
+        // One to four values, like every box shorthand: top, right, bottom, left.
+        end = parts[1] ?? first;
+        start = parts[3] ?? end;
+      } else if (property === 'padding-inline') {
+        start = first;
+        end = parts[1] ?? first;
+      } else if (property === 'padding-inline-start' || property === 'padding-left') {
+        start = first;
+      } else if (property === 'padding-inline-end' || property === 'padding-right') {
+        end = first;
+      }
+    }
+  }
+  return { start, end };
+}
+
+/** Every selector of every rule, with where its rule starts in the source (so two can be put in order). */
+function selectorRules(source: string): { selector: string; index: number }[] {
+  const out: { selector: string; index: number }[] = [];
+  for (const match of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const selector of (match[1] ?? '').split(',')) out.push({ selector: selector.trim(), index: match.index ?? 0 });
+  }
+  return out;
+}
+
+const isZero = (length: string) => /^0(\.0+)?[a-z%]*$/.test(length);
+
+describe('horizontalPaddingOf', () => {
+  it('reads the shorthand, the logical properties and the later declaration, and sees only the exact selector', () => {
+    expect(horizontalPaddingOf('.a{padding:0 1rem}', '.a')).toEqual({ start: '1rem', end: '1rem' });
+    expect(horizontalPaddingOf('.a{padding:0 0.75rem 0 0.25rem}', '.a')).toEqual({ start: '0.25rem', end: '0.75rem' });
+    expect(horizontalPaddingOf('.a{padding:0.5rem}', '.a')).toEqual({ start: '0.5rem', end: '0.5rem' });
+    expect(horizontalPaddingOf('.a{padding:1rem 2rem 3rem}', '.a')).toEqual({ start: '2rem', end: '2rem' });
+    expect(horizontalPaddingOf('.a{padding:0;padding-inline:0.75rem}', '.a')).toEqual({ start: '0.75rem', end: '0.75rem' });
+    expect(horizontalPaddingOf('.a,.b{padding-left:1rem;padding-right:2rem}', '.b')).toEqual({ start: '1rem', end: '2rem' });
+    expect(horizontalPaddingOf('@media (x){.a{padding-inline:1rem}}', '.a')).toEqual({ start: '1rem', end: '1rem' });
+    expect(horizontalPaddingOf('.a b{padding-inline:1rem}.ab{padding-inline:1rem}', '.a')).toEqual({ start: '0', end: '0' });
+    expect(isZero('0')).toBe(true);
+    expect(isZero('0px')).toBe(true);
+    expect(isZero('0.25rem')).toBe(false);
+    expect(isZero('var(--pad)')).toBe(false);
+  });
+});
+
 describe('phone rules', () => {
   const code = stripComments(css);
 
@@ -176,6 +236,64 @@ describe('phone rules', () => {
   it('gives the hover tint to the glyph power button only, not to the static glyph tile of a sensor or a nearby device', () => {
     expect(code).toMatch(/\.glyph-button:not\(\.glyph-button--static\):hover/);
     expect(code).not.toMatch(/\.glyph-button:hover/);
+  });
+
+  // The hover tint, the pressed tint and the focus ring are all painted on the
+  // control's own box. A control whose text sets that box's size (a link, a
+  // row, a chip) and that has no side padding puts the tint's edge right on its
+  // text: the Home device row did ("Bedside lamp" flush left, "Off" flush right).
+  // Nothing is painted at rest, so every rest-state check, screenshot and review
+  // saw a row that looked fine; only moving the pointer onto it shows the bug.
+  // The two icon-only controls are exempt: a fixed-size box with the icon
+  // centred in it has no text to touch the edge, and padding would only fight
+  // its width and height.
+  const TINTED_WITH_TEXT = ['.nav-tab', '.device-link', '.nearby-row', '.chip', '.preset', '.app-bar-back'];
+  const TINTED_ICON_ONLY = ['.chevron-button', '.glyph-button'];
+
+  it.each(TINTED_WITH_TEXT)('keeps horizontal padding on %s, so its hover and pressed tint never touches its text', (selector) => {
+    const { start, end } = horizontalPaddingOf(code, selector);
+    expect(isZero(start), `${selector} has no left padding`).toBe(false);
+    expect(isZero(end), `${selector} has no right padding`).toBe(false);
+  });
+
+  it('knows every control that gets a hover or pressed tint, so a new one cannot skip the padding check above', () => {
+    // The first class of each selector that has :hover or :active ('.glyph-button:not(.glyph-button--static):hover' is the glyph button).
+    const tinted = new Set([...code.matchAll(/(\.[\w-]+)[^,{}]*?:(?:hover|active)\b/g)].map((match) => match[1]));
+    expect([...tinted].sort()).toEqual([...TINTED_WITH_TEXT, ...TINTED_ICON_ONLY].sort());
+  });
+
+  // The tint is a background-color, and so is a selected chip's fill. Both rules
+  // have the same specificity and the tint is later, so hovering or pressing the
+  // selected chip replaced its accent fill with a 10% tint and left its dark text
+  // on it (1.17:1). Every control whose selected state has a fill of its own must
+  // be left out of its own tint with :not(<that state>). Controls whose selected
+  // state has no fill (the current nav tab, a pressed preset) are not in this list.
+  it('leaves a selected control that has a fill of its own out of its hover and pressed tint', () => {
+    const rules = selectorRules(code);
+    const selectedFills = [...code.matchAll(/(\.[\w-]+)(\[aria-[\w-]+='[^']*'\])\s*\{([^{}]*)\}/g)].filter((match) => /background/.test(match[3] ?? ''));
+    expect(selectedFills.map((match) => match[1])).toContain('.chip');
+    for (const [, control = '', state = ''] of selectedFills) {
+      const tints = rules.filter(({ selector }) => selector.startsWith(control) && /:(hover|active)\b/.test(selector) && !selector.startsWith(`${control}-`));
+      expect(tints.some(({ selector }) => selector.endsWith(':hover')), `${control} has a hover tint to check`).toBe(true);
+      expect(tints.some(({ selector }) => selector.endsWith(':active')), `${control} has a pressed tint to check`).toBe(true);
+      for (const { selector } of tints) expect(selector, `${selector} must leave out ${state}`).toContain(`:not(${state})`);
+    }
+  });
+
+  // A mouse that is pressing a control is also hovering it, and with equal
+  // specificity the later rule wins. :active first meant the 10% hover tint beat
+  // the 16% pressed tint on desktop; only a touch screen (no hover) showed 16%.
+  it('puts each pressed tint after the hover tint of the same selector, so pressing with a mouse shows the pressed one', () => {
+    const rules = selectorRules(code);
+    const hovers = rules.filter(({ selector }) => selector.endsWith(':hover'));
+    let pairs = 0;
+    for (const hover of hovers) {
+      const pressed = rules.find(({ selector }) => selector === hover.selector.replace(/:hover$/, ':active'));
+      if (!pressed) continue;
+      pairs++;
+      expect(pressed.index, `${pressed.selector} must come after ${hover.selector}`).toBeGreaterThan(hover.index);
+    }
+    expect(pairs).toBeGreaterThanOrEqual(5);
   });
 
   it('lets the page draw under the notch (viewport-fit=cover) and names its theme colour', () => {

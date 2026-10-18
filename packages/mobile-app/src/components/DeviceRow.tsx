@@ -40,12 +40,15 @@ export function DeviceRow({ device, unit, onToggle, onOpen }: DeviceRowProps) {
       ) : (
         <TouchRow control="switch">
           {/*
-            An id and an accessible name are both needed. Toggle only connects its
-            visible `label` to the switch through the id, and this row has no
-            visible label, so aria-label (spread onto the input) names it; without
-            either, a screen reader announces an unnamed checkbox
-            (patrickkuei/CyberUI#120). role="switch" says what it does.
-            An offline device cannot be controlled, so its switch is disabled.
+            This row has no visible label, so aria-label (spread onto the input)
+            is what names the switch; checked in a test: with it, an id is not
+            needed for the name. Toggle only connects a visible `label` to the
+            switch through an id, so without an id a `label` leaves it unnamed
+            (patrickkuei/CyberUI#120); the Settings switches and the sheet's Power
+            switch are built that way. The id is kept here so every Toggle in the
+            app is built the same way and a visible label can be added later.
+            role="switch" says what it does. An offline device cannot be
+            controlled, so its switch is disabled.
           */}
           <Toggle
             id={`power-${device.id}`}

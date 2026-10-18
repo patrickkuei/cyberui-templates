@@ -11,7 +11,7 @@ interface DeviceRowProps {
   onToggle: (id: string) => void;
 }
 
-/** The link to a device's own page. Rows and the Rooms screen both build it here. */
+/** The link to a device's own page (the row's link; encoded so an id with a space or slash still routes). */
 export const devicePath = (deviceId: string) => `#/device/${encodeURIComponent(deviceId)}`;
 
 /**

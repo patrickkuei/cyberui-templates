@@ -6,9 +6,14 @@
       viewport-fit=cover lets the page draw under a notch and the home
       indicator. Without it browsers letterbox the page inside the safe area and
       every env(safe-area-inset-*) in src/App.css reads 0. With it, the app bar,
-      the bottom nav and the device sheet pad themselves (see src/App.css).
+      the bottom nav and the forms' button row pad themselves (see src/App.css).
     -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!--
+      An empty icon, so the browser does not ask for a /favicon.ico this package
+      does not have (a 404 in the console). Replace it with your own icon.
+    -->
+    <link rel="icon" href="data:," />
     <!--
       The colour of the browser's own bar on a phone. A meta tag cannot read a
       CSS variable, so this repeats --color-base from cyberui-2045 (#1a1a2e).

@@ -32,6 +32,15 @@ export interface Template {
    * `npm run sync-templates` first to populate public/live/<slug>/.
    */
   livePreviewPath: string;
+  /**
+   * Set for a template designed for a phone. The live preview is then shown in
+   * a frame 390 CSS pixels wide (a real iframe of that width, so the template's
+   * own phone layout runs, not a scaled-down copy of its wide one) instead of
+   * filling the dialog. At 640px and below the dialog is already the size of a
+   * phone, so the frame is dropped there and the template runs at the
+   * visitor's real width. Leave it out for everything else.
+   */
+  previewFrame?: 'phone';
 }
 
 export const TEMPLATES: Template[] = [

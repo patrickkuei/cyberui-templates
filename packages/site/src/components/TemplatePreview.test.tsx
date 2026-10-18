@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -74,5 +76,44 @@ describe('TemplatePreview', () => {
     });
     expect(() => fireEvent.load(frame)).not.toThrow();
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  describe('the phone-sized frame', () => {
+    // A copy of an existing template that asks for the frame, so this test does
+    // not depend on which real template does.
+    const phone = { ...monitoring, previewFrame: 'phone' as const };
+
+    it('is asked for by a template that sets previewFrame', () => {
+      const { container } = render(<TemplatePreview template={phone} code={code} onClose={vi.fn()} />);
+      expect(container.firstElementChild).toHaveClass('template-preview--phone');
+    });
+
+    it('is not asked for by a template that does not', () => {
+      const { frame } = renderPreview();
+      expect(frame.closest('.template-preview')).not.toHaveClass('template-preview--phone');
+    });
+
+    it('keeps everything else about the preview: the same iframe, the tabs, and Esc forwarding', async () => {
+      const onClose = vi.fn();
+      render(<TemplatePreview template={phone} code={code} onClose={onClose} />);
+      const frame = screen.getByTitle('AI Product Monitoring live preview') as HTMLIFrameElement;
+      expect(frame).toHaveAttribute('src', './live/monitoring/index.html');
+      const inside = giveWindow(frame);
+      fireEvent.load(frame);
+      inside.dispatchEvent(escape());
+      expect(onClose).toHaveBeenCalledTimes(1);
+      await userEvent.click(screen.getByRole('tab', { name: 'Code' }));
+      await userEvent.click(screen.getByRole('tab', { name: 'Live preview' }));
+      expect(screen.getByTitle('AI Product Monitoring live preview')).toBe(frame);
+    });
+
+    // happy-dom has no layout, so the CSS is checked as text: the frame must be
+    // drawn only above the width where the dialog stops being full screen, or a
+    // phone would get a 390px frame inside a 390px screen.
+    it('is drawn only above the dialog’s full-screen breakpoint, 390px wide', () => {
+      const css = readFileSync(path.resolve(__dirname, '../App.css'), 'utf8');
+      expect(css).toMatch(/@media \(max-width: 640px\)\s*\{\s*\.preview-dialog\s*\{[^}]*width: 100vw/);
+      expect(css).toMatch(/@media \(min-width: 641px\)\s*\{\s*\.template-preview--phone \.template-preview-body iframe,[^}]*width: 390px/);
+    });
   });
 });

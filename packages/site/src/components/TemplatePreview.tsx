@@ -30,6 +30,10 @@ export interface TemplatePreviewProps {
 // that is caught and Esc then simply does not forward.)
 // Note for forks: this also fires when the template itself uses Esc (to close
 // its own modal, say), so that press closes the preview as well as the modal.
+//
+// A template with previewFrame: 'phone' gets an extra class, and App.css then
+// draws its iframe 390px wide and centred (above 640px). Nothing else about the
+// preview changes: same iframe, same tabs, same Esc forwarding.
 export function TemplatePreview({ template, code, onClose }: TemplatePreviewProps) {
   const [tab, setTab] = useState<Tab>('Live preview');
   const [loaded, setLoaded] = useState(false);
@@ -69,7 +73,7 @@ export function TemplatePreview({ template, code, onClose }: TemplatePreviewProp
   useEffect(() => stopForwarding, []);
 
   return (
-    <div className="template-preview">
+    <div className={template.previewFrame === 'phone' ? 'template-preview template-preview--phone' : 'template-preview'}>
       <TabNavigation tabs={TABS} activeTab={tab} onTabChange={(next) => setTab(next as Tab)} />
       <div className="template-preview-body">
         <iframe

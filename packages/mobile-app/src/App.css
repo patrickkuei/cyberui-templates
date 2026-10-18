@@ -22,6 +22,19 @@
   --pad: 1rem;
 }
 
+/* The page itself is the scroller, and two bars stick over it: the app bar at
+   the top and the bottom nav at the foot. Without scroll-padding the browser
+   thinks a control is visible when it is only under one of them: Tab to "Add
+   room" on a 390x844 screen and its ring sits behind the nav, and a click
+   there lands on the nav. WCAG 2.4.11 (Focus Not Obscured). The values are a
+   little more than the bars' heights (3.5rem, and 3.5rem plus the home
+   indicator), so a focused control scrolls clear of them. Keep them in step if
+   you change the bars; phoneRules.test.ts keeps the rule. */
+html {
+  scroll-padding-top: calc(4rem + env(safe-area-inset-top));
+  scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
 /* The page background sits on <body> so it fills the window beyond the centred column. */
 body {
   margin: 0;
@@ -561,10 +574,19 @@ body {
   margin-block: 0.5rem 1rem;
 }
 
-.hero-room,
+/* A room name can be 24 characters with no place to break; .hero clips sideways
+   overflow, so without overflow-wrap the name would be cut off at 320px rather
+   than wrap. Like every place that prints a name (phoneRules.test.ts). */
+.hero-room {
+  margin: 0;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
 .hero-caption {
   margin: 0;
   color: var(--color-muted);
+  overflow-wrap: anywhere;
 }
 
 .hero-value {
@@ -601,6 +623,7 @@ body {
 }
 
 .down-note {
+  overflow-wrap: anywhere;
   margin: 0.5rem 0 0;
   font-size: 1.125rem;
   color: var(--color-muted);

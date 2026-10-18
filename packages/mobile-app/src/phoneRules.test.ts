@@ -82,6 +82,14 @@ describe('phone rules', () => {
     expect(code).toMatch(/\.touch-switch input:focus-visible \+ div\s*\{[^}]*outline:\s*2px solid/);
   });
 
+  // The page is the scroller and the app bar and bottom nav stick over it, so a
+  // focused control can sit under one of them with the browser none the wiser
+  // (WCAG 2.4.11). Only a browser sees it: Tab to "Add room" on Rooms at 390x844.
+  it('keeps a focused control clear of the sticky app bar and bottom nav, with scroll-padding on the scroller', () => {
+    expect(code).toMatch(/html\s*\{[^}]*scroll-padding-top:\s*calc\([^)]*env\(safe-area-inset-top\)\)/);
+    expect(code).toMatch(/html\s*\{[^}]*scroll-padding-bottom:\s*calc\([^)]*env\(safe-area-inset-bottom\)\)/);
+  });
+
   it('sizes the shell with dvh, after a vh fallback', () => {
     expect(code).toMatch(/min-height:\s*100vh;\s*min-height:\s*100dvh;/);
   });
@@ -117,7 +125,7 @@ describe('phone rules', () => {
   // A device name can be 30 characters with no place to break (the Add form allows it).
   // Every place that prints one must be allowed to wrap anywhere, or the page scrolls
   // sideways at 320px.
-  it.each(['.device-name', '.notice-text', '.step-title', '.screen-title', '.room-title', '.room-card-title'])('lets %s wrap an unbroken device name', (selector) => {
+  it.each(['.device-name', '.notice-text', '.step-title', '.screen-title', '.room-title', '.room-card-title', '.hero-room', '.hero-caption', '.down-note'])('lets %s wrap an unbroken device name', (selector) => {
     const escaped = selector.replace('.', '\\.');
     expect(code).toMatch(new RegExp(`${escaped}\\s*\\{[^}]*overflow-wrap:\\s*anywhere`));
   });

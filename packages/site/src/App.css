@@ -1041,6 +1041,23 @@ body:has(dialog[open]) {
   overflow: auto;
 }
 
+/* A template designed for a phone (Template.previewFrame === 'phone') is shown
+   in a frame 390px wide instead of filling the dialog, so it runs its own
+   phone layout. The iframe really is 390px wide: nothing is scaled, and its
+   border is the only "device" drawn. The loading cover (absolutely positioned
+   with inset: 0) is centred over the same box by the same auto margins. Above
+   640px only: at 640px and below (the same breakpoint as the dialog's own
+   full-screen rule above) the dialog is already phone-sized and the template
+   runs at the visitor's real width. */
+@media (min-width: 641px) {
+  .template-preview--phone .template-preview-body iframe,
+  .template-preview--phone .template-preview-loading {
+    width: 390px;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+}
+
 /* The Live preview iframe stays mounted while the Code tab shows, so
    switching tabs does not reload the running template. */
 .template-preview-body [hidden] {

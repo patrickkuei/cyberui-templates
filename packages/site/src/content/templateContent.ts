@@ -151,6 +151,49 @@ export const TEMPLATE_CONTENT: Record<string, TemplateContent> = {
       },
     ],
   },
+  'mobile-app': {
+    code: CODE_TABS['mobile-app']!,
+    useIf: [
+      'a small control app people will use on their phone',
+      'the front end of an app you will later connect to real devices or a backend',
+      'something with a list, switches, a form and a few settings',
+    ],
+    headsUp:
+      'This is a demo: the home and its devices are made up, and nothing is controlled or sent. You get the screens, not the hub. Your AI can help you connect yours.',
+    notFor: "if you need to talk to real devices or install it on a phone. The devices are made up, and it's a web page with no saved data.",
+    examples: [
+      {
+        title: 'A home-lab hobbyist',
+        requests: [
+          'I just forked the Mobile App template (Kestrel, the home device controller). Before I change anything: get it running with npm and tell me how to open it on my phone over my home wifi, not just on my laptop. Also tell me plainly which parts are fake in this demo and which parts are real UI I can keep.',
+          "Replace the made-up devices with mine. I have 4 smart plugs (Shelly and Tasmota, I'll give you IPs) and a Raspberry Pi running a few services. Rename the devices, drop the ones I don't have, and change the scenes to things like 'Desk off', 'Everything off at night' and 'Lab on'. Keep the look and keep the switch on each row.",
+          "Now make the switches actually do something. When I flip a plug's switch it should call my plug (Tasmota has a plain HTTP command, Shelly has a local HTTP API). It should show the real on/off state when the app loads. If the plug doesn't answer, the switch should go back and show an error instead of pretending it worked.",
+          "The Add device form and the Settings screen currently don't save anything. Make Add device save to something that survives a reload (localStorage is fine for now), and make Settings remember my choices. If it's better to keep this on the Pi so my phone and laptop agree, tell me before you do it.",
+          "I want to run this on the Pi so I can open it from my phone any time, ideally as an icon on my home screen. Build it for production, serve it from the Pi, and walk me through starting it on boot. Tell me if I need to put any passwords or tokens somewhere and where they should go so they don't end up in the code.",
+          'Last thing: scenes. Make the one-tap scenes really switch the right group of plugs, and show me which ones worked and which failed.',
+        ],
+        stuck:
+          "Message 3, the real wall: a web page running in my phone's browser can't just call a plug on my LAN the way I imagine. Browser security rules (CORS, and an https page blocking plain http calls) would make the calls fail, and the error message would be useless to me. I'd probably need a tiny proxy or server on the Pi … Message 3 again: Tasmota and Shelly differ, and some of my plugs may be cloud-only or need a password. I'd get stuck on where to put credentials and would be tempted to paste them in the chat or the source. … Message 5: Home-screen install and https. On my phone, \"add to home screen\" may just make a bookmark, and some phone features need https, which a Pi on my LAN doesn't have. I'd also get lost in the systemd/pm2 part.",
+        worked:
+          'I open the app on my phone over wifi, with the laptop closed, and it loads. … I tap the switch for my desk lamp plug and the lamp physically turns off, within a second or two. … I unplug a plug on purpose, flip its switch, and the app shows an error and goes back, instead of lying. … I restart the Pi and the app comes back on its own. …',
+      },
+      {
+        title: 'A designer',
+        requests: [
+          "I just downloaded this template folder. I'm a designer, not an engineer. Please install whatever it needs and start it, then tell me exactly how to open it on my iPhone while I'm on the same wifi. Pretend I've never used a terminal.",
+          "Okay, it runs. It's a demo app called Kestrel. My client makes smart heating, not lights, so I need to rename it. Call the app 'Hearth' and change the device list to: Living room thermostat, Bedroom thermostat, Boiler, Hot water, Front door sensor. Rename the scenes to Morning, Away, Night. Keep it obviously fake data, I'm not claiming it controls anything. Show me which files you touched.",
+          "Now the look. The client's brand is a warm off-white background with a deep green and an orange accent, rounded and friendly, nothing cyberpunk. Can you change the colours, fonts and the glow/neon effects so it matches? Here are my hex values: #F5F1E8, #1F4D3A, #E8742A. Tell me where the colours live so I can tweak them myself later.",
+          'When I tap a thermostat, the bottom sheet should have a temperature control: big number, plus and minus buttons, and a mode picker (Heat, Eco, Off). Right now it has whatever the lights had. Please change that sheet for thermostats only and keep the on/off switch on the other rows.',
+          "On the Add device form, when I fill it in and press the button, I want the new device to actually show up in the list so the client sees it work. It's fine if it disappears when I refresh. Just make it clear in the UI, subtly, that it's a prototype.",
+          "Last thing: I need to send the client a link they can open on their own phone, without me running anything on my laptop. Put it online somewhere free and give me the link. Check it works at phone width and that refreshing a page doesn't break it.",
+        ],
+        stuck:
+          "Then the phone: a localhost address won't open on my phone, and I won't know why. I'd need the AI to hand me an address with numbers in it, and I'd be unsure whether my laptop's firewall or the office wifi is blocking it. That could eat the whole afternoon before a meeting. … Message 6: \"put it online\" means accounts, logins, and maybe an extra step the AI can't do for me. And a deployed site may break on a sub-path, or show a blank page. I wouldn't be able to debug that. I'd also worry about whether the link is public to everybody.",
+        worked:
+          "I open it on my own phone, in the real browser, with wifi on, and I can tap through every screen without pinching or sideways scrolling: device list, switch on a row, the sheet sliding up, scenes, the add form, settings. … The thermostat sheet shows the temperature and changing it changes the number on the screen. The add form puts a new device in the list. … The deployed link opens on a different phone (my partner's, off my wifi, not my laptop), and refreshing keeps me on the same screen instead of a 404. … Last check: I turn my laptop off, open the link on my phone over mobile data, and it still works. Then I'm ready for the meeting.",
+      },
+    ],
+  },
 };
 
 export function contentFor(slug: string): TemplateContent {

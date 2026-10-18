@@ -38,10 +38,24 @@ describe('template content', () => {
     for (const example of content.examples) expect(example.requests, example.title).toHaveLength(6);
   });
 
+  it('gives the mobile app fit copy that says plainly nothing is controlled or sent, and two examples', () => {
+    const content = TEMPLATE_CONTENT['mobile-app']!;
+    expect(content.useIf).toHaveLength(3);
+    expect(content.headsUp).toMatch(/nothing is controlled or sent/);
+    expect(content.headsUp).toMatch(/screens, not the hub/);
+    expect(content.examples.map((example) => example.title)).toEqual(['A home-lab hobbyist', 'A designer']);
+    for (const example of content.examples) {
+      expect(example.requests.length, example.title).toBeGreaterThanOrEqual(4);
+      expect(example.requests.length, example.title).toBeLessThanOrEqual(6);
+      expect(example.title, 'the title names the person').toMatch(/^An? /);
+    }
+  });
+
   it("describes each template's own limits in notFor, never another kind of app", () => {
     expect(TEMPLATE_CONTENT.monitoring!.notFor).toMatch(/live data/);
     expect(TEMPLATE_CONTENT['agent-panel']!.notFor).toMatch(/real model or login/);
     expect(TEMPLATE_CONTENT.landing!.notFor).toMatch(/several pages, a blog or a real signup backend/);
+    expect(TEMPLATE_CONTENT['mobile-app']!.notFor).toMatch(/real devices or install it on a phone/);
     for (const [slug, { notFor }] of Object.entries(TEMPLATE_CONTENT)) {
       expect(notFor ?? '', slug).not.toMatch(/landing page|dashboard|mobile app/i);
     }

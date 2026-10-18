@@ -413,3 +413,34 @@ Written during PR A (2026-10-18), after a read-only reviewer approved the PR wit
 - The focus ring of the primary Button is unconfirmed: the library draws a 2px accent ring at 50% alpha on an accent fill, which may be hard to see. Not changed here, not measured.
 
 **What the reviewer could not check:** a real phone and a real finger; WebKit and Firefox; a screen reader; the template inside the site's preview dialog (PR B). These are on the "not checked" list above and stay there.
+
+---
+
+## Findings from checking the published page
+
+Written during PR B (2026-10-18). Tools: the site's dev server (`vite`, port 5201) after `pnpm --filter cyberui-templates-site run sync-templates` (all four real builds), driven in headless Microsoft Edge 155 over the DevTools protocol by `puppeteer-core` 24.43.1 at 1440x900 and, with touch and mobile emulation, 390x844, with `prefers-reduced-motion` emulated both ways. The Claude Browser pane (a small 800x455 window) was used to look at the page and to try the Copy button, nothing was measured in it. The scripts (`site-check.mjs` from the plan, plus `layout-check.mjs`, `dialog-check.mjs` and `phone-page-check.mjs` written for this pass) and the two role-play interview files were kept outside the repository.
+
+**Held, no fix needed:**
+- `#/templates` shows four sections in order (monitoring, agent-panel, landing, mobile-app) under one h1 "Templates". The Mobile App badge reads "Blue accent", and its screenshot, "Run the live demo" and Copy start prompt are blue. The fit copy, the Heads-up and the example folds are neutral (looked at, not computed). Home says "4 templates ready." No sideways scroll at 1440 (`scrollWidth` 1425 with the scrollbar) or at 390 (`scrollWidth` 390, also with every example fold open).
+- The screenshot (1440x900, 39 KB) shows the phone-framed app near the top, the dark gradient below it and the visible "Run the live demo" button under the nav, not over it.
+- The phone frame, measured by `getBoundingClientRect` (the iframe's border box, so its own viewport is 388px: `innerWidth` 388):
+
+  | Window | Dialog | Iframe | Centred in the preview body |
+  |---|---|---|---|
+  | 1440 | 1296x810 | **390x659** | yes (left and right gaps equal) |
+  | 800 | 720x810 | 390x659 | yes |
+  | 641 | 577x810 | 390x659 | yes |
+  | 640 | 640x900, full screen | 608x751, no frame | n/a |
+  | 600 | 600x900, full screen | 568x751, no frame | n/a |
+  | 390 (touch) | 390x844, full screen | 358x695, no frame | n/a |
+
+  The loading cover has the same box as the iframe (390x659 at x=517.5) while the preview loads. At 390 the app inside the preview runs at the visitor's width (`innerWidth` 356, `scrollWidth` 356).
+- `site-check.mjs` printed exactly what the plan expected: frame 390; Add device changes the iframe's hash (`#/add`) and not the site's; saving returns to Devices inside the iframe with the dialog still open and the pairing notice shown; the dialog's close button still closes it after the iframe's history changed (`#/templates`); Esc pressed inside the app closes the dialog; Esc with the device sheet open closes the sheet and the dialog together (the README says so); a switch left off before the Code tab was still off after Live preview (the preview is not reloaded); the Code tab has six principles and nine tree lines.
+- Dialog: "Run the live demo" opens `#/templates/mobile-app`, and Back closes it and stays on `#/templates`; a backdrop click, Esc on the dialog and the close button close it; loading `#/templates/mobile-app` directly, or reloading with it open, reopens it.
+- Reduced motion: the dialog's `preview-dialog-in` animation is `none` under `reduce` and present without it; inside the preview the nav tab and row transitions are `0s` and no animation is running.
+- The Code tab was read in the dialog: six principles with their excerpts, then the folder map of eight folders. Every excerpt is verbatim from the merged package (`check:code-tab`).
+- The Copy start prompt text on the page (the fold shows the same `startPrompt(name, slug)` the button copies) names `npx --yes tiged patrickkuei/cyberui-templates/packages/mobile-app my-app`.
+
+**Verbatim check of the examples:** the two interviews were run by subagents before this pass and saved whole and unedited outside the repository. The plan's `check-verbatim.mjs` printed `verbatim check OK (2 examples)` against the example text as it is shipped in `templateContent.ts` (the shipped data was dumped from the module and checked, not only the draft JSON), and it fails with the offending words when one word of a request is changed. Left out on purpose, by the owner's rule that "Where they'd get stuck" may only list what the library and the template did not cause: the hobbyist's remarks that the demo's data is spread over several files and that the sheet's readings are made up, and that `localStorage` is per phone (not caused by the template, but not one of the listed kinds of obstacle, so left out); the designer's remarks about which file is "the design", that the neon look is deep in the library, that the sheet may be shared by every device type, that the template says nothing is saved, the icons, the terminal and Node (not caused by the template, left out as outside the listed kinds) and the licensed brand font.
+
+**Not checked:** the real production deploy (only happens after merge: the first time the production build is served from a subpath, the template's `base: './'` and the iframe's relative URL must resolve); `npx tiged patrickkuei/cyberui-templates/packages/mobile-app` against the published repository (cannot run before merge); what Copy start prompt actually puts on the clipboard (both Chromium windows used here refuse clipboard writes, so the site showed its own "Couldn't copy" fallback; the prompt text was read from the fold instead); the phone-sized frame in Firefox and Safari; a real phone, real safe-area insets and the on-screen keyboard; a screen reader.

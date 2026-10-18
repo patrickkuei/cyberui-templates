@@ -37,6 +37,15 @@ describe('templates', () => {
     expect(getTemplate('landing')?.accentHex).toBe('#ff8a3d');
   });
 
+  it('looks up the mobile app and gives it a blue accent distinct from the others', () => {
+    expect(getTemplate('mobile-app')?.name).toBe('Mobile App');
+    expect(getTemplate('mobile-app')?.accentHex).toBe('#5b9cff');
+  });
+
+  it('asks for the phone-sized preview frame only where the template is made for a phone', () => {
+    expect(TEMPLATES.filter((item) => item.previewFrame === 'phone').map((item) => item.slug)).toEqual(['mobile-app']);
+  });
+
   it("every item's screenshot file exists, because nothing else in CI would notice a missing one", () => {
     for (const item of TEMPLATES) {
       const file = resolve(__dirname, '../../public', item.screenshotSrc.replace(/^\.\//, ''));

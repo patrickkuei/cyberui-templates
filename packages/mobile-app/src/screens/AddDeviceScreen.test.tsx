@@ -35,9 +35,10 @@ describe('AddDeviceScreen', () => {
     expect(Array.from((screen.getByLabelText('Type') as HTMLSelectElement).options).map((option) => option.text)).toEqual(['Light', 'Plug', 'Thermostat', 'Sensor']);
   });
 
-  it('rejects an empty name: shows the error, links it to the field, keeps focus there and adds nothing', async () => {
+  it.each(['', '   '])('rejects the name %j: shows the error, links it to the field, keeps focus there and adds nothing', async (value) => {
     const leave = vi.fn();
     render(<Harness leave={leave} />);
+    if (value) await userEvent.type(name(), value);
     await userEvent.type(code(), 'ab12cd');
     await userEvent.click(save());
     expect(name()).toHaveAttribute('aria-invalid', 'true');
@@ -91,12 +92,21 @@ describe('AddDeviceScreen', () => {
     expect(leave).toHaveBeenCalledTimes(1);
   });
 
-  it('leaves without adding anything from Cancel', async () => {
+  // Both fields are valid, so a Cancel that quietly became a submit button would add the device.
+  it('leaves without adding anything from Cancel, even when the form is complete', async () => {
     const leave = vi.fn();
     render(<Harness leave={leave} />);
     await userEvent.type(name(), 'Shelf lamp');
+    await userEvent.type(code(), 'ab12cd');
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(leave).toHaveBeenCalledTimes(1);
     expect(latest.devices).toHaveLength(createInitialState().devices.length);
+    expect(latest.notice).toBeNull();
+  });
+
+  // The browser's own validation bubble would pre-empt our worded, linked errors.
+  it('turns the browser’s own validation off, so the template’s messages are the ones shown', () => {
+    const { container } = render(<Harness leave={vi.fn()} />);
+    expect(container.querySelector('form')).toHaveAttribute('novalidate');
   });
 });

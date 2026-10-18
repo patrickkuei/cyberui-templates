@@ -47,6 +47,19 @@ describe('DeviceRow', () => {
     expect(screen.getByText('Offline')).toBeInTheDocument();
   });
 
+  it('says that the main button opens a dialog', () => {
+    setup('desk-lamp');
+    expect(screen.getByRole('button', { name: /Desk lamp/ })).toHaveAttribute('aria-haspopup', 'dialog');
+  });
+
+  // The accent variant is a solid accent track when on; the library's default
+  // would be a gradient to magenta. Toggle puts that on the track, which is the
+  // element after the input (update this with the library if its class names change).
+  it('uses the accent variant of the switch', () => {
+    setup('desk-lamp');
+    expect(screen.getByRole('switch', { name: 'Desk lamp power' }).nextElementSibling).toHaveClass('peer-checked:bg-accent');
+  });
+
   it('shows a low-battery device as such', () => {
     setup('bedroom-sensor');
     expect(screen.getByText('Low battery')).toBeInTheDocument();

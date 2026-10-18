@@ -82,6 +82,15 @@ describe('App', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toHaveFocus();
   });
 
+  // happy-dom focuses anything, so these would pass without the attribute while a
+  // real browser would not focus an <h1> or <main>: route-change focus and the
+  // skip link would silently stop working.
+  it('makes the screen title and <main> programmatically focusable', () => {
+    render(<App />);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveAttribute('tabindex', '-1');
+    expect(screen.getByRole('main')).toHaveAttribute('tabindex', '-1');
+  });
+
   it('scrolls to the top on a route change', () => {
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
     render(<App />);

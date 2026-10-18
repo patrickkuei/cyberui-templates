@@ -21,6 +21,11 @@ describe('describeDevice', () => {
     expect(describeDevice(byId('hall-thermostat'), 'F')).toBe('Target 68 °F');
   });
 
+  it('shows a thermostat that is off as Off, not its target', () => {
+    const thermostat = byId('hall-thermostat');
+    expect(describeDevice({ ...thermostat, on: false } as Device, 'C')).toBe('Off');
+  });
+
   it('shows a sensor as its reading in the chosen unit', () => {
     expect(describeDevice(byId('living-sensor'), 'C')).toBe('21.5 °C');
     expect(describeDevice(byId('living-sensor'), 'F')).toBe('71 °F');

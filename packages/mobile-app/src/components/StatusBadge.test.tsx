@@ -12,4 +12,18 @@ describe('StatusBadge', () => {
       unmount();
     }
   });
+
+  // The colours are the library's own status colours (online green, low battery
+  // amber, offline red). Badge turns its `variant` into a bg-<variant> class, so
+  // that is what is checked; update it with the library if its class names change.
+  it('colours online as success, low battery as warning and offline as error', () => {
+    const expected = { online: 'bg-success', 'low-battery': 'bg-warning', offline: 'bg-error' };
+    const label = { online: 'Online', 'low-battery': 'Low battery', offline: 'Offline' };
+    for (const status of DEVICE_STATUSES) {
+      const { container, unmount } = render(<StatusBadge status={status} />);
+      expect(container).toHaveTextContent(label[status]);
+      expect(container.firstElementChild, status).toHaveClass(expected[status]);
+      unmount();
+    }
+  });
 });

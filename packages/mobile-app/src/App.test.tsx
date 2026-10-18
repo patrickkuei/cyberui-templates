@@ -33,6 +33,18 @@ describe('App', () => {
     expect(nav().getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
   });
 
+  it('shows a Back button on a pushed screen and never on a tab', () => {
+    render(<App />);
+    for (const hash of ['#/devices', '#/rooms', '#/settings']) {
+      goTo(hash);
+      expect(screen.queryByRole('button', { name: 'Back' }), hash).not.toBeInTheDocument();
+    }
+    for (const hash of ['#/device/desk-lamp', '#/add', '#/add-room']) {
+      goTo(hash);
+      expect(screen.getByRole('button', { name: 'Back' }), hash).toBeInTheDocument();
+    }
+  });
+
   it('shows the Demo badge in the app bar on every screen', () => {
     render(<App />);
     for (const hash of ['#/devices', '#/device/desk-lamp', '#/rooms', '#/settings', '#/add', '#/add-room']) {
@@ -286,6 +298,22 @@ describe('App', () => {
       expect(bedroom.getByRole('link', { name: /Shelf lamp/ })).toBeInTheDocument();
       expect(screen.getByRole('status', { name: '' })).toHaveTextContent('Added Shelf lamp to Bedroom.');
     });
+  });
+
+  it('keeps the signal of a scanned device: the Garage sensor, found with one bar, shows the weak mark on Home', async () => {
+    vi.spyOn(window.history, 'back').mockImplementation(() => goTo('#/devices'));
+    render(<App />);
+    await userEvent.click(screen.getByRole('button', { name: 'Add device' }));
+    await h1('Add device');
+    await onFakeClock(async (advance) => {
+      fireEvent.click(screen.getByRole('button', { name: 'Start scan' }));
+      await advance(2400);
+      fireEvent.click(screen.getByRole('button', { name: /Garage sensor/ }));
+      await advance(2400 + 600);
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Add device' }));
+    await h1('Home');
+    expect(screen.getByRole('link', { name: /Garage sensor Weak signal/ })).toBeInTheDocument();
   });
 
   describe('is a demo that controls nothing', () => {

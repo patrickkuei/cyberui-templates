@@ -98,6 +98,18 @@ describe('useHashRoute', () => {
       expect(window.location.hash).toBe('#/devices');
     });
 
+    it('replaces the history entry rather than adding one, so Back from Home does not return to the page that was just left', () => {
+      window.location.hash = '#/add';
+      // happy-dom's own replace() grows history.length like an assignment does, so
+      // the spy stubs it: what matters is that leave() asks for a replace.
+      const replace = vi.spyOn(window.location, 'replace').mockImplementation(() => {});
+      const assign = vi.spyOn(window.location, 'assign').mockImplementation(() => {});
+      const { result } = renderHook(() => useHashRoute());
+      act(() => result.current.leave());
+      expect(replace).toHaveBeenCalledWith('#/devices');
+      expect(assign).not.toHaveBeenCalled();
+    });
+
     it('replaces a device page opened directly with Home, and Add room with Rooms', () => {
       window.location.hash = '#/device/desk-lamp';
       const first = renderHook(() => useHashRoute());

@@ -82,7 +82,7 @@ These are in the library, not in this template, and the template does not work a
 - **There is no bottom navigation, no safe-area or `dvh` support, no way to make `Toggle`, `Checkbox` or `Slider` touch-sized, and no swipeable row**, so this template hand-builds the first, writes the safe-area and `dvh` rules itself, wraps the small controls in `TouchRow`, and has no swipe. These are filed upstream as feature requests. (CyberUI#131 bottom navigation, #132 safe-area and `dvh`, #133 touch-size, #134 swipe and action sheet)
 - **The `Remove device` button is the library's `danger` variant**, whose red text is 4.13:1 on its own surface (it is 18px bold, which is not "large text" for the WCAG 3:1 allowance). (CyberUI#128)
 - **The library animates its Buttons, `Toggle`, `Slider`, `RadioGroup`, `Input` and `Badge` under `prefers-reduced-motion`** (measured: 0.1s to 0.3s), so this template's stylesheet switches every transition and animation under `.app` off for people who ask for less motion.
-- **A `Toggle` is only as tall as its track,** and the knob is positioned against the `<label>` around it, not the track. Anything that stretches the label (this template's 44px touch rule) lifts the knob out of the track; App.css makes the track the positioned element to put it back. Not yet filed upstream.
+- **A `Toggle` is only as tall as its track,** and the knob is positioned against the `<label>` around it, not the track. Anything that stretches the label (this template's 44px touch rule) lifts the knob out of the track; App.css makes the track the positioned element to put it back. (CyberUI#135)
 
 ## Principles this code follows
 

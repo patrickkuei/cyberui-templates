@@ -977,7 +977,8 @@ body {
    library makes the <label> `relative` while the track stays static. A label
    stretched to 44px around a 32px track therefore puts the knob at the label's
    top: 6px above where it belongs, poking out of the track. Making the track the
-   positioned ancestor puts the knob back inside it. This is the same
+   positioned ancestor puts the knob back inside it (patrickkuei/CyberUI#135,
+   and the README's Known limits). This is the same
    div-after-the-input the focus ring below draws on. phoneRules.test.ts keeps
    the rule and the browser check measures the knob against the track. */
 .touch-switch input + div {

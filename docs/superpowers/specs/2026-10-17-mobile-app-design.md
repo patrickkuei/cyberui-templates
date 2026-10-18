@@ -2,12 +2,101 @@
 
 **Date:** 2026-10-17 (revised 2026-10-18)
 **Status:** Approved by the owner on 2026-10-18. The owner chose a **home device controller** for Q1 (the first draft proposed a pantry tracker; the owner asked whether it suited cyberui and picked this instead), then answered Q2 to Q10 with "go your recommend", so every "proposed" decision below is now decided, including the placeholder name "Kestrel" and the site name "Mobile App". See "Owner answers" at the end.
-**Plan:** [docs/superpowers/plans/2026-10-18-mobile-app.md](../plans/2026-10-18-mobile-app.md) (20 tasks: PR A is Tasks 1-14, PR B is Tasks 15-20).
+**Redesign (2026-10-18, after shipping):** the owner looked at the running app and decided on a redesign. The section "Redesign, 2026-10-18" below records what was decided and supersedes the screens, the device sheet, the Scenes tab, the Drawer and the copy described in the sections it names; those sections stay, marked "Superseded", because they record why the first version was built the way it was.
+**Plan:** [docs/superpowers/plans/2026-10-18-mobile-app.md](../plans/2026-10-18-mobile-app.md) (20 tasks: PR A is Tasks 1-14, PR B is Tasks 15-20), shipped as PRs #67, #68 and #69. **Redesign plan:** [docs/superpowers/plans/2026-10-19-mobile-app-redesign.md](../plans/2026-10-19-mobile-app-redesign.md) (PR C is the package, PR D is the site).
 **Issue:** [#48](https://github.com/patrickkuei/cyberui-templates/issues/48) (item 4 of tracking issue [#1](https://github.com/patrickkuei/cyberui-templates/issues/1)).
 **Builds on:** [2026-09-27-cyberui-showcase-design.md](2026-09-27-cyberui-showcase-design.md) (self-contained packages, accent-hue theming, one combined deploy), [2026-10-05-templates-page-design.md](2026-10-05-templates-page-design.md) (the `/templates` page every template is published through), [2026-10-06-agent-panel-design.md](2026-10-06-agent-panel-design.md) (hash routes, the honesty standard, the phone fixes that came late) and [2026-10-16-landing-page-design.md](2026-10-16-landing-page-design.md), the closest model for this document's shape, its PR split and its publishing path (§10), which are reused here without being repeated in full.
 **Baseline:** cyberui-2045 **2.8.0** (what the three shipped templates use; it is also the latest on npm). Everything about the library below was read from the published 2.8.0 package (`npm pack cyberui-2045@2.8.0`, its typings, compiled components and stylesheet), not from memory.
 
+## Redesign, 2026-10-18
+
+**Status:** decided by the owner on 2026-10-18, after a design discussion, with the first version already shipped (PR #67 this spec and its plan, #68 the package, #69 the site). The template is redesigned in place: same slug (`mobile-app`), same package, same site entry, same fiction ("Kestrel", a home device controller), same accent. **Nothing in this section is open**; where the plan found a real contradiction or a gap it says so under "Found while planning" below, and does not reopen a decision.
+
+How to read the rest of this document: the sections from "Decisions I made" to "Out of scope" describe the first version. Each one that no longer describes the template carries a "Superseded (2026-10-18 redesign)" note that says what replaced it and where. Nothing was deleted. The "Findings" sections at the end are measurements of the first version and stay as the record of it; the redesign appends its own.
+
+### What the owner said, and why
+
+The owner looked at the running app and said the design is bad. Four things were named, and the first is a measured defect, not a taste:
+
+1. **The switch is broken.** On Settings the `Toggle`'s knob sits 6px too high and pokes out of the track. The library draws the knob (the track's `::after`, `absolute; top: 2px`) against the `<label>` that wraps the switch, because it makes the label `relative` and leaves the track `static`. This template's `.touch-switch label { min-height: var(--touch) }` (spec §3.5, the 44px rule) stretched the label to 44px around a 32px track, so the knob rode at the label's top. Reproduced before the redesign was planned (headless Edge 155, 390px touch viewport, the shipped build): label 44px high, track 32px high, the knob's vertical centre 6.0px above the track's, measured from the CSS and from the pixels of a screenshot. Adding `position: relative` to the track put it at 0.0px. The first browser check never looked at the knob, only at the sizes; see "Findings from the redesign" (to be added by PR C) for the guard that now does.
+2. **A list of identical cards.** Every device was the same bordered card with the same parts in the same places: an icon, a name, a status badge, a detail and a switch. Nothing said what mattered, and an off lamp and a lamp at 70% looked alike except for a 32px switch.
+3. **A status badge on everything.** "Online" in green on every healthy device made the one exception (a low battery, an offline hub) the least visible thing on screen.
+4. **A tiny switch.** The library's `Toggle` is 64 by 32px at its largest, the biggest thing on the row was the row, and the control that matters most on a phone was the smallest.
+
+The cause of the first, which the owner did not name: spec §3.5 asked for a 44px hit area as a wrapper around controls that stay small, and the one place that wrapper changes the control's own layout (the switch's label) was never looked at, only its size was measured.
+
+### What the owner showed, and what was taken from it
+
+The owner showed three smart-home app designs. **Principles were taken, not looks.** What carried over from them: **place before device** (you move around by room, and rooms come with counts); **two depths** (a home screen to glance at, one full page per device to control); a **hero object whose appearance shows its state** (the thing you control is drawn big, and drawn differently when it is on); **big numerals** (the value is the typography); **an accent that means "on"**; and an **inline shortcut with the detail one tap deeper** (flip it from the list, open it to do more). What did **not** carry over: photographs and illustrations (this package ships no images, and the repo's rule is that a template has none to license), soft glass and blur, charts (the redesign has none in version 1), profile and account screens, and small switches, which were exactly what was wrong.
+
+### The principles
+
+- **Place before device.** Rooms are navigation: a chip per room with its count, rooms as headings on Home, and a Rooms screen.
+- **Two depths.** Home is for a glance and a quick switch. A device's own page is for everything else.
+- **Light is state.** A device that is on is lit in the accent; one that is off is dark. There is no "Online" badge anywhere. Status shows only by exception: a small amber mark for a low battery or a weak signal, a dashed muted row for a link that is down, and one sentence at the top of Home ("5 on, 1 needs attention"; needs attention means a weak or lost link, or a low battery).
+- **Numbers are the typography.** One big tabular numeral per thing. Sentence case, no all-caps labels, no meta strings joined with dots except where something truly is a list.
+- **Boldness in one place.** Each device's drawing is its own hand-drawn inline SVG (four kinds: light, plug, thermostat, sensor; no images and no binary assets), and it really glows in proportion to the device's level. Everything else is quiet: buttons are flat.
+- **Motion only answers a tap,** and is off under `prefers-reduced-motion`.
+- **Fake data is fine, as in the monitoring template, but there are no charts in version 1.** The app still says, once and persistently, what is mock (the "Demo" badge, the README, and a line on the Scan screen), and still contains no network, Bluetooth or storage code (the `noNetworkOrStorage` guard stays).
+
+### Screens and routes
+
+Hash routes with the `ROUTES` tuple pattern kept. The bottom nav is **Home | Rooms | Settings**. The **Scenes tab and the bottom sheet (`Drawer`) are removed.**
+
+| Route | Screen | What it is |
+|---|---|---|
+| `#/devices` | **Home** (tab) | One summary sentence. Room filter chips with counts (All, Living room, ...), scrolling sideways inside their own row. Devices grouped under sentence-case room headings with a count and a "Turn off" button for the whole room ("Living room: 2 of 3 on"). Each device is a **row**: a 48px glyph that is itself the quick power button (lit when on), the name, one value at the right (70%, On, 21.5°), and for a dimmable a thin level bar under the row. Tapping the rest of the row opens the device page. The glyph button and the link are siblings, never nested. A device that is lost or offline is a dashed, muted row with the word "Lost" or "Offline"; a low battery gets a small amber mark; a sensor shows its reading as the whole row and has no power button. "Add device" at the end. |
+| `#/device/:id` | **Device page** (pushed) | A large glowing glyph, the name, the room, one big numeral. **Light:** a wide `Slider`, a full-width Power button, and a "Scenes" row of fixed presets (Reading 80, Movie 25, Night 5). **Thermostat:** the target ("19.5°") with 48px minus and plus buttons and a `Slider` (the unit follows Settings, stored in °C), and fixed presets Heat, Eco, Off. **Plug:** a Power button only. **Sensor:** the reading, and a plain note that there is nothing to control. **Every device:** a Link panel with four-level signal bars, latency in ms, and Disconnect (or Reconnect when the link is down), and Remove device at the bottom. A device that is lost or offline shows a dim glyph, the sentence "Lost. Controls are unavailable.", Reconnect and Remove, and nothing else. |
+| `#/rooms` | **Rooms** (tab) | A card per room: how many devices are on, a derived fake power figure in W (each light and plug carries a fake wattage in the data; the room's total is derived, never stored), a "Turn off" button, and a chevron that opens Home filtered to that room. An "Add room" button. |
+| `#/add-room` | **Add room** (pushed) | One field, the name (no icon picker). Required, unique ignoring case, a maximum length. A room can be removed only while it is empty, with a plain message otherwise. |
+| `#/add` | **Add device / Connect** (pushed) | Scan, Pick, Link, then name and room. The scan starts **only after a tap** (a button), shows a progress bar and a pulse, and under `prefers-reduced-motion` shows a static "Scanning…" line instead of motion; the result is a fixed list of "nearby" devices with signal bars. Pick: rows of 44px or more, one tap links. Link: a checklist of handshake steps (found, pairing code, securing link, ready) with a progress bar. A manual fallback, "Enter a code instead", keeps the six-letter-or-digit pairing code form. A line on the Scan screen says the scan is scripted and nothing is discovered. |
+| `#/settings` | **Settings** (tab) | The same content as before (unit, the two flags, About with the disclosure), with standard-size labelled switches. |
+
+**The device page hides the bottom nav** (the owner left this to the plan). Reason: it is the second depth, with its own Back, and a full-width Power button and a row of presets at the bottom of a short phone screen should not compete with a second bar; it is the same rule Add device already followed, and it gives back 56px of a 568px screen at 320. The cost is that moving to another room takes a Back first, which is what a pushed page means.
+
+**Connect lives behind a small adapter**, `src/connection/`, exposing `scan()` and `link(id)` (promises with progress callbacks and an `AbortSignal`) and shipping a scripted implementation. It is commented as the seam where a real Web Bluetooth, MQTT or WebSocket implementation goes (the pattern-to-copy rule in the repo `CLAUDE.md`). **Reconnect uses the same Link steps.** Outcomes are scripted per device in the data, and **exactly one device deliberately fails** ("No response from the hub", the Hall light, which is also the one device that starts lost) so the failure state is visible without breaking anything. The tests run the scan and the link on fake timers.
+
+### The look in numbers, and the theme
+
+- **Accent stays blue `#5b9cff`**; the theme file's values do not change (its comment is reworded, since it described the status badges that are gone). The glyph's glow uses tokens only (no hex literals; colours through CSS variables), so the `noHexColors` guard still holds and a re-theme reaches the glow.
+- **New contrast facts** (computed from the 2.8.0 tokens and measured in the browser by the plan): text pairs are unchanged and pass 4.5:1; the amber and red marks pass on base and surface; the one library failure (`Button variant="danger"` text on its own surface, 4.13:1, CyberUI#128) is still there. A glyph's lines sit on the glow it makes, so they need 3:1 as a graphic: the text colour (`--color-default`) was 2.45:1 at the brightest glow and fails, white (`--color-white`) is 3.23:1, and the glow is capped (accent at 80% under a 40% body) to keep it there.
+- **The switch is fixed** for the Settings toggles by making the track the knob's positioned ancestor (`.touch-switch input + div { position: relative }`), keeping the 44px label as the hit area. A guard test of the `phoneRules` kind keeps the rule, and a browser measurement (the knob's centre from the CSS and from a screenshot's pixels against the track's, at 320, 390 and 800px, on and off) is the check that actually sees it. Whether a small CyberUI issue is warranted is decided in the plan's findings task; nothing is filed from here.
+
+### The Drawer is no longer used
+
+The device sheet was the only user. The README's "Known limits" for CyberUI#123, #124, #125 and #130 (all `Drawer`) are reworded to say the template no longer depends on `Drawer`; the issues stay open and valid, and a forker who adds a `Drawer` will meet them. The other cited issues are kept and re-checked against `gh issue view`. The old device sheet, the Scenes data and screen, the scene tests and every comment about the Drawer are removed or rewritten, with no dead code left.
+
+### What this changes in the rest of the document
+
+| Original | What replaced it |
+|---|---|
+| §1 and §2 (goal, fiction) | Unchanged. |
+| §3.1 routes | The tuple is `['devices', 'device', 'rooms', 'settings', 'add', 'add-room']`; `device` takes the device id as its second path segment. |
+| §3.2 screens, the device sheet | The table above. |
+| §3.3 bottom nav | Three tabs, Home, Rooms and Settings; hidden on every pushed screen (the device page, Add device, Add room). |
+| §3.4 swipe | Still no swipe (Q4 stands). The bottom sheet half of Q4 is replaced by the device page. |
+| §3.5 phone rules | All stay, with two changes: the bottom-sheet rules (safe-area padding of the sheet, the Drawer's glow, a `Slider` inside a scrolling sheet) no longer apply, and a rule is added for the switch's knob (above). |
+| §3.6 what is mock | Three signals plus the README: the Demo badge, the Settings sentence, and a line on the Scan screen. The confirmation after pairing no longer carries the demo sentence (it only says what was added). |
+| §5 data | Rooms are data and can be added and removed; devices carry a link state, a signal, a latency and (lights and plugs) a wattage; presets and the "nearby" list are data; scenes are gone. |
+| §7 `Drawer` rows | The template no longer uses it (above). §7.1's four feature requests stand (#131 to #134 are filed). |
+| §8 testing | The same strategy, with the scan and the link tested on fake timers and the glow, the summary figures and the rooms covered by tests. |
+| §10 and §11 | See the notes at those sections: a new Code tab, new copy, a new screenshot, and **two new persona interviews**, because the two published examples were written for the first version (they mention scenes, the Add device form and the bottom sheet) and would now be stale. |
+
+### Found while planning (none reopens a decision)
+
+- **CI puts the Code tab's data into PR C, not PR D.** The `code-tab` job checks every excerpt in `packages/site/src/content/codeTabs.json` against the package on every pull request, and four of the first version's six excerpts no longer match the redesigned package (the reducer's header comment, the `ROUTES` tuple, the Add device test and the starting devices; checked while planning). A package-only PR C would therefore be red. The JSON (data only, regenerated by a script from the real files) moves into PR C; PR D keeps the tagline and copy, the screenshot and the two examples. Between the two merges the live site shows the new app under the old tagline and the old examples, so PR D should follow at once.
+- **"Lost" and "Offline" are two states, not one.** The owner's text uses both words, so a link that dropped by itself is **lost** and one the person disconnected is **offline**. Both count as "needs attention" and both give the same dashed row and the same page; the sentence reads "Lost. Controls are unavailable." or "Offline. Controls are unavailable."
+- **A plug has no level and a sensor has no power, but every glyph must glow.** The glow level is defined per kind: a light by its level, a plug at one fixed brightness while on, a thermostat by its target across its range, a sensor a faint steady glow while it is reachable, and anything whose link is down dark. A light's wattage is also scaled by its level, so dimming a lamp lowers its room's figure; the owner said only that the room's total is derived.
+- **A room can only be emptied by removing its devices.** There is no way to move a device to another room (not asked for), so the plain message for a room that still has devices can only say "Remove them first".
+- **The library fights two of the principles and the plan overrides it, with comments:** `Button` is uppercase and glows at rest (sentence case and "boldness in one place"), and it, `Toggle`, `Slider`, `RadioGroup`, `Input` and `Badge` all animate under `prefers-reduced-motion` (the plan measures 0.1s to 0.3s). One rule each in the stylesheet undoes them.
+- **The library's `accent` `Slider` fills with a gradient that ends in magenta,** which contradicts "accent means on"; the plan sets a solid accent fill.
+- **Row values read "70%", not "70 %"** (the owner's examples have a space; a space before a percent sign reads as a typo in English).
+- **The device page's numeral for a plug is its draw in watts** ("85 W" while on), because a plug has nothing else to say.
+- **Smaller readings** (a level or a target also switches a light or a thermostat on, so a slider never shows a level on a dark glyph; the room filter lives in app state so Rooms can set it and Home can read it; a notice persists until it is dismissed or the person moves to another tab; one reduced-motion rule switches off the library's transitions too) are listed with the others in the plan's Self-review, under "Deviations and readings".
+
 ## Decisions I made, and what the owner must answer
+
+> **Superseded in part (2026-10-18 redesign).** Proposed decisions 3 (the four screens), 4 (the route list), 6 (the bottom sheet) and 8 (the pairing confirmation) below are replaced by "Redesign, 2026-10-18" above. The rest stands, including decision 13 (the phone frame); only the screenshot that goes with it is retaken.
 
 Decided by the owner:
 
@@ -65,6 +154,8 @@ Package folder `packages/mobile-app`, pnpm name `mobile-app-template`, site name
 
 ### 3.1 Shape and routing
 
+> **Superseded in part (2026-10-18 redesign).** The tuple is now `['devices', 'device', 'rooms', 'settings', 'add', 'add-room']` (a device's page is `#/device/:id`), and Home is `#/devices`. The pattern, the default route, the fallback, the Back behaviour and the focus rule below stand; "Add device" is one of three pushed screens now (`leaveAdd` became `leave`).
+
 One app shell: an app bar at the top, the screen in the middle, bottom navigation at the foot. Routes are hash routes via a `useHashRoute` hook with `ROUTES = ['devices', 'scenes', 'settings', 'add'] as const` and `Route = (typeof ROUTES)[number]`, with `Record<Route, …>` maps for titles and screens, the same pattern monitoring and agent-panel document in their source (CLAUDE.md names it). The default route is `devices`. An unknown hash falls back to `devices`.
 
 Why hash routes here, unlike landing: this is a multi-screen app, and the phone's Back must pop **Add device** rather than leave the page. The site's preview dialog already copes with an iframe that pushes hash entries (spec 2026-10-05, `usePreviewNav`), as monitoring and agent-panel prove.
@@ -72,6 +163,8 @@ Why hash routes here, unlike landing: this is a multi-screen app, and the phone'
 Focus and announcements: on a route change focus moves to the screen's `h1` (the route title) so a keyboard or screen-reader user is not left on the link they pressed. This is the one place the template does more than the others, and gets a comment.
 
 ### 3.2 Screens (proposed, Q7)
+
+> **Superseded (2026-10-18 redesign).** The table and "The device sheet" below describe the first version: a Devices list of identical rows with a status badge and a switch, a pushed Add device form, a Scenes tab and a bottom sheet. They are replaced by "Screens and routes" in "Redesign, 2026-10-18" (Home, a device page, Rooms, Add room, Connect, Settings). Kept as the record of what shipped in #68.
 
 | # | Screen | What it shows | cyberui-2045 pieces (to confirm in the plan against the 2.8.0 manifest) |
 |---|---|---|---|
@@ -86,17 +179,23 @@ The bottom sheet is a `Drawer` with `side="bottom"`; the library's open Drawer f
 
 ### 3.3 Bottom navigation
 
+> **Superseded in part (2026-10-18 redesign).** The three links are now Home, Rooms and Settings, and the bar is hidden on every pushed screen (a device's page, Add device, Add room), not only on Add device. Everything about how it is built (native anchors, `aria-current`, sticky in the column, safe-area padding, 44px or more) stands.
+
 A `<nav aria-label="Main">` with three links (Devices, Scenes, Settings), each an icon over a label, current page marked `aria-current="page"`. Built from native anchors styled with the template's CSS, because no library component fits (§7). It is fixed at the foot of the app shell, not of the document, and pads itself by `env(safe-area-inset-bottom)`. Each link is at least 44px high and a third of the width (§3.5). The Add button is not a fourth tab; it is a primary `Button` in the Devices screen, so the nav stays three items (more than five breaks at 320px; three leaves room).
 
 The nav is hidden on the Add device screen (a form with the on-screen keyboard open should not carry a fixed bar over the fields); that screen has its own app-bar Back and a Save button.
 
 ### 3.4 Interactions that are real, and the one decision about gestures
 
+> **Superseded in part (2026-10-18 redesign).** Scenes, the device sheet and the single "Add device" form no longer exist; the real interactions are listed under "Screens and routes" in the redesign. The decision below to leave out swipe stands unchanged: the quick switch on a row is the glyph button and the detail is one tap deeper, on the device's page.
+
 Real in the app: switching tabs, flipping a device's switch, moving a slider (brightness, target temperature) in the sheet, applying a scene (it changes several devices in memory), changing the temperature unit, pairing a device (with validation: a name is required and the code must be six letters or digits), removing a device, and the Settings toggles changing their own state.
 
 **Swipe is left out (Q4).** Swipe-to-reveal is the interaction people picture first in a phone list, and issue #48 lists "swipe or tap actions". Against it: cyberui-2045 has no gesture component (2.8.0 is the latest release; a search of its source finds none), so the template would carry its own pointer-event code (pointerdown/move/up with a threshold, scroll-vs-swipe disambiguation, `touch-action`), which happy-dom cannot exercise; a swipe is invisible, so every row would need the same actions as visible controls anyway for keyboard and switch users; and the on-row switch plus the sheet already give the thumb large targets. If the owner wants swipe, either it is added on top of the sheet as an enhancement (the sheet remains the accessible path), at the cost of one hook and a browser-only test, or a swipeable row is built upstream first (a new CyberUI feature and release, which would block this template on it; §7.1 files it as a request either way).
 
 ### 3.5 Phone rules the template follows, each with a way to check it
+
+> **Superseded in part (2026-10-18 redesign).** The rules stand except these: the bottom-sheet rules (the sheet padding itself for the home indicator, the `Drawer`'s glow, a `Slider` inside a scrolling sheet) no longer apply because there is no sheet; the **touch-target rule gained a failure it did not foresee**: stretching a library control's label to 44px moved the `Toggle`'s knob 6px out of its track (see "What the owner said"), so every wrapper rule must also be looked at in a browser, and a rule for the knob is added; and reduced motion now also switches off the library's own transitions, which the first version left running.
 
 These are the issue's list, made concrete. The plan turns each into a task or a test.
 
@@ -110,6 +209,8 @@ These are the issue's list, made concrete. The plan turns each into a task or a 
 - **Landmarks and focus.** `header`, `main`, `nav`; one `h1` per screen; a skip link; visible focus on every control. `Toggle` variants are `primary` (magenta), `secondary` and `accent`: the template uses `accent` so "on" reads in the template's colour, not the library's magenta.
 
 ### 3.6 What is mock, and how the app says so
+
+> **Superseded in part (2026-10-18 redesign).** The app says it in three places and the README: the "Demo" badge (unchanged), the Settings sentence (unchanged), and a line on the Scan screen ("This scan is scripted: nothing is discovered."), which replaces the sentence that used to end the pairing confirmation. Pairing is now a scripted scan and link; the list below applies with "pairing" read that way, and with the signal, latency, battery and wattage added to what is invented.
 
 Real in the app: everything in §3.4. Mock:
 
@@ -143,6 +244,8 @@ Blue is proposed because it is the only candidate clear of all three status colo
 
 ## 5. Data and mock-data strategy
 
+> **Superseded in part (2026-10-18 redesign).** The single reducer, the action union, the `Record<…>` rule and "temperatures are stored in °C" stand. What changed: `scenes.ts` is gone; rooms are data and can be added and removed (state holds them); a device carries a link state (`connected`, `lost`, `offline`), a signal (0 to 4 bars), a latency, and (lights and plugs) a wattage, and `DeviceStatus` is gone; presets (`presets.ts`) and the scripted "nearby" list with its one scripted failure (`nearby.ts`) are data; and a room's power figure is derived in `utils/summary.ts`, never stored. See the plan for the files.
+
 State is a single `useReducer` in `App.tsx` (devices, settings), exposed through props, not a context library or a store; the reducer's action type is a discriminated union, so an unhandled action is a compile error. Starting data and the copy live in `src/data/`:
 
 | File | Holds |
@@ -157,6 +260,8 @@ Everything keyed by a union is a `Record<…>`: `Record<DeviceStatus, …>` for 
 The README gets a "Where your data goes" section (as agent-panel's does) naming these files and the reducer as the place to put a real data layer or device protocol.
 
 ## 6. Code structure and patterns to copy
+
+> **Superseded in part (2026-10-18 redesign).** The folder tree below is the first version's. The redesign adds `src/connection/` (the adapter seam and its scripted implementation) and `src/utils/` grows (`summary.ts`, `glow.ts`); `components/` loses `DeviceSheet` and `StatusBadge` and gains `Glyph`, `SignalBars` and `LinkRun`; `screens/` becomes Home, Device, Rooms, Add room, Add device and Settings. The patterns to copy (§6.1, §6.2) stand, with these additions that need a forker-facing comment: the `Connection` seam, the glow level as one pure number, and the track-as-positioned-ancestor rule for the switch's knob.
 
 ```
 packages/mobile-app/
@@ -195,6 +300,8 @@ packages/mobile-app/
 
 ## 7. cyberui-2045 components used, and library issues that matter on a phone
 
+> **Superseded in part (2026-10-18 redesign).** The redesigned template **does not use `Drawer`, `Badge` for status, `Card`, `Divider` or `SectionTitle`** (it keeps `Badge` for the "Demo" label). It uses `Button`, `Input`, `Select`, `RadioGroup`, `Slider` and `Toggle`. The issue table below is therefore re-read as follows: #123, #124, #125 and #130 (all `Drawer`) are no longer worked around by the template, are still open and valid, and are now only a README note for a forker who adds a `Drawer`; #120, #121, #126, #127, #128, #129 and the four feature requests #131 to #134 stand. §7.1 is unchanged.
+
 Planned: `Button`, `Badge`, `Card`, `Drawer`, `Input`, `Select` or `RadioGroup`, `Toggle`, `Slider`, `Divider`, `SectionTitle`, and possibly `Notification`. All are in the 2.8.0 manifest (33 components). The plan's first task confirms each prop against the published typings; this spec has read `Drawer` (`side` accepts `left | right | top | bottom`; `size` `sm | md | lg | xl | full`; `variant` `default | danger`; `ariaLabel`, `className`, `overlayClassName`), `TabNavigation` (`mode` `scroll | wrap | dropdown | collapsible`, responsive `size`), `Toggle` (`variant` `primary | secondary | accent`, responsive `size`, spreads input attributes so `disabled` and `id` work), `Checkbox`, `Notification`, `DropdownMenu` and `Slider` (`min`, `max`, `step`, `value`, `onValueChange`, `variant`, responsive `size`, `label`, `showValue`, `formatValue`, `ariaLabel`). Responsive props work in the prebuilt stylesheet since 2.8.0 (CyberUI#108), so `size={{ base: 'md', lg: 'lg' }}` is usable.
 
 Open library issues (patrickkuei/CyberUI, all open on 2026-10-17) and what they cost this template, since it leans on Drawer, Toggle and Input more than landing did:
@@ -226,6 +333,8 @@ The owner asked that the phone features cyberui-2045 lacks be filed on patrickku
 
 ## 8. Testing strategy
 
+> **Superseded in part (2026-10-18 redesign).** The strategy stands. The list below is the first version's: the device sheet, scenes and the single Add device form are gone, and the redesign tests, in their place, the room filter and its counts, the summary sentence, the glow level and halo for every kind, the rooms and their rule for removal, the presets, the scan and the link (on fake timers, including the one that fails), the Link panel, the reducer's every action, and the guards (`phoneRules` gains the knob rule, sentence case, flat buttons and reduced motion). The plan lists them task by task. A layout test still cannot see a knob: the browser measurement does.
+
 Vitest + Testing Library + happy-dom, run in CI by the `package-tests` job. Tests assert behaviour, not markup:
 
 - **Router:** the hash selects the screen; an unknown hash falls back to Devices; Back from Add device returns to Devices; the bottom nav marks the current page with `aria-current`.
@@ -246,6 +355,8 @@ Not testable under happy-dom and therefore a **browser check, not a test**: layo
 Identical rules to landing and agent-panel §9: own complete `package.json` (`license: MIT`, `cyberui-2045: ^2.8.0`, `vitest: ^4.1.12` or later, never `workspace:`), own `tsconfig.json`, own `vite.config.ts` with `base: './'`, no imports outside the package, a `LICENSE` identical to the root one, and a README that is the forker's documentation (what it is and what is mock, commands, "Where your data goes", "Principles this code follows" as on the Code tab, "Re-theming", and a short "Phone checklist" naming the rules in §3.5 and the library issues in §7). Verified by the clean-room method (copy the folder outside the workspace; plain `npm install` with zero warnings; build; test; run) and, once merged, `npx --yes tiged patrickkuei/cyberui-templates/packages/mobile-app my-app` for real. The package is **added to the `fork-install` matrix** in `.github/workflows/checks.yml`.
 
 ## 10. Integration points (PR B)
+
+> **Redesign, 2026-10-18 (PR D).** Everything in this table already exists on `main`; the redesign touches these rows only: **`templateContent.ts`** (a new tagline in `templates.ts`, new `useIf`, a reviewed `headsUp`, a reworded `notFor` about the template's own limits, and **two new examples** from two new persona interviews, since the published two were written for scenes, the Add device form and the bottom sheet); **`codeTabs.json`** (excerpts re-copied verbatim from the new source, `ROUTES` among them, and the folder map with `src/connection`; **this one lands in PR C**, because CI's `code-tab` job checks it on every PR and the package PR would be red without it); **the screenshot** (retaken from the redesigned app, in the same 390 by 740 frame on a 1440 by 900 canvas); the **README rows** (the root table and the package's own); and a **live-site check** of the deployed page. `check:code-tab` cannot pass until PR C is merged, as before.
 
 Same table as landing §10, with these values. The one new item is §10.1.
 
@@ -274,6 +385,8 @@ Alternatives: (a) no site change and let the template cap itself at a phone-widt
 
 ## 11. Site copy for the Templates page (proposed wording, to be fixed after the answers)
 
+> **Superseded in part (2026-10-18 redesign).** The wording below is what shipped. The redesign changes: the **tagline** ("A home device controller built for a phone: rooms, a glowing glyph for every device, a full page to control each one and a scan-and-link flow to add more."); the third **use-if** line (rooms, things you switch and dim, a connect flow and a few settings); **`notFor`**, which also names the scan ("if you need to find or talk to real devices, or install it on a phone. The devices and the scan are made up, and it's a web page with no saved data."); the **Code tab** (see below; its JSON ships with the package in PR C); and the **examples**, which are re-run with two new subagent interviews whose brief describes the redesigned app, saved whole outside the repository, quoted verbatim with ellipses, and checked by script; "Where they'd get stuck" still lists only obstacles the library and the template did not cause, with no remarks about the template or the demo, and the labels still say "they". If an interview cannot give two examples that qualify, PR D stops and reports instead of writing one. The heads-up is unchanged: it is still true. The Code tab's principles: Single source of truth, Typed and exhaustive (the `ROUTES` tuple), **Light is state** (the one function that turns a device into a glow), **A seam for the real thing** (the `Connection` interface), No inline styles, Tested, and Phone rules in one place (now including the switch's knob); "Content as data" leaves the tab (the README table still has it).
+
 - **Name / tagline.** "Mobile App" / "A home device controller built for a phone: bottom navigation, on/off switches and sliders in a list, one-tap scenes and a pairing form."
 - **Use this if you're building…** a small control app people will use on their phone; the front end of an app you will later connect to real devices or a backend; something with a list, switches, a form and a few settings.
 - **Heads-up.** One short friendly demo note in the agent-panel style (roughly 150 characters, no list of mock parts): the home and its devices are made up, and nothing is controlled or sent.
@@ -298,6 +411,8 @@ Anything under "Not in scope" in §1; building a library `BottomNav`, `Swipeable
 ---
 
 ## Owner answers (2026-10-18)
+
+> **Overridden in part by the redesign (2026-10-18, later the same day).** Q4's "bottom sheet" half (the sheet is replaced by a device page), Q7 (the four screens), and Q8 (the Drawer comments and known-limits note, since the template no longer uses `Drawer`) no longer describe the template. Q1 to Q3, Q5, Q6, Q9 and Q10 stand, and Q2's blue is kept.
 
 The owner answered Q1 by choosing the device controller, and Q2 to Q10 with "go your recommend". The recommendation in each question below is therefore the decision:
 

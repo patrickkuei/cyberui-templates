@@ -45,6 +45,9 @@ jobs:
       - name: Build landing template
         run: pnpm --filter landing-template run build
 
+      - name: Build mobile-app template
+        run: pnpm --filter mobile-app-template run build
+
       - name: Build site
         run: pnpm --filter cyberui-templates-site run build
 
@@ -57,6 +60,8 @@ jobs:
           cp -r packages/agent-panel/dist/. packages/site/dist/live/agent-panel/
           mkdir -p packages/site/dist/live/landing
           cp -r packages/landing/dist/. packages/site/dist/live/landing/
+          mkdir -p packages/site/dist/live/mobile-app
+          cp -r packages/mobile-app/dist/. packages/site/dist/live/mobile-app/
 
       # The site needs JavaScript to render, so llms.txt, sitemap.xml and
       # index.html's meta tags and <noscript> are the only text a crawler,

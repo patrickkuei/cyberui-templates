@@ -54,13 +54,17 @@ body {
   }
 }
 
-/* Hidden until it takes focus, then the first thing a keyboard visitor sees. */
+/* Hidden until it takes focus, then the first thing a keyboard visitor sees.
+   It is a control, so it gets the 44px target like the others. */
 .skip-link {
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
   z-index: 100;
-  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  min-height: var(--touch);
+  padding: 0 1rem;
   color: var(--color-base);
   background: var(--color-secondary);
   border-radius: 0.25rem;
@@ -71,8 +75,11 @@ body {
   transform: none;
 }
 
-/* A double tap on a switch or a link would zoom the page on iOS. */
-.app :is(a, button, label, select) {
+/* A double tap on a switch or a link would zoom the page on iOS. The device
+   sheet is rendered by the library in a portal on <body>, outside .app, so it
+   needs its own selector. */
+.app :is(a, button, label, select),
+.device-sheet :is(a, button, label, select) {
   touch-action: manipulation;
 }
 
@@ -150,6 +157,11 @@ body {
 /* Empty (zero height) until there is something to say, but always in the page: a live region has to exist before its text changes. */
 .notice-text {
   flex: 1 1 12rem;
+  /* A device name can be 30 characters with no place to break. Every place that
+     prints one (.device-name, this notice, .sheet-title, .scene-result) may wrap
+     anywhere, or the page scrolls sideways at 320px and the sheet grows wider
+     than the screen. phoneRules.test.ts keeps each of them. */
+  overflow-wrap: anywhere;
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.4;
@@ -363,6 +375,7 @@ body {
 
 /* The library's own Drawer title is 3.45:1 on its surface (patrickkuei/CyberUI#125), so the sheet draws its own heading in the default text colour. */
 .sheet-title {
+  overflow-wrap: anywhere;
   margin: 0;
   font-size: 1.25rem;
   font-weight: 700;
@@ -424,6 +437,7 @@ body {
 /* ---- Scenes ---- */
 
 .scene-result {
+  overflow-wrap: anywhere;
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.4;

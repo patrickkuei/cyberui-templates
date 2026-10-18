@@ -82,6 +82,32 @@ describe('phone rules', () => {
     expect(outside).not.toMatch(/@keyframes|\banimation\s*:(?!\s*none\b)/);
   });
 
+  // A device name can be 30 characters with no place to break (the Add form allows it).
+  // Every place that prints one must be allowed to wrap anywhere, or the page scrolls
+  // sideways at 320px and the sheet grows wider than the screen.
+  it.each(['.device-name', '.notice-text', '.sheet-title', '.scene-result'])('lets %s wrap an unbroken device name', (selector) => {
+    const escaped = selector.replace('.', '\\.');
+    expect(code).toMatch(new RegExp(`${escaped}\\s*\\{[^}]*overflow-wrap:\\s*anywhere`));
+  });
+
+  it('gives the device sheet, which is rendered outside .app, the same no-double-tap-zoom rule', () => {
+    expect(code).toMatch(/\.device-sheet :is\(a, button, label, select\)\s*\{[^}]*touch-action:\s*manipulation/);
+    expect(code).toMatch(/\.app :is\(a, button, label, select\)[,\s]/);
+  });
+
+  it('keeps the widened slider hit areas on the track and the thumb', () => {
+    expect(code).toMatch(/\.slider-control > div:last-child::before\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*-1rem 0/);
+    expect(code).toMatch(/\.slider-control \[role='slider'\]::before\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*-0\.75rem/);
+  });
+
+  it('draws a keyboard focus ring on the app bar Back button, the row buttons and the nav tabs', () => {
+    expect(code).toMatch(/:where\(\.app-bar-back, \.device-main, \.nav-tab\):focus-visible\s*\{[^}]*outline:\s*2px solid/);
+  });
+
+  it('makes the skip link a 44px target when it is shown', () => {
+    expect(code).toMatch(/\.skip-link\s*\{[^}]*min-height:\s*var\(--touch\)/);
+  });
+
   it('lets the page draw under the notch (viewport-fit=cover) and names its theme colour', () => {
     expect(html).toMatch(/<meta name="viewport"[^>]*viewport-fit=cover/);
     expect(html).toMatch(/<meta name="theme-color"/);

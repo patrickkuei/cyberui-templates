@@ -29,6 +29,7 @@ interface Target {
 type Step =
   | { name: 'start' }
   | { name: 'scanning' }
+  | { name: 'scan-failed'; message: string }
   | { name: 'results'; found: NearbyDevice[] }
   | { name: 'code' }
   | { name: 'link'; target: Target }
@@ -69,11 +70,21 @@ export function AddDeviceScreen({ devices, rooms, connection, dispatch, leave }:
     if (!scanning) return;
     const controller = new AbortController();
     setPercent(0);
+    // The Connection should honour the signal (connection/types.ts), but a
+    // screen cannot rely on it: an implementation that ignores it would
+    // otherwise move a cancelled scan on to its results. Each callback checks
+    // the signal itself. A scan that fails for another reason is shown as a
+    // failed step with Try again, never left as "Scanning…" forever.
     connection
-      .scan(setPercent, controller.signal)
-      .then((found) => setStep({ name: 'results', found }))
+      .scan((percent) => {
+        if (!controller.signal.aborted) setPercent(percent);
+      }, controller.signal)
+      .then((found) => {
+        if (!controller.signal.aborted) setStep({ name: 'results', found });
+      })
       .catch((error: unknown) => {
-        if (!isAbort(error)) throw error;
+        if (controller.signal.aborted || isAbort(error)) return;
+        setStep({ name: 'scan-failed', message: error instanceof Error ? error.message : 'Something went wrong' });
       });
     return () => controller.abort();
   }, [scanning, connection]);
@@ -123,6 +134,28 @@ export function AddDeviceScreen({ devices, rooms, connection, dispatch, leave }:
             <Button variant="secondary" onClick={toStart}>
               {CONNECT_COPY.stopScan}
             </Button>
+          </section>
+        </>
+      );
+
+    case 'scan-failed':
+      return (
+        <>
+          <ScreenTitle>{ROUTE_TITLES.add}</ScreenTitle>
+          <section className="step" aria-labelledby="step-title">
+            <h2 id="step-title" className="step-title" tabIndex={-1} ref={heading}>
+              {CONNECT_COPY.scanTitle}
+            </h2>
+            {/* role="status": a polite live region, like the link's failure. */}
+            <p role="status" className="link-status link-status--failed">
+              {`${CONNECT_COPY.scanFailed}: ${step.message}`}
+            </p>
+            <Button className="full-width" onClick={() => setStep({ name: 'scanning' })}>
+              {CONNECT_COPY.tryAgain}
+            </Button>
+            <button type="button" className="text-button" onClick={toCode}>
+              {CONNECT_COPY.enterCode}
+            </button>
           </section>
         </>
       );

@@ -1,7 +1,8 @@
 import { useReducer } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { createScriptedConnection } from '../connection';
+import { createScriptedConnection, type Connection } from '../connection';
+import { NEARBY } from '../data/nearby';
 import { createInitialState, reducer, type AppState } from '../state/reducer';
 import { AddDeviceScreen } from './AddDeviceScreen';
 
@@ -13,11 +14,19 @@ const connection = createScriptedConnection({ scanMs: 800, stepMs: 100 });
 const SCAN = 800;
 const LINK = 400 + 600;
 
-function Harness({ leave = vi.fn(), initial = createInitialState() }: { leave?: () => void; initial?: AppState }) {
+function Harness({
+  leave = vi.fn(),
+  initial = createInitialState(),
+  connection: used = connection,
+}: {
+  leave?: () => void;
+  initial?: AppState;
+  connection?: Connection;
+}) {
   const [state, dispatch] = useReducer(reducer, initial);
   return (
     <>
-      <AddDeviceScreen devices={state.devices} rooms={state.rooms} connection={connection} dispatch={dispatch} leave={leave} />
+      <AddDeviceScreen devices={state.devices} rooms={state.rooms} connection={used} dispatch={dispatch} leave={leave} />
       <div role="group" aria-label="devices">
         {state.devices.map((device) => (
           <span key={device.id}>{`${device.id}|${device.name}|${device.roomId}|${device.kind}`}</span>
@@ -308,5 +317,85 @@ describe('AddDeviceScreen', () => {
     await advance(150);
     second.unmount();
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  // The Connection contract says scan() and link() should honour their
+  // AbortSignal, but the screen defends itself against one that does not.
+  describe('with a Connection that ignores its AbortSignal', () => {
+    function stubborn() {
+      const scans: { resolve: (found: typeof NEARBY[number][]) => void; reject: (error: unknown) => void }[] = [];
+      const links: { resolve: () => void }[] = [];
+      const ignoring: Connection = {
+        scan: () =>
+          new Promise((resolve, reject) => {
+            scans.push({ resolve, reject });
+          }),
+        link: () =>
+          new Promise<void>((resolve) => {
+            links.push({ resolve });
+          }),
+      };
+      return { ignoring, scans, links };
+    }
+
+    it('stays at the start when a scan that was cancelled answers late', async () => {
+      const { ignoring, scans } = stubborn();
+      render(<Harness connection={ignoring} />);
+      press('Start scan');
+      press('Cancel');
+      scans[0]!.resolve([...NEARBY]);
+      await advance(10);
+      expect(screen.getByRole('button', { name: 'Start scan' })).toBeInTheDocument();
+      expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    });
+
+    it('stays at the start when a link that was cancelled succeeds late: it does not move on to naming the device', async () => {
+      const { ignoring, scans, links } = stubborn();
+      render(<Harness connection={ignoring} />);
+      press('Start scan');
+      scans[0]!.resolve([...NEARBY]);
+      await advance(10);
+      press(/Shelf lamp/);
+      press('Cancel');
+      links[0]!.resolve();
+      await advance(2000);
+      expect(screen.getByRole('button', { name: 'Start scan' })).toBeInTheDocument();
+      expect(screen.queryByLabelText('Device name')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('when the scan fails', () => {
+    const failing = (message: string): Connection & { scan: ReturnType<typeof vi.fn> } => ({
+      scan: vi.fn(() => Promise.reject(new Error(message))),
+      link: () => new Promise<void>(() => {}),
+    });
+
+    it('says so with the reason instead of scanning forever, and offers Try again and the code', async () => {
+      render(<Harness connection={failing('Hub unreachable')} />);
+      press('Start scan');
+      await advance(10);
+      expect(screen.getByRole('status')).toHaveTextContent('The scan failed: Hub unreachable');
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Enter a code instead' })).toBeInTheDocument();
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('scans again from Try again', async () => {
+      const connection = failing('Hub unreachable');
+      render(<Harness connection={connection} />);
+      press('Start scan');
+      await advance(10);
+      press('Try again');
+      expect(connection.scan).toHaveBeenCalledTimes(2);
+      expect(screen.getByRole('status')).toHaveTextContent('Scanning…');
+    });
+
+    it('moves focus to the failure, like every other step', async () => {
+      render(<Harness connection={failing('x')} />);
+      press('Start scan');
+      await advance(10);
+      expect(stepTitle()).toHaveFocus();
+    });
   });
 });

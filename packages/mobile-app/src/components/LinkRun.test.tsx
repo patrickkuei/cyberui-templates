@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { createScriptedConnection } from '../connection';
+import { LINK_STEPS, LinkError, createScriptedConnection, type Connection, type LinkProgress } from '../connection';
 import { LinkRun } from './LinkRun';
 
 // Everything here runs on fake timers: the scripted connection takes
@@ -132,5 +132,106 @@ describe('LinkRun', () => {
     await advance(500);
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledTimes(1);
+  });
+});
+
+// The Connection contract says link() should honour its AbortSignal, but a screen
+// cannot assume every implementation does (a real Bluetooth or MQTT client may
+// not). These tests use a Connection that ignores the signal completely and
+// settles only when the test says so.
+function stubbornConnection() {
+  const calls: { id: string; progress: (p: LinkProgress) => void; resolve: () => void; reject: (e: unknown) => void }[] = [];
+  const stubborn: Connection = {
+    scan: () => new Promise(() => {}),
+    link: (id, progress) =>
+      new Promise<void>((resolve, reject) => {
+        calls.push({ id, progress, resolve, reject });
+      }),
+  };
+  return { stubborn, calls };
+}
+
+describe('LinkRun with a Connection that ignores its AbortSignal', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+  const flush = (ms = 10) => act(async () => { await vi.advanceTimersByTimeAsync(ms); });
+
+  it('is not moved by a link it replaced: late progress and late success of the old id are ignored', async () => {
+    const { stubborn, calls } = stubbornConnection();
+    const onLinked = vi.fn();
+    const { rerender } = render(<LinkRun connection={stubborn} id="a" onLinked={onLinked} onCancel={vi.fn()} settleMs={0} />);
+    rerender(<LinkRun connection={stubborn} id="b" onLinked={onLinked} onCancel={vi.fn()} settleMs={0} />);
+    const [first, second] = calls;
+    await act(async () => { first!.progress({ step: 'pairing', percent: 50 }); });
+    expect(screen.getByRole('progressbar')).toHaveAttribute('value', '0');
+    first!.resolve();
+    await flush();
+    expect(onLinked).not.toHaveBeenCalled();
+    expect(screen.getByRole('status')).toHaveTextContent('Linking…');
+    second!.resolve();
+    await flush();
+    expect(onLinked).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores a late failure of a replaced link', async () => {
+    const { stubborn, calls } = stubbornConnection();
+    const { rerender } = render(<LinkRun connection={stubborn} id="a" onLinked={vi.fn()} onCancel={vi.fn()} />);
+    rerender(<LinkRun connection={stubborn} id="b" onLinked={vi.fn()} onCancel={vi.fn()} />);
+    calls[0]!.reject(new Error('late'));
+    await flush();
+    expect(screen.getByRole('status')).toHaveTextContent('Linking…');
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+  });
+
+  it('does nothing after it is unmounted, however late the connection answers', async () => {
+    const { stubborn, calls } = stubbornConnection();
+    const onLinked = vi.fn();
+    const { unmount } = render(<LinkRun connection={stubborn} id="a" onLinked={onLinked} onCancel={vi.fn()} settleMs={0} />);
+    unmount();
+    calls[0]!.resolve();
+    await flush();
+    expect(onLinked).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+});
+
+describe('LinkRun timers and failed rows', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+  const advance = (ms: number) => act(async () => { await vi.advanceTimersByTimeAsync(ms); });
+
+  it('leaves no timer when it is unmounted after the link finished but before it settled', async () => {
+    const onLinked = vi.fn();
+    const { unmount } = render(<LinkRun connection={connection} id="shelf-lamp" onLinked={onLinked} onCancel={vi.fn()} settleMs={300} />);
+    await advance(400);
+    expect(screen.getByRole('status')).toHaveTextContent('Linked.');
+    expect(vi.getTimerCount()).toBe(1);
+    unmount();
+    expect(vi.getTimerCount()).toBe(0);
+    await advance(1000);
+    expect(onLinked).not.toHaveBeenCalled();
+  });
+
+  it('marks the row of the step a LinkError names, even when the connection never reported that step', async () => {
+    const odd: Connection = {
+      scan: () => new Promise(() => {}),
+      link: (_id, progress) => {
+        progress({ step: LINK_STEPS[0], percent: 0 });
+        return Promise.reject(new LinkError('Rejected at the end', 'ready'));
+      },
+    };
+    render(<LinkRun connection={odd} id="x" onLinked={vi.fn()} onCancel={vi.fn()} />);
+    await advance(1);
+    const states = within(screen.getByRole('list')).getAllByRole('listitem').map((step) => step.textContent?.split(': ')[1]);
+    expect(states).toEqual(['done', 'done', 'done', 'failed']);
+    expect(screen.getByRole('status')).toHaveTextContent('The link failed: Rejected at the end');
   });
 });

@@ -100,6 +100,7 @@ export const CONNECT_COPY = {
   scanning: 'Scanning…',
   stopScan: 'Cancel',
   scanAgain: 'Scan again',
+  scanFailed: 'The scan failed',
   found: (count: number) => (count === 1 ? '1 device nearby' : `${count} devices nearby`),
   noneLeft: 'Everything the scan can find is already added.',
   enterCode: 'Enter a code instead',

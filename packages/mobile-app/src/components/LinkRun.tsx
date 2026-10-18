@@ -57,14 +57,26 @@ export function LinkRun({ connection, id, onLinked, onCancel, settleMs = 600 }: 
     const controller = new AbortController();
     let settle: ReturnType<typeof setTimeout> | undefined;
     setRun({ status: 'running', step: LINK_STEPS[0], percent: 0 });
+    // The Connection should honour its AbortSignal (connection/types.ts), but
+    // a screen cannot rely on that: an implementation that ignores it would
+    // otherwise report progress, success or failure for a link this effect has
+    // already abandoned (Cancel, the screen left, another id). Every callback
+    // below therefore checks the signal itself.
     connection
-      .link(id, ({ step, percent }) => setRun({ status: 'running', step, percent }), controller.signal)
+      .link(
+        id,
+        ({ step, percent }) => {
+          if (!controller.signal.aborted) setRun({ status: 'running', step, percent });
+        },
+        controller.signal,
+      )
       .then(() => {
+        if (controller.signal.aborted) return;
         setRun((previous) => ({ status: 'done', step: previous.step, percent: 100 }));
         settle = setTimeout(() => linked.current(), settleMs);
       })
       .catch((error: unknown) => {
-        if (isAbort(error)) return;
+        if (controller.signal.aborted || isAbort(error)) return;
         const message = error instanceof Error ? error.message : 'Something went wrong';
         setRun((previous) => ({ status: 'failed', step: error instanceof LinkError ? error.step : previous.step, percent: previous.percent, message }));
       });

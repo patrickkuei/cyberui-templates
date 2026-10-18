@@ -33,6 +33,15 @@ export class LinkError extends Error {
   }
 }
 
+/**
+ * The contract: scan() and link() SHOULD honour their AbortSignal (stop work,
+ * clear their timers, reject with an AbortError) when the screen is left or the
+ * person cancels. The screens defend anyway (components/LinkRun.tsx and
+ * screens/AddDeviceScreen.tsx check `signal.aborted` before they act on any
+ * callback), so an implementation that ignores the signal cannot move a
+ * cancelled screen on, but it does keep working in the background until it
+ * settles, so honour it.
+ */
 export interface Connection {
   /**
    * Looks for devices nearby. Calls onProgress with 0 to 100 while it works
